@@ -6,6 +6,7 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --enable-logging",
+    "postinstall": "cd backend && npm install --omit=dev",
     "dist:appimage": "electron-builder --linux AppImage",
     "dist:deb": "electron-builder --linux deb",
     "dist": "electron-builder --linux"
@@ -20,7 +21,11 @@
     "files": [
       "main.js",
       "preload.js",
+      "services/**/*",
       "prototype/**/*",
+      "backend/src/**/*",
+      "backend/package.json",
+      "backend/node_modules/**/*",
       "!prototype/screenshots/**",
       "!prototype/scraps/**"
     ],

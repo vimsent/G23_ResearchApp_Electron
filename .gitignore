@@ -1,9 +1,14 @@
 # Dependencies
 node_modules/
+backend/node_modules/
 
 # Electron build output
 dist/
 out/
+
+# Backend runtime state (user data lives in app.getPath('userData'))
+backend/data/
+backend/.env
 
 # Electron binary cache (re-downloaded on npm install)
 # If you need to commit the binary, remove this line

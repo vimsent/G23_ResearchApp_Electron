@@ -453,7 +453,7 @@ function ResearchView({ paper }) {
             if (!s) return null;
             return s.type === 'code' ? <CodeViewer source={s} /> : <PaperTabContent source={s} />;
           })()}
-          {active && active.type === 'chat' && <ChatTabContent openSourceTitles={openSourceTitles} />}
+          {active && active.type === 'chat' && <ChatPanel openSourceTitles={openSourceTitles} />}
           {active && active.type === 'chart' && <PlaceholderTab kind="chart" />}
           {active && active.type === 'canvas' && <PlaceholderTab kind="canvas" />}
         </div>
