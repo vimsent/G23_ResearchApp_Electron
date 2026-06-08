@@ -85,9 +85,9 @@ function SearchPalette({ open, onClose }) {
     }}>
       <div onClick={e => e.stopPropagation()} style={{
         width: 'min(680px, 92%)', maxHeight: '70vh',
-        background: '#fff', borderRadius: 14,
-        border: '1px solid oklch(0.9 0.008 80)',
-        boxShadow: '0 30px 80px oklch(0 0 0 / 0.25)',
+        background: 'var(--surface)', borderRadius: 14,
+        border: '1px solid var(--border)',
+        boxShadow: '0 30px 80px oklch(0 0 0 / 0.4)',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         fontFamily: 'var(--font-ui)',
       }}>
@@ -191,13 +191,13 @@ function HighlightedText({ text, tokens }) {
 const kbdStyle = {
   fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 600,
   padding: '2px 6px', borderRadius: 4,
-  background: 'oklch(0.95 0.005 80)', color: 'oklch(0.4 0.01 80)',
-  border: '1px solid oklch(0.88 0.008 80)',
+  background: 'var(--bg)', color: 'var(--muted)',
+  border: '1px solid var(--border)',
 };
 
 const emptyHintStyle = {
   padding: '40px 18px', textAlign: 'center',
-  fontSize: 13, color: 'oklch(0.55 0.01 80)',
+  fontSize: 13, color: 'var(--muted)',
   fontFamily: 'var(--font-ui)', lineHeight: 1.6,
 };
 
