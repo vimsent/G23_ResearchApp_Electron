@@ -305,7 +305,7 @@ Ver también [[SciELO]] como prueba de concepto.` },
 };
 
 // flat index of every note by id, plus its kind/owner
-function buildNoteIndex() {
+function buildStaticIndex() {
   const idx = {};
   Object.entries(OBJECT_NOTES).forEach(([cls, arr]) => arr.forEach(n => {
     idx[n.id] = { ...n, kind: 'object', classId: cls };
@@ -318,7 +318,46 @@ function buildNoteIndex() {
   })));
   return idx;
 }
-const NOTE_INDEX = buildNoteIndex();
-const TITLE_TO_ID = Object.fromEntries(Object.values(NOTE_INDEX).map(n => [n.title.toLowerCase(), n.id]));
+const STATIC_INDEX = buildStaticIndex();
 
-Object.assign(window, { NOTE_CLASSES, OBJECT_NOTES, FREE_FOLDERS, LIBRARY, NOTE_INDEX, TITLE_TO_ID });
+// NOTE_INDEX and TITLE_TO_ID are mutated whenever the vault changes (HDU-D).
+// WikiPill and NoteList look up window.NOTE_INDEX / window.TITLE_TO_ID at render
+// time, so reassigning these properties propagates on the next React re-render.
+function applyVault(vaultNotes = []) {
+  const merged = { ...STATIC_INDEX };
+  for (const v of vaultNotes) {
+    merged[v.id] = { ...v, kind: 'vault' };
+  }
+  window.NOTE_INDEX = merged;
+  window.TITLE_TO_ID = Object.fromEntries(
+    Object.values(merged).map(n => [n.title.toLowerCase(), n.id])
+  );
+}
+
+// Find every note that links to `targetTitle` via [[Title]] or [[Title|alias]].
+function findBacklinks(targetTitle, excludeId) {
+  if (!targetTitle) return [];
+  const esc = targetTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(`\\[\\[\\s*${esc}\\s*(\\||\\])`, 'i');
+  const hits = [];
+  for (const n of Object.values(window.NOTE_INDEX || {})) {
+    if (n.id === excludeId) continue;
+    const text = n.body || '';
+    const m = text.match(re);
+    if (!m) continue;
+    const idx = m.index;
+    const snippet = text
+      .slice(Math.max(0, idx - 50), Math.min(text.length, idx + 120))
+      .replace(/\s+/g, ' ')
+      .trim();
+    hits.push({ id: n.id, title: n.title, kind: n.kind, snippet });
+  }
+  return hits;
+}
+
+applyVault([]);   // seed window.NOTE_INDEX / TITLE_TO_ID from static data on first load
+
+Object.assign(window, {
+  NOTE_CLASSES, OBJECT_NOTES, FREE_FOLDERS, LIBRARY,
+  applyVault, findBacklinks,
+});

@@ -3,6 +3,7 @@ const path = require('path')
 
 const ragProcess = require('./services/ragProcess')
 const keyVault   = require('./services/keyVault')
+const notesVault = require('./services/notesVault')
 
 let mainWindow = null
 
@@ -47,8 +48,16 @@ ipcMain.handle('keys:set',  (_e, provider, key) => keyVault.set(provider, key))
 ipcMain.handle('keys:get',  (_e, provider) => keyVault.get(provider))
 ipcMain.handle('keys:available', () => keyVault.isAvailable())
 
+// ───────── IPC: Markdown notes vault ─────────
+ipcMain.handle('notes:list',   () => notesVault.list())
+ipcMain.handle('notes:read',   (_e, id) => notesVault.read(id))
+ipcMain.handle('notes:create', () => notesVault.create())
+ipcMain.handle('notes:write',  (_e, id, payload) => notesVault.write(id, payload))
+ipcMain.handle('notes:delete', (_e, id) => notesVault.remove(id))
+
 // ───────── App lifecycle ─────────
 app.whenReady().then(async () => {
+  await notesVault.init(app)
   await ragProcess.start(app, (ready) => {
     mainWindow?.webContents.send('rag:ready-changed', ready)
   })

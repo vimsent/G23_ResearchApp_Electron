@@ -19,4 +19,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     get:        (provider)      => ipcRenderer.invoke('keys:get', provider),
     available:  ()              => ipcRenderer.invoke('keys:available'),
   },
+
+  notes: {
+    list:   ()                  => ipcRenderer.invoke('notes:list'),
+    read:   (id)                => ipcRenderer.invoke('notes:read', id),
+    create: ()                  => ipcRenderer.invoke('notes:create'),
+    write:  (id, payload)       => ipcRenderer.invoke('notes:write', id, payload),
+    remove: (id)                => ipcRenderer.invoke('notes:delete', id),
+  },
 })

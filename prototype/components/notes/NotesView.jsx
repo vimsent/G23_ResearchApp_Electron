@@ -30,10 +30,49 @@ function NotesView() {
   const [activeTab, setActiveTab] = React.useState(saved.activeTab || 'algo-merge');
   const [graphOpen, setGraphOpen] = React.useState(false);
   const [folders, setFolders] = React.useState(['metodologia', 'ideas']);
+  // HDU-D: persistent vault notes loaded from disk via electronAPI.notes.*
+  const [vaultNotes, setVaultNotes] = React.useState([]);
 
   React.useEffect(() => {
     localStorage.setItem('lumen_notes', JSON.stringify({ activeItem, openTabs, activeTab }));
   }, [activeItem, openTabs, activeTab]);
+
+  // Initial vault load + keep window.NOTE_INDEX / TITLE_TO_ID in sync.
+  React.useEffect(() => {
+    if (!window.electronAPI?.notes) return;
+    window.electronAPI.notes.list().then(notes => {
+      window.applyVault(notes);
+      setVaultNotes(notes);
+    }).catch(err => console.error('[notes] vault load failed:', err));
+  }, []);
+
+  const refreshVault = React.useCallback(async () => {
+    if (!window.electronAPI?.notes) return;
+    const notes = await window.electronAPI.notes.list();
+    window.applyVault(notes);
+    setVaultNotes(notes);
+  }, []);
+
+  const createVaultNote = async () => {
+    const note = await window.electronAPI.notes.create();
+    await refreshVault();
+    setActiveItem('vault');
+    setOpenTabs(t => t.includes(note.id) ? t : [...t, note.id]);
+    setActiveTab(note.id);
+  };
+
+  // Save (debounced) — used by VaultEditor on every keystroke.
+  const saveVaultNote = React.useCallback(async (id, payload) => {
+    await window.electronAPI.notes.write(id, payload);
+    await refreshVault();
+  }, [refreshVault]);
+
+  const deleteVaultNote = async (id) => {
+    await window.electronAPI.notes.remove(id);
+    setOpenTabs(t => t.filter(x => x !== id));
+    if (activeTab === id) setActiveTab('');
+    await refreshVault();
+  };
 
   const openNote = (id) => {
     if (!id) return;
@@ -87,6 +126,11 @@ function NotesView() {
             New folder
           </button>
 
+          {/* VAULT — persistent markdown notes on disk */}
+          <div style={{ ...nv.s1SecHead, marginTop: 14 }}>Vault</div>
+          <SectionRow active={activeItem === 'vault'} onClick={() => setActiveItem('vault')}
+            icon={<SmallGlyph d={GLYPHS.note} hue={170} chroma={0.08} />} label="Mis notas .md" count={vaultNotes.length} />
+
           {/* LIBRARY */}
           <div style={{ ...nv.s1SecHead, marginTop: 14 }}>Library</div>
           <SectionRow active={activeItem === 'lib:papers'} onClick={() => setActiveItem('lib:papers')}
@@ -112,7 +156,8 @@ function NotesView() {
 
       {/* ── Sidebar 2 — note list ── */}
       <aside style={nv.s2}>
-        <NoteList activeItem={activeItem} folders={folders} activeTab={activeTab} openNote={openNote} />
+        <NoteList activeItem={activeItem} folders={folders} activeTab={activeTab} openNote={openNote}
+          vaultNotes={vaultNotes} onCreateVault={createVaultNote} />
       </aside>
 
       {/* ── Editor ── */}
@@ -122,7 +167,10 @@ function NotesView() {
             const n = window.NOTE_INDEX[id];
             if (!n) return null;
             const isActive = id === activeTab;
-            const hue = n.kind === 'object' ? window.NOTE_CLASSES[n.classId].hue : (n.kind === 'free' ? 305 : 235);
+            const hue = n.kind === 'object' ? window.NOTE_CLASSES[n.classId].hue
+                      : n.kind === 'free'   ? 305
+                      : n.kind === 'vault'  ? 170
+                      :                       235;
             return (
               <div key={id} onClick={() => setActiveTab(id)} style={{ ...nv.tab, ...(isActive ? nv.tabActive : {}) }}>
                 <span style={{ ...nv.tabDot, background: `oklch(0.6 0.13 ${hue})` }} />
@@ -134,7 +182,11 @@ function NotesView() {
         </div>
 
         <div style={nv.editorBody}>
-          {note ? <NoteEditor note={note} onOpenLink={openByTitle} /> : (
+          {note ? (
+            note.kind === 'vault'
+              ? <VaultEditor note={note} onSave={saveVaultNote} onDelete={deleteVaultNote} onOpenLink={openByTitle} />
+              : <NoteEditor note={note} onOpenLink={openByTitle} />
+          ) : (
             <div style={nv.emptyEditor}>
               <div style={nv.emptyIcon}>
                 <svg width="34" height="34" viewBox="0 0 16 16" fill="none" stroke="oklch(0.78 0.01 80)" strokeWidth="1.2"><path d="M4 2.5h8a.5.5 0 01.5.5v10a.5.5 0 01-.5.5H4a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5z" /><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3" /></svg>
@@ -166,8 +218,34 @@ function SectionRow({ active, onClick, icon, label, count }) {
 }
 
 // ── Sidebar 2 — list variants ──────────────────────────────────────────────
-function NoteList({ activeItem, folders, activeTab, openNote }) {
+function NoteList({ activeItem, folders, activeTab, openNote, vaultNotes, onCreateVault }) {
   const [kind, key] = activeItem.split(':');
+
+  if (activeItem === 'vault') {
+    return (
+      <>
+        <ListHeader title="Vault" sub={`${vaultNotes.length} notes`} accent="oklch(0.55 0.13 170)" />
+        <div style={nv.listBody}>
+          <button onClick={onCreateVault} className="nv-newfolder" style={{ marginTop: 6 }}>
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><path d="M8 4v8M4 8h8" /></svg>
+            Nueva nota
+          </button>
+          {vaultNotes.length === 0 && (
+            <div style={{ padding: '14px 18px', fontSize: 11.5, color: 'oklch(0.62 0.01 80)', fontFamily: 'var(--font-ui)', fontStyle: 'italic', lineHeight: 1.5 }}>
+              Aún no hay notas en tu vault. Crea una con + Nueva nota — se guarda como archivo .md en tu carpeta de usuario.
+            </div>
+          )}
+          {vaultNotes.map(n => (
+            <div key={n.id} className="nv-listrow" onClick={() => openNote(n.id)}
+              style={{ ...nv.listRow, ...(activeTab === n.id ? nv.listRowActive : {}) }}>
+              <div style={nv.listTitle}>{n.title}</div>
+              <div style={nv.listDate}>{(n.modified || '').slice(0, 10)}</div>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
 
   if (kind === 'obj') {
     const cls = window.NOTE_CLASSES[key];
@@ -315,6 +393,124 @@ function NoteEditor({ note, onOpenLink }) {
   );
 }
 
+// ── Vault editor (HDU-D) ───────────────────────────────────────────────────
+// Editable markdown notes persisted as .md files in userData/notes/<id>.md.
+// Autosaves 600ms after the last keystroke; resyncs local state when the
+// active note id changes; shows backlinks computed across the whole index.
+function VaultEditor({ note, onSave, onDelete, onOpenLink }) {
+  const [title, setTitle] = React.useState(note.title);
+  const [body,  setBody]  = React.useState(note.body || '');
+  const [status, setStatus] = React.useState('saved');     // 'editing' | 'saving' | 'saved'
+  const saveTimer = React.useRef(null);
+  const lastSavedRef = React.useRef({ title: note.title, body: note.body || '' });
+
+  React.useEffect(() => {
+    setTitle(note.title);
+    setBody(note.body || '');
+    setStatus('saved');
+    lastSavedRef.current = { title: note.title, body: note.body || '' };
+  }, [note.id]);
+
+  const scheduleSave = (nextTitle, nextBody) => {
+    setStatus('editing');
+    clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(async () => {
+      setStatus('saving');
+      try {
+        await onSave(note.id, { title: nextTitle, body: nextBody });
+        lastSavedRef.current = { title: nextTitle, body: nextBody };
+        setStatus('saved');
+      } catch (err) {
+        console.error('[vault] save failed', err);
+        setStatus('editing');
+      }
+    }, 600);
+  };
+
+  // Flush pending save on unmount / note switch so nothing is ever lost.
+  React.useEffect(() => () => {
+    if (saveTimer.current) {
+      clearTimeout(saveTimer.current);
+      const cur = { title, body };
+      if (cur.title !== lastSavedRef.current.title || cur.body !== lastSavedRef.current.body) {
+        onSave(note.id, cur).catch(() => {});
+      }
+    }
+  }, [note.id]);
+
+  const handleDelete = () => {
+    if (confirm(`¿Borrar la nota "${title}"? Esto elimina el archivo .md del disco.`)) {
+      onDelete(note.id);
+    }
+  };
+
+  const statusLabel = status === 'saving' ? 'Guardando…'
+                    : status === 'editing' ? 'Sin guardar'
+                    : 'Guardado';
+  const statusColor = status === 'saved' ? 'oklch(0.55 0.12 145)'
+                    : status === 'saving' ? 'oklch(0.55 0.12 80)'
+                    : 'oklch(0.55 0.12 25)';
+
+  return (
+    <div style={nv.doc}>
+      <div style={nv.vaultStatus}>
+        <span style={nv.docKindPlain}>Vault · markdown</span>
+        <div style={{ flex: 1 }} />
+        <span style={{ ...nv.vaultSaveDot, background: statusColor }} />
+        <span style={{ ...nv.vaultSaveLabel, color: statusColor }}>{statusLabel}</span>
+        <button onClick={handleDelete} style={nv.vaultDeleteBtn} title="Borrar nota">Borrar</button>
+      </div>
+
+      <input
+        value={title}
+        onChange={e => { setTitle(e.target.value); scheduleSave(e.target.value, body); }}
+        placeholder="Título de la nota"
+        style={nv.vaultTitleInput}
+      />
+
+      <textarea
+        value={body}
+        onChange={e => { setBody(e.target.value); scheduleSave(title, e.target.value); }}
+        placeholder={'Escribe en Markdown. Usa [[Otra nota]] para enlazar.\n\n# Título\n\n- lista\n- **negrita**'}
+        style={nv.vaultBodyArea}
+        spellCheck={false}
+      />
+
+      <BacklinksPanel noteId={note.id} noteTitle={title} onOpenLink={onOpenLink} />
+    </div>
+  );
+}
+
+function BacklinksPanel({ noteId, noteTitle, onOpenLink }) {
+  const links = (window.findBacklinks ? window.findBacklinks(noteTitle, noteId) : []);
+  return (
+    <div style={nv.backlinksBox}>
+      <div style={nv.backlinksHead}>
+        <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6.5 9.5l3-3M5 8L3.5 9.5a2.1 2.1 0 003 3L8 11M11 8l1.5-1.5a2.1 2.1 0 00-3-3L8 5" />
+        </svg>
+        Backlinks
+        <span style={nv.backlinksCount}>{links.length}</span>
+      </div>
+      {links.length === 0 ? (
+        <div style={nv.backlinksEmpty}>
+          Ninguna nota enlaza aquí todavía. Usa <code style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, background: 'oklch(0.96 0.005 80)', padding: '1px 5px', borderRadius: 3 }}>[[{noteTitle || 'Título'}]]</code> en otra nota para crear el enlace.
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+          {links.map(l => (
+            <div key={l.id} className="nv-listrow" onClick={() => onOpenLink && onOpenLink(l.title)}
+              style={nv.backlinkRow}>
+              <div style={nv.backlinkTitle}>{l.title}</div>
+              <div style={nv.backlinkSnippet}>…{l.snippet}…</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Graph fullscreen overlay ───────────────────────────────────────────────
 function GraphOverlay({ onClose }) {
   const wrapRef = React.useRef(null);
@@ -442,6 +638,23 @@ const nv = {
 
   emptyEditor: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 14, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', fontSize: 13 },
   emptyIcon: { opacity: 0.7 },
+
+  // Vault editor (HDU-D)
+  vaultStatus: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, paddingBottom: 12, borderBottom: '1px solid oklch(0.94 0.006 80)' },
+  vaultSaveDot: { width: 7, height: 7, borderRadius: '50%', transition: 'background 0.2s' },
+  vaultSaveLabel: { fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-ui)', transition: 'color 0.2s' },
+  vaultDeleteBtn: { fontSize: 11, padding: '3px 10px', borderRadius: 6, border: '1px solid oklch(0.88 0.04 25)', background: '#fff', color: 'oklch(0.5 0.13 25)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 500 },
+  vaultTitleInput: { width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: 30, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-ui)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16, padding: 0 },
+  vaultBodyArea: { width: '100%', minHeight: 360, border: '1px solid oklch(0.93 0.008 80)', borderRadius: 10, padding: '14px 18px', fontSize: 13.5, color: 'oklch(0.2 0.01 80)', background: 'oklch(0.992 0.003 80)', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-mono)', lineHeight: 1.65, boxSizing: 'border-box' },
+
+  // Backlinks panel
+  backlinksBox: { marginTop: 24, padding: '14px 16px', background: 'oklch(0.985 0.005 80)', border: '1px solid oklch(0.94 0.006 80)', borderRadius: 10 },
+  backlinksHead: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'oklch(0.4 0.01 80)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)' },
+  backlinksCount: { fontSize: 10, fontFamily: 'var(--font-mono)', background: 'var(--accent-light)', color: 'var(--accent)', borderRadius: 9, padding: '1px 7px', marginLeft: 4 },
+  backlinksEmpty: { fontSize: 12, color: 'oklch(0.58 0.01 80)', fontFamily: 'var(--font-ui)', fontStyle: 'italic', lineHeight: 1.55, marginTop: 8 },
+  backlinkRow: { padding: '8px 10px', background: '#fff', border: '1px solid oklch(0.94 0.006 80)', borderRadius: 7, cursor: 'pointer' },
+  backlinkTitle: { fontSize: 12.5, fontWeight: 600, color: 'oklch(0.22 0.02 var(--accent-hue, 260))', fontFamily: 'var(--font-ui)', marginBottom: 3 },
+  backlinkSnippet: { fontSize: 11.5, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.45, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
 
   // overlay
   overlay: { position: 'absolute', inset: 0, background: 'oklch(0.2 0.01 80 / 0.42)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 40, animation: 'fadeIn 0.14s ease' },
