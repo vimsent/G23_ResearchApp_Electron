@@ -98,6 +98,8 @@
 <script type="text/babel" src="components/research/ResearchView.jsx"></script>
 <script type="text/babel" src="components/research/WebBrowserTab.jsx"></script>
 <script type="text/babel" src="components/research/ChatPanel.jsx"></script>
+<script type="text/babel" src="components/search/SearchIndex.jsx"></script>
+<script type="text/babel" src="components/search/SearchPalette.jsx"></script>
 <script type="text/babel">
 const PAPER_OVERRIDES = {
   'paper-1': { title: 'Diamond OA Framework', fullTitle: 'Open Knowledge Infrastructure: A Framework for Diamond Open Access', workspacePath: '~/Documents/LumenWorkspace / papers / diamond-oa-framework', status: 'Draft' },
@@ -141,10 +143,43 @@ function App() {
   const [view, setView] = React.useState(saved.view || 'home');
   const [activePaper, setActivePaper] = React.useState(saved.paper || 'paper-1');
   const [tweaks, setTweaks] = React.useState(TWEAK_DEFAULTS);
+  const [paletteOpen, setPaletteOpen] = React.useState(false);
 
   React.useEffect(() => {
     localStorage.setItem('lumen_nav', JSON.stringify({ view, paper: activePaper }));
   }, [view, activePaper]);
+
+  // Global Ctrl/Cmd+K → open search palette (HDU-E)
+  React.useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletteOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  // Search result navigation cascade: each level consumes window.__lumenPendingOpen
+  // on the 'lumen:nav' event and re-checks on its own mount to handle the case
+  // where the consumer wasn't mounted yet when the event was dispatched.
+  React.useEffect(() => {
+    const handler = () => {
+      if (window.__lumenPendingOpen) setView('pkm');
+    };
+    window.addEventListener('lumen:nav', handler);
+    return () => window.removeEventListener('lumen:nav', handler);
+  }, []);
+
+  // Eagerly load the vault into window.NOTE_INDEX so the search palette can
+  // find vault notes even before the user has opened the Notes page.
+  React.useEffect(() => {
+    if (!window.electronAPI?.notes) return;
+    window.electronAPI.notes.list()
+      .then(notes => window.applyVault(notes))
+      .catch(() => {});
+  }, []);
 
   React.useEffect(() => {
     document.documentElement.style.setProperty('--accent', `oklch(0.42 0.14 ${tweaks.accentHue})`);
@@ -234,6 +269,7 @@ function App() {
         {view === 'community' && <CommunityView />}
         {view === 'profile' && <ProfileView />}
       </main>
+      <SearchPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   );
 }

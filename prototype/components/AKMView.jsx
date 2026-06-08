@@ -318,6 +318,16 @@ function AKMView() {
   });
   React.useEffect(() => { localStorage.setItem('lumen_akm_page', JSON.stringify(page)); }, [page]);
 
+  // HDU-E: cascade — when a search result is pending, switch to the Notes page.
+  // Check on mount + on every 'lumen:nav' so we cover both ways the intent can
+  // arrive (event before this view mounted vs. after).
+  React.useEffect(() => {
+    const check = () => { if (window.__lumenPendingOpen) setPage('notes'); };
+    check();
+    window.addEventListener('lumen:nav', check);
+    return () => window.removeEventListener('lumen:nav', check);
+  }, []);
+
   const [lines, setLines] = React.useState(RESEARCH_LINES);
   const [hypotheses, setHypotheses] = React.useState(HYPOTHESES);
   const [selectedLine, setSelectedLine] = React.useState('rl1');

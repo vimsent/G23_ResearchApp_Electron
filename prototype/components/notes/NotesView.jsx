@@ -78,7 +78,30 @@ function NotesView() {
     if (!id) return;
     setOpenTabs(t => t.includes(id) ? t : [...t, id]);
     setActiveTab(id);
+    // Auto-switch the sidebar to the section that owns this note so the
+    // list highlights it. Falls back gracefully if id isn't in the index yet.
+    const n = window.NOTE_INDEX?.[id];
+    if (n) {
+      if (n.kind === 'vault')        setActiveItem('vault');
+      else if (n.kind === 'object')  setActiveItem(`obj:${n.classId}`);
+      else if (n.kind === 'free')    setActiveItem(`free:${n.folderId}`);
+      else if (n.kind === 'library') setActiveItem(`lib:${n.section}`);
+    }
   };
+
+  // HDU-E: cascade tail — consume the pending search result and open it.
+  React.useEffect(() => {
+    const check = () => {
+      const id = window.__lumenPendingOpen;
+      if (!id) return;
+      if (!window.NOTE_INDEX?.[id]) return;   // vault still loading; will retry on next event
+      window.__lumenPendingOpen = null;
+      openNote(id);
+    };
+    check();
+    window.addEventListener('lumen:nav', check);
+    return () => window.removeEventListener('lumen:nav', check);
+  }, [vaultNotes]);    // re-run check after vault loads so deferred opens resolve
   const openByTitle = (title) => {
     const id = window.TITLE_TO_ID[title.toLowerCase()];
     if (id) openNote(id);
