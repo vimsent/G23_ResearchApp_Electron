@@ -228,6 +228,9 @@ function NewTabPicker({ onPick, sources }) {
           <button onClick={() => onPick({ type: 'chat' })} style={pickerBtn}>
             <ChatIcon size={12} /> Chat
           </button>
+          <button onClick={() => onPick({ type: 'web' })} style={pickerBtn}>
+            <span style={{ fontSize: 13 }}>🌐</span> <span style={{ flex: 1 }}>Navegar web</span>
+          </button>
           <button onClick={() => onPick({ type: 'chart' })} style={pickerBtn}>
             <ChartIcon size={12} /> Gráfico <span style={{ color: 'var(--muted)', fontSize: 10, marginLeft: 'auto' }}>soon</span>
           </button>
@@ -287,10 +290,16 @@ function ResearchView({ paper }) {
       if (s) openSource(s);
     } else {
       const id = `${pick.type}-${Date.now()}`;
-      const titles = { chat: 'New chat', chart: 'New chart', canvas: 'New canvas' };
-      setTabs(t => [...t, { id, type: pick.type, title: titles[pick.type] }]);
+      const titles = { chat: 'New chat', chart: 'New chart', canvas: 'New canvas', web: 'Scholar' };
+      const tab = { id, type: pick.type, title: titles[pick.type] };
+      if (pick.type === 'web') tab.url = 'https://scholar.google.com';
+      setTabs(t => [...t, tab]);
       setActiveTab(id);
     }
+  };
+
+  const updateTab = (id, patch) => {
+    setTabs(ts => ts.map(t => t.id === id ? { ...t, ...patch } : t));
   };
 
   const closeTab = (id, e) => {
@@ -389,6 +398,7 @@ function ResearchView({ paper }) {
                 {t.type === 'chat' && <ChatIcon color={isActive ? 'var(--accent)' : 'var(--muted)'} size={11} />}
                 {t.type === 'chart' && <ChartIcon color={isActive ? 'var(--accent)' : 'var(--muted)'} size={11} />}
                 {t.type === 'canvas' && <CanvasIcon color={isActive ? 'var(--accent)' : 'var(--muted)'} size={11} />}
+                {t.type === 'web' && <span style={{ fontSize: 11, lineHeight: 1 }}>🌐</span>}
                 <span style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.title}</span>
                 <button onClick={(e) => closeTab(t.id, e)} style={{
                   background: 'transparent', border: 'none', cursor: 'pointer',
@@ -409,7 +419,24 @@ function ResearchView({ paper }) {
         </div>
 
         {/* Tab content */}
-        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0, position: 'relative' }}>
+          {/* Web tabs are kept mounted (display:none when inactive) to preserve
+              navigation history and process state across tab switches. */}
+          {tabs.filter(t => t.type === 'web').map(t => (
+            <div key={t.id} style={{
+              position: 'absolute', inset: 0,
+              display: t.id === activeTab ? 'flex' : 'none',
+              flexDirection: 'column',
+            }}>
+              <WebBrowserTab
+                tabId={t.id}
+                initialUrl={t.url || 'https://scholar.google.com'}
+                onTitleChange={(title) => updateTab(t.id, { title: title.slice(0, 60) })}
+                onUrlChange={(url) => updateTab(t.id, { url })}
+              />
+            </div>
+          ))}
+
           {!active && (
             <div style={{
               flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -418,7 +445,7 @@ function ResearchView({ paper }) {
             }}>
               <div style={{ opacity: 0.4 }}><PaperIcon color="var(--muted)" size={32} /></div>
               <div style={{ fontSize: 13 }}>Open a source from the panel to start</div>
-              <div style={{ fontSize: 11.5, color: 'oklch(0.7 0.01 80)' }}>or use + to add a chat, chart, or canvas tab</div>
+              <div style={{ fontSize: 11.5, color: 'oklch(0.7 0.01 80)' }}>or use + to add a chat, web, chart, or canvas tab</div>
             </div>
           )}
           {active && active.type === 'source' && (() => {
