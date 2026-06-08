@@ -1,0 +1,32 @@
+{
+  "name": "g23-researchapp",
+  "version": "0.1.0",
+  "description": "Lumen — Academic Research Platform",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging",
+    "dist:appimage": "electron-builder --linux AppImage",
+    "dist:deb": "electron-builder --linux deb",
+    "dist": "electron-builder --linux"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.0"
+  },
+  "build": {
+    "appId": "cl.usm.g23.lumen",
+    "productName": "Lumen",
+    "files": [
+      "main.js",
+      "preload.js",
+      "prototype/**/*",
+      "!prototype/screenshots/**",
+      "!prototype/scraps/**"
+    ],
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "category": "Education"
+    }
+  }
+}

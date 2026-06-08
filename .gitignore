@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Electron build output
+dist/
+out/
+
+# Electron binary cache (re-downloaded on npm install)
+# If you need to commit the binary, remove this line
+prototype/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Claude Code memory
+.claude/
+
+# Logs
+npm-debug.log*
+*.log
