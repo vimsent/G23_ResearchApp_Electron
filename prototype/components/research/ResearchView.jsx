@@ -267,7 +267,23 @@ function ResearchView({ paper }) {
   const [activeTab, setActiveTab] = React.useState(null);
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [notes, setNotes] = React.useState('');
+  const [captures, setCaptures] = React.useState([]);
+  const [toast, setToast] = React.useState(null);
+  const toastTimer = React.useRef(null);
   const pickerRef = React.useRef(null);
+
+  const showToast = (msg, ok = true) => {
+    clearTimeout(toastTimer.current);
+    setToast({ msg, ok });
+    toastTimer.current = setTimeout(() => setToast(null), 2800);
+  };
+
+  const handleCapture = ({ text, url, title }) => {
+    if (!text) { showToast('Selecciona texto en la página primero', false); return; }
+    const ts = new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+    setCaptures(cs => [{ id: Date.now(), text, url, title, ts }, ...cs]);
+    showToast('Captura guardada');
+  };
 
   React.useEffect(() => {
     const onDoc = (e) => { if (pickerRef.current && !pickerRef.current.contains(e.target)) setPickerOpen(false); };
@@ -366,6 +382,48 @@ function ResearchView({ paper }) {
                 lineHeight: 1.5,
               }} />
           </div>
+
+          {captures.length > 0 && (
+            <>
+              <div style={{ height: 1, background: 'var(--border)', margin: '2px 14px 0' }} />
+              <SectionTitle hint={String(captures.length)}>Capturas web</SectionTitle>
+              <div style={{ padding: '0 12px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                {captures.map(c => (
+                  <div key={c.id} style={{
+                    background: 'var(--surface)', border: '1px solid var(--border)',
+                    borderRadius: 7, padding: '8px 10px', position: 'relative',
+                  }}>
+                    <div style={{
+                      fontSize: 11.5, fontStyle: 'italic', color: 'var(--text)',
+                      lineHeight: 1.4, borderLeft: '2px solid var(--accent)',
+                      paddingLeft: 6, marginBottom: 4,
+                      display: '-webkit-box', WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                    }}>
+                      {c.text}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--muted)', lineHeight: 1.3 }}>
+                      {c.title
+                        ? (c.title.length > 40 ? c.title.slice(0, 40) + '…' : c.title)
+                        : (() => { try { return new URL(c.url).hostname } catch { return c.url } })()
+                      } · {c.ts}
+                    </div>
+                    <button
+                      onClick={() => setCaptures(cs => cs.filter(x => x.id !== c.id))}
+                      title="Descartar"
+                      style={{
+                        position: 'absolute', top: 5, right: 6,
+                        background: 'transparent', border: 'none',
+                        cursor: 'pointer', color: 'var(--muted)',
+                        fontSize: 13, lineHeight: 1, padding: '1px 3px',
+                        borderRadius: 3, fontFamily: 'var(--font-ui)',
+                      }}
+                    >×</button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -433,9 +491,25 @@ function ResearchView({ paper }) {
                 initialUrl={t.url || 'https://scholar.google.com'}
                 onTitleChange={(title) => updateTab(t.id, { title: title.slice(0, 60) })}
                 onUrlChange={(url) => updateTab(t.id, { url })}
+                onCapture={handleCapture}
               />
             </div>
           ))}
+
+          {/* Toast notification */}
+          {toast && (
+            <div style={{
+              position: 'absolute', bottom: 18, right: 18, zIndex: 999,
+              background: toast.ok ? 'oklch(0.28 0.1 145)' : 'oklch(0.38 0.14 25)',
+              color: '#fff', padding: '8px 16px', borderRadius: 8,
+              fontSize: 12.5, fontFamily: 'var(--font-ui)', fontWeight: 600,
+              animation: 'fadeIn 0.18s ease',
+              boxShadow: '0 4px 18px oklch(0 0 0 / 0.22)',
+              pointerEvents: 'none',
+            }}>
+              {toast.ok ? '✓ ' : '⚠ '}{toast.msg}
+            </div>
+          )}
 
           {!active && (
             <div style={{

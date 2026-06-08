@@ -1,13 +1,21 @@
 // WebBrowserTab — embedded Chromium webview with URL bar, history nav, bookmarks.
 // Used inside ResearchView as one of the openable tab types.
+// HDU-C: webview-preload injects Ctrl+Shift+S capture; toolbar button uses executeJavaScript.
 
-function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
+// Resolve the webview preload path relative to this app's prototype/ directory.
+// document.baseURI = file:///…/prototype/index.html → preload at file:///…/prototype/webview-preload.js
+const WEBVIEW_PRELOAD_URL = new URL('./webview-preload.js', document.baseURI).href
+
+function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange, onCapture }) {
   const [addressBar, setAddressBar] = React.useState(initialUrl)
   const [loading, setLoading] = React.useState(false)
   const [canBack, setCanBack] = React.useState(false)
   const [canForward, setCanForward] = React.useState(false)
   const viewRef = React.useRef(null)
   const isReady = React.useRef(false)
+  // Keep onCapture stable across re-renders without re-registering DOM listeners.
+  const onCaptureRef = React.useRef(onCapture)
+  React.useEffect(() => { onCaptureRef.current = onCapture }, [onCapture])
 
   React.useEffect(() => {
     const wv = viewRef.current
@@ -33,6 +41,11 @@ function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
       const title = e.title || ''
       onTitleChange && onTitleChange(title || 'Browser')
     }
+    const onIpcMessage = (e) => {
+      if (e.channel === 'web-capture') {
+        onCaptureRef.current && onCaptureRef.current(e.args[0] || {})
+      }
+    }
 
     wv.addEventListener('dom-ready',            onReady)
     wv.addEventListener('did-start-loading',    onStart)
@@ -40,6 +53,7 @@ function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
     wv.addEventListener('did-navigate',         onNavigate)
     wv.addEventListener('did-navigate-in-page', onNavigate)
     wv.addEventListener('page-title-updated',   onTitle)
+    wv.addEventListener('ipc-message',          onIpcMessage)
 
     return () => {
       wv.removeEventListener('dom-ready',            onReady)
@@ -48,6 +62,7 @@ function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
       wv.removeEventListener('did-navigate',         onNavigate)
       wv.removeEventListener('did-navigate-in-page', onNavigate)
       wv.removeEventListener('page-title-updated',   onTitle)
+      wv.removeEventListener('ipc-message',          onIpcMessage)
     }
   }, [])
 
@@ -55,7 +70,6 @@ function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
     let url = (raw || '').trim()
     if (!url) return
     if (!/^https?:\/\//i.test(url)) {
-      // If it looks like a search query (has spaces or no dot), send to DuckDuckGo
       if (url.includes(' ') || !url.includes('.')) {
         url = 'https://duckduckgo.com/?q=' + encodeURIComponent(url)
       } else {
@@ -65,6 +79,19 @@ function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
     setAddressBar(url)
     const wv = viewRef.current
     if (wv && isReady.current) wv.loadURL(url).catch(() => {})
+  }
+
+  // Capture button: uses executeJavaScript so it works even when page blocks keydown.
+  const handleCaptureBtn = async () => {
+    const wv = viewRef.current
+    if (!wv || !onCaptureRef.current) return
+    try {
+      const [text, title] = await Promise.all([
+        wv.executeJavaScript('window.getSelection().toString()'),
+        wv.executeJavaScript('document.title'),
+      ])
+      onCaptureRef.current({ text: (text || '').trim(), url: addressBar, title: title || '' })
+    } catch {}
   }
 
   const BOOKMARKS = [
@@ -133,6 +160,20 @@ function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
             }}>{b.label}</button>
           ))}
         </div>
+
+        {/* Capture button — also triggered by Ctrl+Shift+S inside the webview */}
+        <button
+          onClick={handleCaptureBtn}
+          title="Capturar selección (Ctrl+Shift+S)"
+          style={{
+            background: 'var(--accent-light)', border: '1px solid oklch(0.8 0.06 260)',
+            borderRadius: 6, padding: '3px 10px', fontSize: 11, fontWeight: 600,
+            color: 'var(--accent)', cursor: 'pointer', fontFamily: 'var(--font-ui)',
+            flexShrink: 0,
+          }}
+        >
+          Capturar
+        </button>
       </div>
 
       {/* Real Chromium webview */}
@@ -140,6 +181,7 @@ function WebBrowserTab({ tabId, initialUrl, onTitleChange, onUrlChange }) {
         ref={viewRef}
         src={initialUrl}
         partition="persist:research"
+        preload={WEBVIEW_PRELOAD_URL}
         allowpopups="true"
         style={{ flex: 1, width: '100%', height: '100%', display: 'flex' }}
       />
