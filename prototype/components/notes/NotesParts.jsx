@@ -12,9 +12,9 @@ function parseInline(text, onOpenLink, kp) {
       const [target, alias] = raw.split('|');
       nodes.push(<WikiPill key={`${kp}-w${k++}`} target={target.trim()} label={(alias || target).trim()} onOpenLink={onOpenLink} />);
     } else if (m[3] !== undefined) {
-      nodes.push(<strong key={`${kp}-b${k++}`} style={{ fontWeight: 700, color: 'oklch(0.18 0.015 80)' }}>{m[3]}</strong>);
+      nodes.push(<strong key={`${kp}-b${k++}`} style={{ fontWeight: 700, color: 'var(--text)' }}>{m[3]}</strong>);
     } else if (m[4] !== undefined) {
-      nodes.push(<em key={`${kp}-i${k++}`} style={{ fontStyle: 'italic', color: 'oklch(0.32 0.01 80)' }}>{m[4]}</em>);
+      nodes.push(<em key={`${kp}-i${k++}`} style={{ fontStyle: 'italic', color: 'var(--text-soft)' }}>{m[4]}</em>);
     } else if (m[5] !== undefined) {
       nodes.push(<code key={`${kp}-c${k++}`} style={npStyles.inlineCode}>{m[5]}</code>);
     }
@@ -159,7 +159,7 @@ function ConceptGraph({ width, height, large = false }) {
       {GRAPH_EDGES.map(([a, b], i) => {
         const na = byId[a], nb = byId[b];
         return <line key={i} x1={nx(na)} y1={ny(na)} x2={nx(nb)} y2={ny(nb)}
-          stroke={large ? 'oklch(0.84 0.01 80)' : 'oklch(0.86 0.01 80)'} strokeWidth={large ? 1.4 : 0.7} />;
+          stroke={large ? 'var(--muted)' : 'var(--border)'} strokeWidth={large ? 1.4 : 0.7} />;
       })}
       {GRAPH_NODES.map((n, i) => {
         const r = baseR * (n.r || 1);
@@ -168,7 +168,7 @@ function ConceptGraph({ width, height, large = false }) {
             <circle cx={nx(n)} cy={ny(n)} r={r} fill={col(n)} stroke="#fff" strokeWidth={large ? 2 : 1} />
             {large && (
               <text x={nx(n) + r + 6} y={ny(n) + 4} fontSize="12.5" fontFamily="var(--font-ui)"
-                fill="oklch(0.3 0.01 80)" fontWeight="500">{n.label}</text>
+                fill="var(--text-soft)" fontWeight="500">{n.label}</text>
             )}
           </g>
         );
@@ -188,20 +188,20 @@ const npStyles = {
     verticalAlign: 'baseline', transition: 'all 0.12s',
   },
   wikipillMissing: {
-    background: 'oklch(0.96 0.005 80)', color: 'oklch(0.55 0.01 80)',
-    border: '1px dashed oklch(0.82 0.01 80)',
+    background: 'var(--surface-2)', color: 'var(--muted)',
+    border: '1px dashed var(--muted)',
   },
   inlineCode: {
     fontFamily: 'var(--font-mono)', fontSize: '0.86em',
-    background: 'oklch(0.955 0.006 80)', color: 'oklch(0.4 0.06 320)',
-    padding: '1px 5px', borderRadius: 4, border: '1px solid oklch(0.93 0.006 80)',
+    background: 'var(--surface-2)', color: 'oklch(0.4 0.06 320)',
+    padding: '1px 5px', borderRadius: 4, border: '1px solid var(--border)',
   },
-  heading: { fontFamily: 'var(--font-ui)', fontWeight: 700, color: 'oklch(0.15 0.015 80)', lineHeight: 1.3, marginBottom: 8, letterSpacing: '-0.01em' },
-  para: { fontFamily: 'var(--font-ui)', fontSize: 14.5, color: 'oklch(0.28 0.01 80)', lineHeight: 1.78, margin: '0 0 12px' },
-  quote: { borderLeft: '3px solid var(--accent)', background: 'oklch(0.985 0.008 var(--accent-hue, 260))', padding: '8px 14px', margin: '0 0 14px', borderRadius: '0 6px 6px 0', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'oklch(0.4 0.02 80)', lineHeight: 1.7, fontStyle: 'italic' },
+  heading: { fontFamily: 'var(--font-ui)', fontWeight: 700, color: 'var(--text)', lineHeight: 1.3, marginBottom: 8, letterSpacing: '-0.01em' },
+  para: { fontFamily: 'var(--font-ui)', fontSize: 14.5, color: 'var(--text)', lineHeight: 1.78, margin: '0 0 12px' },
+  quote: { borderLeft: '3px solid var(--accent)', background: 'var(--accent-light)', padding: '8px 14px', margin: '0 0 14px', borderRadius: '0 6px 6px 0', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-soft)', lineHeight: 1.7, fontStyle: 'italic' },
   ul: { listStyle: 'none', margin: '0 0 14px', padding: 0, display: 'flex', flexDirection: 'column', gap: 6 },
   ol: { margin: '0 0 14px 20px', padding: 0, display: 'flex', flexDirection: 'column', gap: 6 },
-  li: { fontFamily: 'var(--font-ui)', fontSize: 14.5, color: 'oklch(0.28 0.01 80)', lineHeight: 1.7, display: 'flex', alignItems: 'flex-start', gap: 9 },
+  li: { fontFamily: 'var(--font-ui)', fontSize: 14.5, color: 'var(--text)', lineHeight: 1.7, display: 'flex', alignItems: 'flex-start', gap: 9 },
   bullet: { width: 5, height: 5, borderRadius: '50%', background: 'var(--accent)', marginTop: 9, flexShrink: 0 },
 };
 

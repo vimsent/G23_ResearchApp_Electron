@@ -82,7 +82,7 @@ const DOMAIN_META = {
   'scielo.org':                { title: 'SciELO', letter: 'S', color: 'oklch(0.58 0.16 50)' },
 };
 const BOOKMARKS = ['arxiv.org', 'scholar.google.com', 'pubmed.ncbi.nlm.nih.gov', 'zenodo.org', 'scielo.org'];
-const metaFor = (d) => DOMAIN_META[d] || { title: d, letter: (d[0] || '?').toUpperCase(), color: 'oklch(0.55 0.02 80)' };
+const metaFor = (d) => DOMAIN_META[d] || { title: d, letter: (d[0] || '?').toUpperCase(), color: 'var(--muted)' };
 
 const TYPE_ICON = {
   pdf: 'M3 2h7l4 4v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm7 0v4h4',
@@ -96,8 +96,8 @@ const LICENSE_COLOR = {
   'CC BY':       { bg: 'oklch(0.93 0.07 160)', text: 'oklch(0.35 0.12 160)' },
   'OA':          { bg: 'oklch(0.93 0.06 260)', text: 'oklch(0.38 0.13 260)' },
   'restricted':  { bg: 'oklch(0.94 0.03 30)',  text: 'oklch(0.45 0.1 30)'  },
-  'own':         { bg: 'oklch(0.94 0.03 80)',  text: 'oklch(0.45 0.08 80)' },
-  'unknown':     { bg: 'oklch(0.93 0.01 80)',  text: 'oklch(0.55 0.01 80)' },
+  'own':         { bg: 'var(--surface-2)',  text: 'oklch(0.45 0.08 80)' },
+  'unknown':     { bg: 'var(--border)',  text: 'var(--muted)' },
 };
 
 function SourceIcon({ type, size = 14 }) {
@@ -401,7 +401,7 @@ function LibraryView({ onOpenPaper }) {
             <div style={lb.sideScroll}>
             <div style={lb.sideSearchWrap}>
               <div style={lb.sideSearchInner}>
-                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="oklch(0.6 0.01 80)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                   <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
                 </svg>
                 <input
@@ -491,7 +491,7 @@ function LibraryView({ onOpenPaper }) {
 
               {/* Inline search lives in the tabs bar — matches the toolbar density */}
               <div style={lb.inlineSearchWrap}>
-                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="oklch(0.55 0.01 80)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)' }}>
+                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)' }}>
                   <circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/>
                 </svg>
                 <input
@@ -539,7 +539,7 @@ function LibraryView({ onOpenPaper }) {
                         </div>
                       </div>
                       <div style={lb.sourceRight}>
-                        <div style={{ ...lb.statusDot, background: source.status === 'read' ? 'oklch(0.55 0.12 170)' : source.status === 'reading' ? 'oklch(0.65 0.12 80)' : 'oklch(0.84 0.02 80)' }} title={source.status} />
+                        <div style={{ ...lb.statusDot, background: source.status === 'read' ? 'oklch(0.55 0.12 170)' : source.status === 'reading' ? 'oklch(0.65 0.12 80)' : 'var(--muted)' }} title={source.status} />
                       </div>
                     </div>
                   ))}
@@ -604,7 +604,7 @@ function LibraryView({ onOpenPaper }) {
               {!showBrowser && activeSource && (
                 <div style={lb.detailFull}>
                   <div style={lb.detailHeader}>
-                    <div style={{ ...lb.typeIcon, color: 'oklch(0.42 0.14 260)' }}>
+                    <div style={{ ...lb.typeIcon, color: 'var(--accent)' }}>
                       <SourceIcon type={activeSource.type} />
                     </div>
                     <div style={{ flex: 1 }}>
@@ -629,7 +629,7 @@ function LibraryView({ onOpenPaper }) {
                     </div>
                     <div style={lb.detailCard}>
                       <div style={lb.detailLabel}>Linked paper</div>
-                      <div style={{ fontSize: 13, color: activeSource.paper ? 'oklch(0.42 0.14 260)' : 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' }}>
+                      <div style={{ fontSize: 13, color: activeSource.paper ? 'var(--accent)' : 'var(--muted)', fontFamily: 'var(--font-ui)' }}>
                         {activeSource.paper || 'Not linked'}
                       </div>
                     </div>
@@ -652,7 +652,7 @@ function LibraryView({ onOpenPaper }) {
               {!showBrowser && activePaper && (
                 <div style={lb.detailFull}>
                   <div style={lb.detailHeader}>
-                    <div style={{ ...lb.typeIcon, color: 'oklch(0.42 0.14 260)' }}><CatIcon id="pdf" /></div>
+                    <div style={{ ...lb.typeIcon, color: 'var(--accent)' }}><CatIcon id="pdf" /></div>
                     <div style={{ flex: 1 }}>
                       <div style={lb.detailType}>PAPER WORKSPACE</div>
                       <div style={lb.detailTitle}>{activePaper.label}</div>
@@ -740,7 +740,7 @@ function LibraryView({ onOpenPaper }) {
                           <button style={lb.navIconBtn} title="Back">
                             <svg width={15} height={15} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M10 3l-5 5 5 5"/></svg>
                           </button>
-                          <button style={{ ...lb.navIconBtn, color: 'oklch(0.7 0.01 80)' }} title="Forward">
+                          <button style={{ ...lb.navIconBtn, color: 'var(--muted)' }} title="Forward">
                             <svg width={15} height={15} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3l5 5-5 5"/></svg>
                           </button>
                           <button style={lb.navIconBtn} title="Reload" onClick={() => navigateTo(browserUrl)}>
@@ -783,7 +783,7 @@ function LibraryView({ onOpenPaper }) {
 
                       {/* bookmarks bar */}
                       <div style={lb.bookmarksBar}>
-                        <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="oklch(0.6 0.01 80)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: 2 }}><path d="M4 2.5h8a.5.5 0 01.5.5v10.5L8 11l-4.5 2.5V3a.5.5 0 01.5-.5z"/></svg>
+                        <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginRight: 2 }}><path d="M4 2.5h8a.5.5 0 01.5.5v10.5L8 11l-4.5 2.5V3a.5.5 0 01.5-.5z"/></svg>
                         {BOOKMARKS.map(domain => {
                           const m = metaFor(domain);
                           return (
@@ -812,7 +812,7 @@ function LibraryView({ onOpenPaper }) {
                               <span style={{ ...lb.siteLogo, background: metaFor(browserUrl).color }}>{metaFor(browserUrl).letter}</span>
                               <span style={lb.siteName}>{currentPage.site}</span>
                               <div style={lb.siteSearch}>
-                                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="oklch(0.6 0.01 80)" strokeWidth="1.5" strokeLinecap="round"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
                                 {currentPage.query}
                               </div>
                             </div>
@@ -843,7 +843,7 @@ function LibraryView({ onOpenPaper }) {
                         ) : (
                           <div style={lb.blankPage}>
                             <div style={lb.blankIcon}>
-                              <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="oklch(0.75 0.01 80)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg>
+                              <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg>
                             </div>
                             <div style={lb.blankTitle}>{urlParts.domain || 'New tab'}</div>
                             <div style={lb.blankSub}>Press Enter in the address bar to load, or pick a bookmark above.</div>
@@ -955,7 +955,7 @@ function SideItem({ active, onClick, icon, label, badge, badgeKind = 'neutral' }
     ? { background: 'oklch(0.94 0.05 60)', color: 'oklch(0.45 0.1 60)' }
     : badgeKind === 'private'
     ? { background: 'oklch(0.94 0.05 25)', color: 'oklch(0.45 0.12 25)' }
-    : { background: 'oklch(0.94 0.008 80)', color: 'oklch(0.5 0.01 80)' };
+    : { background: 'var(--surface-2)', color: 'var(--muted)' };
   return (
     <button
       onClick={onClick}
@@ -963,10 +963,10 @@ function SideItem({ active, onClick, icon, label, badge, badgeKind = 'neutral' }
       onMouseLeave={() => setHover(false)}
       style={{
         ...lb.sideItem,
-        background: active ? '#fff' : hover ? 'oklch(0.98 0.005 80)' : 'transparent',
-        color: active ? 'oklch(0.13 0.015 80)' : 'oklch(0.4 0.01 80)',
+        background: active ? '#fff' : hover ? 'var(--bg)' : 'transparent',
+        color: active ? 'var(--text)' : 'var(--text-soft)',
         fontWeight: active ? 600 : 500,
-        boxShadow: active ? 'inset 2px 0 0 oklch(0.42 0.14 260)' : 'none',
+        boxShadow: active ? 'inset 2px 0 0 var(--accent)' : 'none',
       }}
     >
       <span style={lb.sideItemIcon}>{icon}</span>
@@ -978,39 +978,39 @@ function SideItem({ active, onClick, icon, label, badge, badgeKind = 'neutral' }
 
 // ============================================================ STYLES
 const lb = {
-  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'oklch(0.985 0.006 80)', overflow: 'hidden' },
+  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', overflow: 'hidden' },
 
   // top bar
   topbar: {
     display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-    padding: '24px 32px 16px', borderBottom: '1px solid oklch(0.92 0.008 80)',
-    background: '#fff', flexShrink: 0, gap: 18,
+    padding: '24px 32px 16px', borderBottom: '1px solid var(--border)',
+    background: 'var(--surface)', flexShrink: 0, gap: 18,
   },
   topbarLeft: { display: 'flex', alignItems: 'flex-end' },
   topbarRight: { display: 'flex', gap: 10, alignItems: 'center' },
-  breadcrumb: { fontSize: 11.5, color: 'oklch(0.55 0.01 80)', marginBottom: 6, fontFamily: 'var(--font-mono)' },
-  title: { fontSize: 26, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 },
+  breadcrumb: { fontSize: 11.5, color: 'var(--muted)', marginBottom: 6, fontFamily: 'var(--font-mono)' },
+  title: { fontSize: 26, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em', lineHeight: 1 },
 
   viewToggle: {
-    display: 'flex', gap: 2, background: 'oklch(0.95 0.008 80)',
-    padding: 3, borderRadius: 8, border: '1px solid oklch(0.91 0.008 80)',
+    display: 'flex', gap: 2, background: 'var(--surface-2)',
+    padding: 3, borderRadius: 8, border: '1px solid var(--border)',
   },
   viewOpt: {
     display: 'flex', alignItems: 'center', gap: 6,
     padding: '6px 12px', borderRadius: 6, border: 'none',
     background: 'none', cursor: 'pointer', fontSize: 12.5,
-    color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)', fontWeight: 500,
+    color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontWeight: 500,
     transition: 'all 0.15s',
   },
   viewOptActive: {
-    background: '#fff', color: 'oklch(0.13 0.015 80)',
-    boxShadow: '0 1px 2px oklch(0 0 0 / 0.05), 0 0 0 0.5px oklch(0.88 0.01 80)',
+    background: 'var(--surface)', color: 'var(--text)',
+    boxShadow: '0 1px 2px oklch(0 0 0 / 0.05), 0 0 0 0.5px var(--border)',
     fontWeight: 600,
   },
 
-  browserToggle: { display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1px solid oklch(0.88 0.02 260)', borderRadius: 7, padding: '7px 14px', fontSize: 13, color: 'oklch(0.42 0.14 260)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 600, transition: 'all 0.15s' },
-  browserToggleActive: { background: 'oklch(0.96 0.03 260)', borderColor: 'oklch(0.75 0.08 260)' },
-  addBtn: { background: 'oklch(0.42 0.14 260)', color: '#fff', border: 'none', borderRadius: 7, padding: '8px 15px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
+  browserToggle: { display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: '1px solid oklch(0.88 0.02 260)', borderRadius: 7, padding: '7px 14px', fontSize: 13, color: 'var(--accent)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 600, transition: 'all 0.15s' },
+  browserToggleActive: { background: 'var(--accent-light)', borderColor: 'oklch(0.75 0.08 260)' },
+  addBtn: { background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 7, padding: '8px 15px', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
 
   // body
   body: { display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' },
@@ -1018,8 +1018,8 @@ const lb = {
   // sidebar
   sidebar: {
     flexShrink: 0,
-    background: 'oklch(0.975 0.005 80)',
-    borderRight: '1px solid oklch(0.92 0.008 80)',
+    background: 'var(--bg)',
+    borderRight: '1px solid var(--border)',
     display: 'flex', flexDirection: 'column', overflow: 'hidden',
     paddingBottom: 10,
     transition: 'width 0.24s cubic-bezier(0.4,0,0.2,1)',
@@ -1031,28 +1031,28 @@ const lb = {
   },
   sideHeaderCollapsed: { padding: '12px 0 10px', justifyContent: 'center' },
   sideHeaderLabel: {
-    fontSize: 10.5, fontWeight: 700, color: 'oklch(0.5 0.01 80)',
+    fontSize: 10.5, fontWeight: 700, color: 'var(--muted)',
     textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap',
   },
   sideToggle: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     width: 26, height: 26, flexShrink: 0,
     border: 'none', borderRadius: 6, background: 'none', cursor: 'pointer',
-    color: 'oklch(0.55 0.01 80)', transition: 'background 0.14s, color 0.14s',
+    color: 'var(--muted)', transition: 'background 0.14s, color 0.14s',
   },
   sideScroll: { display: 'flex', flexDirection: 'column', overflow: 'hidden', flex: 1 },
   sideSearchWrap: { padding: '0 12px 10px' },
   sideSearchInner: { position: 'relative', display: 'flex', alignItems: 'center' },
   sideSearch: {
     width: '100%', padding: '6px 10px 6px 28px', fontSize: 12,
-    border: '1px solid oklch(0.91 0.008 80)', borderRadius: 6,
-    background: '#fff', color: 'oklch(0.2 0.01 80)',
+    border: '1px solid var(--border)', borderRadius: 6,
+    background: 'var(--surface)', color: 'var(--text)',
     outline: 'none', fontFamily: 'var(--font-ui)',
   },
-  sideSection: { padding: '8px 0', borderTop: '1px solid oklch(0.92 0.008 80)' },
+  sideSection: { padding: '8px 0', borderTop: '1px solid var(--border)' },
   sideSectionLabel: {
     padding: '4px 16px 6px', fontSize: 10, fontWeight: 700,
-    color: 'oklch(0.55 0.01 80)', textTransform: 'uppercase',
+    color: 'var(--muted)', textTransform: 'uppercase',
     letterSpacing: '0.08em', fontFamily: 'var(--font-ui)',
   },
   sideItem: {
@@ -1064,7 +1064,7 @@ const lb = {
     transition: 'background 0.08s',
     position: 'relative',
   },
-  sideItemIcon: { display: 'inline-flex', flexShrink: 0, color: 'oklch(0.55 0.01 80)' },
+  sideItemIcon: { display: 'inline-flex', flexShrink: 0, color: 'var(--muted)' },
   sideItemLabel: { flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   sideBadge: {
     fontSize: 10, padding: '1px 7px', borderRadius: 10,
@@ -1078,32 +1078,32 @@ const lb = {
   // tabs bar
   tabsBar: {
     display: 'flex', alignItems: 'stretch',
-    background: 'oklch(0.97 0.006 80)',
-    borderBottom: '1px solid oklch(0.92 0.008 80)',
+    background: 'var(--bg)',
+    borderBottom: '1px solid var(--border)',
     minHeight: 36, flexShrink: 0, paddingRight: 12,
     gap: 0,
   },
   tab: {
     display: 'flex', alignItems: 'center', gap: 7,
     padding: '0 12px', height: 36,
-    borderRight: '1px solid oklch(0.93 0.008 80)',
-    background: 'oklch(0.97 0.006 80)',
-    fontSize: 12.5, color: 'oklch(0.5 0.01 80)',
+    borderRight: '1px solid var(--border)',
+    background: 'var(--bg)',
+    fontSize: 12.5, color: 'var(--muted)',
     cursor: 'pointer', whiteSpace: 'nowrap',
     fontFamily: 'var(--font-ui)',
     maxWidth: 220,
     flexShrink: 0,
   },
   tabActive: {
-    background: '#fff', color: 'oklch(0.13 0.015 80)',
-    fontWeight: 600, borderBottom: '2px solid oklch(0.42 0.14 260)',
+    background: 'var(--surface)', color: 'var(--text)',
+    fontWeight: 600, borderBottom: '2px solid var(--accent)',
     marginBottom: -1,
   },
   tabIcon: { display: 'inline-flex', color: 'oklch(0.5 0.1 260)' },
   tabLabel: { overflow: 'hidden', textOverflow: 'ellipsis' },
   tabClose: {
     width: 16, height: 16, border: 'none', background: 'none',
-    color: 'oklch(0.55 0.01 80)', borderRadius: 3,
+    color: 'var(--muted)', borderRadius: 3,
     fontSize: 14, cursor: 'pointer', display: 'flex',
     alignItems: 'center', justifyContent: 'center',
     marginLeft: 2,
@@ -1111,176 +1111,176 @@ const lb = {
   tabAdd: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     border: 'none', background: 'none',
-    color: 'oklch(0.55 0.01 80)', padding: '0 12px',
-    borderRight: '1px solid oklch(0.93 0.008 80)',
+    color: 'var(--muted)', padding: '0 12px',
+    borderRight: '1px solid var(--border)',
     cursor: 'pointer',
   },
   inlineSearchWrap: { position: 'relative', alignSelf: 'center' },
   inlineSearch: {
     width: 170, padding: '5px 10px 5px 26px', fontSize: 12,
-    border: '1px solid oklch(0.91 0.008 80)', borderRadius: 6,
-    background: '#fff', color: 'oklch(0.2 0.01 80)',
+    border: '1px solid var(--border)', borderRadius: 6,
+    background: 'var(--surface)', color: 'var(--text)',
     outline: 'none', fontFamily: 'var(--font-ui)',
   },
 
   tabBody: { flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' },
 
   // source list
-  list: { overflow: 'auto', transition: 'flex 0.25s', minWidth: 0, background: '#fff' },
+  list: { overflow: 'auto', transition: 'flex 0.25s', minWidth: 0, background: 'var(--surface)' },
   listInfoBar: {
-    padding: '10px 24px', fontSize: 11.5, color: 'oklch(0.55 0.01 80)',
-    fontFamily: 'var(--font-mono)', borderBottom: '1px solid oklch(0.95 0.005 80)',
-    background: 'oklch(0.985 0.005 80)',
+    padding: '10px 24px', fontSize: 11.5, color: 'var(--muted)',
+    fontFamily: 'var(--font-mono)', borderBottom: '1px solid var(--surface-2)',
+    background: 'var(--bg)',
   },
   captureToast: { display: 'flex', alignItems: 'center', gap: 7, background: 'oklch(0.93 0.07 160)', color: 'oklch(0.32 0.12 160)', fontSize: 13, fontWeight: 600, padding: '10px 24px', fontFamily: 'var(--font-ui)', borderBottom: '1px solid oklch(0.86 0.08 160)' },
-  sourceRow: { display: 'flex', alignItems: 'flex-start', gap: 12, padding: '13px 24px', cursor: 'pointer', borderBottom: '1px solid oklch(0.95 0.005 80)', transition: 'background 0.1s' },
-  typeIcon: { width: 30, height: 30, borderRadius: 7, background: 'oklch(0.95 0.015 260)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 },
+  sourceRow: { display: 'flex', alignItems: 'flex-start', gap: 12, padding: '13px 24px', cursor: 'pointer', borderBottom: '1px solid var(--surface-2)', transition: 'background 0.1s' },
+  typeIcon: { width: 30, height: 30, borderRadius: 7, background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 },
   sourceInfo: { flex: 1, minWidth: 0 },
-  sourceTitle: { fontSize: 14, fontWeight: 500, color: 'oklch(0.15 0.01 80)', lineHeight: 1.4, marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-ui)' },
-  sourceMeta: { fontSize: 12, color: 'oklch(0.58 0.01 80)', marginBottom: 6, fontFamily: 'var(--font-ui)' },
+  sourceTitle: { fontSize: 14, fontWeight: 500, color: 'var(--text)', lineHeight: 1.4, marginBottom: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-ui)' },
+  sourceMeta: { fontSize: 12, color: 'var(--muted)', marginBottom: 6, fontFamily: 'var(--font-ui)' },
   sourceTags: { display: 'flex', gap: 5, flexWrap: 'wrap' },
-  tag: { background: 'oklch(0.94 0.015 80)', color: 'oklch(0.4 0.02 80)', fontSize: 11, padding: '2px 7px', borderRadius: 4, fontFamily: 'var(--font-ui)' },
+  tag: { background: 'var(--surface-2)', color: 'var(--text-soft)', fontSize: 11, padding: '2px 7px', borderRadius: 4, fontFamily: 'var(--font-ui)' },
   licenseTag: { fontSize: 11, padding: '2px 7px', borderRadius: 4, fontWeight: 600, fontFamily: 'var(--font-ui)' },
   sourceRight: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, paddingTop: 4 },
   statusDot: { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 },
-  emptyList: { padding: '40px 24px', textAlign: 'center', color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', fontSize: 13 },
+  emptyList: { padding: '40px 24px', textAlign: 'center', color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontSize: 13 },
 
   // ===== Embedded browser (Browse & Capture) =====
-  browserWrap: { flex: 1, minWidth: 0, display: 'flex', padding: 16, background: 'oklch(0.965 0.006 80)', overflow: 'hidden', position: 'relative' },
-  browserWindow: { flex: 1, minWidth: 0, display: 'flex', background: '#fff', border: '1px solid oklch(0.87 0.008 80)', borderRadius: 10, overflow: 'hidden', boxShadow: '0 8px 28px oklch(0 0 0 / 0.08), 0 1px 3px oklch(0 0 0 / 0.06)' },
+  browserWrap: { flex: 1, minWidth: 0, display: 'flex', padding: 16, background: 'var(--bg)', overflow: 'hidden', position: 'relative' },
+  browserWindow: { flex: 1, minWidth: 0, display: 'flex', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden', boxShadow: '0 8px 28px oklch(0 0 0 / 0.08), 0 1px 3px oklch(0 0 0 / 0.06)' },
 
   // tab strip (top)
-  tabStripTop: { display: 'flex', alignItems: 'flex-end', gap: 4, background: 'oklch(0.93 0.006 80)', borderBottom: '1px solid oklch(0.88 0.008 80)', padding: '7px 10px 0', flexShrink: 0 },
-  browserBrand: { display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7, marginRight: 6, paddingRight: 12, borderRight: '1px solid oklch(0.85 0.008 80)', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.13em', color: 'oklch(0.48 0.01 80)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', flexShrink: 0 },
-  browserBrandDot: { width: 9, height: 9, borderRadius: '50%', background: 'oklch(0.42 0.14 260)', flexShrink: 0 },
+  tabStripTop: { display: 'flex', alignItems: 'flex-end', gap: 4, background: 'var(--border)', borderBottom: '1px solid var(--border)', padding: '7px 10px 0', flexShrink: 0 },
+  browserBrand: { display: 'flex', alignItems: 'center', gap: 7, marginBottom: 7, marginRight: 6, paddingRight: 12, borderRight: '1px solid var(--muted)', fontSize: 10.5, fontWeight: 700, letterSpacing: '0.13em', color: 'var(--muted)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', flexShrink: 0 },
+  browserBrandDot: { width: 9, height: 9, borderRadius: '50%', background: 'var(--accent)', flexShrink: 0 },
   winControls: { display: 'flex', alignItems: 'center', gap: 1, marginBottom: 6, marginLeft: 6, flexShrink: 0 },
-  winBtn: { width: 26, height: 26, borderRadius: 6, border: 'none', background: 'none', cursor: 'pointer', color: 'oklch(0.45 0.01 80)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  winBtnClose: { color: 'oklch(0.5 0.01 80)' },
+  winBtn: { width: 26, height: 26, borderRadius: 6, border: 'none', background: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  winBtnClose: { color: 'var(--muted)' },
   tabStripScroll: { display: 'flex', alignItems: 'flex-end', gap: 3, overflowX: 'auto', flex: 1 },
-  bTab: { display: 'flex', alignItems: 'center', gap: 7, padding: '0 10px', height: 33, minWidth: 130, maxWidth: 190, borderRadius: '8px 8px 0 0', background: 'transparent', color: 'oklch(0.45 0.01 80)', cursor: 'pointer', fontSize: 12.5, fontFamily: 'var(--font-ui)', flexShrink: 0, transition: 'background 0.12s' },
-  bTabActive: { background: '#fff', color: 'oklch(0.15 0.01 80)', fontWeight: 600, boxShadow: '0 -1px 2px oklch(0 0 0 / 0.04)' },
+  bTab: { display: 'flex', alignItems: 'center', gap: 7, padding: '0 10px', height: 33, minWidth: 130, maxWidth: 190, borderRadius: '8px 8px 0 0', background: 'transparent', color: 'var(--muted)', cursor: 'pointer', fontSize: 12.5, fontFamily: 'var(--font-ui)', flexShrink: 0, transition: 'background 0.12s' },
+  bTabActive: { background: 'var(--surface)', color: 'var(--text)', fontWeight: 600, boxShadow: '0 -1px 2px oklch(0 0 0 / 0.04)' },
   bTabLabel: { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   favicon: { width: 16, height: 16, borderRadius: 4, color: '#fff', fontSize: 9.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'var(--font-ui)' },
-  bTabClose: { width: 17, height: 17, borderRadius: 4, border: 'none', background: 'none', color: 'oklch(0.55 0.01 80)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  bTabAdd: { width: 28, height: 28, marginBottom: 3, marginLeft: 2, borderRadius: 6, border: 'none', background: 'none', color: 'oklch(0.5 0.01 80)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  bTabClose: { width: 17, height: 17, borderRadius: 4, border: 'none', background: 'none', color: 'var(--muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  bTabAdd: { width: 28, height: 28, marginBottom: 3, marginLeft: 2, borderRadius: 6, border: 'none', background: 'none', color: 'var(--muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
 
   // tab rail (left)
-  tabRailLeft: { width: 168, flexShrink: 0, background: 'oklch(0.96 0.006 80)', borderRight: '1px solid oklch(0.89 0.008 80)', display: 'flex', flexDirection: 'column', gap: 3, padding: 8, overflowY: 'auto' },
-  bRailTab: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'transparent', color: 'oklch(0.42 0.01 80)', cursor: 'pointer', fontSize: 12.5, fontFamily: 'var(--font-ui)', flexShrink: 0 },
-  bRailTabActive: { background: '#fff', color: 'oklch(0.15 0.01 80)', fontWeight: 600, boxShadow: '0 1px 3px oklch(0 0 0 / 0.06)' },
+  tabRailLeft: { width: 168, flexShrink: 0, background: 'var(--surface-2)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 3, padding: 8, overflowY: 'auto' },
+  bRailTab: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, background: 'transparent', color: 'var(--text-soft)', cursor: 'pointer', fontSize: 12.5, fontFamily: 'var(--font-ui)', flexShrink: 0 },
+  bRailTabActive: { background: 'var(--surface)', color: 'var(--text)', fontWeight: 600, boxShadow: '0 1px 3px oklch(0 0 0 / 0.06)' },
   bRailLabel: { flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  bRailAdd: { display: 'flex', alignItems: 'center', gap: 7, padding: '8px 10px', borderRadius: 8, border: '1px dashed oklch(0.84 0.01 80)', background: 'none', color: 'oklch(0.5 0.01 80)', cursor: 'pointer', fontSize: 12, fontFamily: 'var(--font-ui)', marginTop: 2 },
+  bRailAdd: { display: 'flex', alignItems: 'center', gap: 7, padding: '8px 10px', borderRadius: 8, border: '1px dashed var(--muted)', background: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 12, fontFamily: 'var(--font-ui)', marginTop: 2 },
 
-  browserMain: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#fff' },
+  browserMain: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--surface)' },
 
   // nav bar
-  navBar: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: '1px solid oklch(0.93 0.006 80)', flexShrink: 0 },
+  navBar: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0 },
   navBtns: { display: 'flex', alignItems: 'center', gap: 1 },
-  navIconBtn: { width: 30, height: 30, borderRadius: 7, border: 'none', background: 'none', cursor: 'pointer', color: 'oklch(0.4 0.01 80)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  urlBarWrap: { flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, background: 'oklch(0.965 0.005 80)', border: '1px solid oklch(0.9 0.008 80)', borderRadius: 18, padding: '7px 14px', cursor: 'text', height: 32 },
-  urlInput: { flex: 1, border: 'none', outline: 'none', fontSize: 12.5, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-mono)', background: 'transparent', padding: 0 },
+  navIconBtn: { width: 30, height: 30, borderRadius: 7, border: 'none', background: 'none', cursor: 'pointer', color: 'var(--text-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  urlBarWrap: { flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 18, padding: '7px 14px', cursor: 'text', height: 32 },
+  urlInput: { flex: 1, border: 'none', outline: 'none', fontSize: 12.5, color: 'var(--text)', fontFamily: 'var(--font-mono)', background: 'transparent', padding: 0 },
   urlDisplay: { flex: 1, minWidth: 0, fontSize: 12.5, fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-  urlScheme: { color: 'oklch(0.62 0.01 80)' },
-  urlDomain: { color: 'oklch(0.16 0.01 80)', fontWeight: 600 },
-  urlPath: { color: 'oklch(0.62 0.01 80)' },
-  captureToolBtn: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: '#fff', background: 'oklch(0.42 0.14 260)', border: 'none', borderRadius: 8, padding: '7px 13px', cursor: 'pointer', fontFamily: 'var(--font-ui)', flexShrink: 0, whiteSpace: 'nowrap' },
-  gearBtn: { width: 32, height: 32, borderRadius: 8, border: '1px solid oklch(0.9 0.008 80)', background: 'none', cursor: 'pointer', color: 'oklch(0.45 0.01 80)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  urlScheme: { color: 'var(--muted)' },
+  urlDomain: { color: 'var(--text)', fontWeight: 600 },
+  urlPath: { color: 'var(--muted)' },
+  captureToolBtn: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: '#fff', background: 'var(--accent)', border: 'none', borderRadius: 8, padding: '7px 13px', cursor: 'pointer', fontFamily: 'var(--font-ui)', flexShrink: 0, whiteSpace: 'nowrap' },
+  gearBtn: { width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border)', background: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
 
   // bookmarks bar
-  bookmarksBar: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderBottom: '1px solid oklch(0.93 0.006 80)', background: 'oklch(0.987 0.004 80)', flexShrink: 0, overflowX: 'auto' },
-  bookmark: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, padding: '4px 9px', borderRadius: 6, border: 'none', background: 'none', color: 'oklch(0.42 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap', flexShrink: 0, transition: 'background 0.12s' },
+  bookmarksBar: { display: 'flex', alignItems: 'center', gap: 4, padding: '6px 12px', borderBottom: '1px solid var(--border)', background: 'var(--bg)', flexShrink: 0, overflowX: 'auto' },
+  bookmark: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, padding: '4px 9px', borderRadius: 6, border: 'none', background: 'none', color: 'var(--text-soft)', cursor: 'pointer', fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap', flexShrink: 0, transition: 'background 0.12s' },
   bookmarkActive: { background: 'oklch(0.95 0.025 260)', color: 'oklch(0.38 0.12 260)', fontWeight: 600 },
   bmFavicon: { width: 14, height: 14, borderRadius: 3, color: '#fff', fontSize: 8.5, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
 
   // page viewport + web page
-  pageViewport: { flex: 1, overflow: 'auto', background: 'oklch(0.95 0.005 80)', padding: 18, position: 'relative' },
+  pageViewport: { flex: 1, overflow: 'auto', background: 'var(--surface-2)', padding: 18, position: 'relative' },
   pageCaptureToast: { position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 5, display: 'flex', alignItems: 'center', gap: 7, background: 'oklch(0.34 0.1 160)', color: '#fff', fontSize: 12.5, fontWeight: 600, padding: '8px 16px', borderRadius: 20, fontFamily: 'var(--font-ui)', boxShadow: '0 4px 14px oklch(0 0 0 / 0.18)', animation: 'fadeIn 0.2s ease' },
-  webPage: { background: '#fff', borderRadius: 8, border: '1px solid oklch(0.91 0.006 80)', boxShadow: '0 1px 4px oklch(0 0 0 / 0.04)', overflow: 'hidden', maxWidth: 720, margin: '0 auto' },
-  siteHeader: { display: 'flex', alignItems: 'center', gap: 10, padding: '14px 22px', borderBottom: '2px solid', background: '#fff' },
+  webPage: { background: 'var(--surface)', borderRadius: 8, border: '1px solid var(--border)', boxShadow: '0 1px 4px oklch(0 0 0 / 0.04)', overflow: 'hidden', maxWidth: 720, margin: '0 auto' },
+  siteHeader: { display: 'flex', alignItems: 'center', gap: 10, padding: '14px 22px', borderBottom: '2px solid', background: 'var(--surface)' },
   siteLogo: { width: 26, height: 26, borderRadius: 6, color: '#fff', fontSize: 14, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'var(--font-display)' },
-  siteName: { fontSize: 16, fontWeight: 700, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-display)' },
-  siteSearch: { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: 'oklch(0.45 0.01 80)', fontFamily: 'var(--font-ui)', background: 'oklch(0.97 0.004 80)', border: '1px solid oklch(0.91 0.006 80)', borderRadius: 16, padding: '6px 14px', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  siteName: { fontSize: 16, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' },
+  siteSearch: { marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 16, padding: '6px 14px', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   pageBody: { padding: '18px 22px 24px' },
-  resultsCount: { fontSize: 12, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid oklch(0.94 0.005 80)' },
-  webResult: { padding: '14px 0', borderBottom: '1px solid oklch(0.95 0.005 80)' },
+  resultsCount: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginBottom: 16, paddingBottom: 12, borderBottom: '1px solid var(--surface-2)' },
+  webResult: { padding: '14px 0', borderBottom: '1px solid var(--surface-2)' },
   webResultTop: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 },
   webResultId: { fontSize: 11.5, color: 'oklch(0.45 0.14 25)', fontFamily: 'var(--font-mono)', fontWeight: 500 },
-  webResultYear: { fontSize: 11.5, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
+  webResultYear: { fontSize: 11.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
   webResultTitle: { fontSize: 15, fontWeight: 600, color: 'oklch(0.32 0.1 260)', lineHeight: 1.35, marginBottom: 4, fontFamily: 'var(--font-ui)', cursor: 'pointer' },
   webResultAuthors: { fontSize: 12, color: 'oklch(0.45 0.09 150)', fontFamily: 'var(--font-ui)', marginBottom: 7 },
-  webResultAbstract: { fontSize: 12.5, color: 'oklch(0.42 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.6, marginBottom: 11 },
+  webResultAbstract: { fontSize: 12.5, color: 'var(--text-soft)', fontFamily: 'var(--font-ui)', lineHeight: 1.6, marginBottom: 11 },
   captureBtn: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'oklch(0.38 0.14 260)', background: 'oklch(0.96 0.025 260)', border: '1px solid oklch(0.86 0.06 260)', borderRadius: 7, padding: '5px 12px', cursor: 'pointer', fontFamily: 'var(--font-ui)', transition: 'all 0.15s' },
   captureBtnDone: { color: 'oklch(0.35 0.12 160)', background: 'oklch(0.93 0.07 160)', borderColor: 'oklch(0.82 0.08 160)', cursor: 'default' },
 
   // blank tab state
   blankPage: { height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, textAlign: 'center' },
-  blankIcon: { width: 56, height: 56, borderRadius: 14, background: '#fff', border: '1px solid oklch(0.9 0.006 80)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  blankTitle: { fontSize: 16, fontWeight: 600, color: 'oklch(0.35 0.01 80)', fontFamily: 'var(--font-mono)' },
-  blankSub: { fontSize: 13, color: 'oklch(0.58 0.01 80)', fontFamily: 'var(--font-ui)', maxWidth: 320 },
+  blankIcon: { width: 56, height: 56, borderRadius: 14, background: 'var(--surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  blankTitle: { fontSize: 16, fontWeight: 600, color: 'var(--text-soft)', fontFamily: 'var(--font-mono)' },
+  blankSub: { fontSize: 13, color: 'var(--muted)', fontFamily: 'var(--font-ui)', maxWidth: 320 },
 
   // ===== Settings modal =====
   modalOverlay: { position: 'absolute', inset: 0, background: 'oklch(0.15 0.02 80 / 0.5)', backdropFilter: 'blur(2px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 24, animation: 'fadeIn 0.15s ease' },
-  modalCard: { width: 460, maxWidth: '100%', maxHeight: '100%', background: '#fff', borderRadius: 14, boxShadow: '0 20px 60px oklch(0 0 0 / 0.28)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  modalHeader: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '20px 22px 16px', borderBottom: '1px solid oklch(0.93 0.006 80)' },
-  modalTitle: { fontSize: 19, fontWeight: 700, color: 'oklch(0.15 0.015 80)', fontFamily: 'var(--font-display)', letterSpacing: '-0.01em' },
-  modalSub: { fontSize: 12, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-mono)', marginTop: 3 },
-  modalClose: { width: 30, height: 30, borderRadius: 8, border: '1px solid oklch(0.91 0.008 80)', background: 'none', cursor: 'pointer', color: 'oklch(0.45 0.01 80)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  modalCard: { width: 460, maxWidth: '100%', maxHeight: '100%', background: 'var(--surface)', borderRadius: 14, boxShadow: '0 20px 60px oklch(0 0 0 / 0.28)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  modalHeader: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '20px 22px 16px', borderBottom: '1px solid var(--border)' },
+  modalTitle: { fontSize: 19, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', letterSpacing: '-0.01em' },
+  modalSub: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginTop: 3 },
+  modalClose: { width: 30, height: 30, borderRadius: 8, border: '1px solid var(--border)', background: 'none', cursor: 'pointer', color: 'var(--muted)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   modalBody: { padding: '20px 22px 22px', display: 'flex', flexDirection: 'column', gap: 24, overflowY: 'auto' },
   settingBlock: { display: 'flex', flexDirection: 'column', gap: 4 },
-  settingLabel: { fontSize: 13.5, fontWeight: 600, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)' },
-  settingDesc: { fontSize: 12, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.5, marginBottom: 8 },
-  segmented: { display: 'flex', gap: 4, background: 'oklch(0.96 0.005 80)', padding: 4, borderRadius: 9, border: '1px solid oklch(0.92 0.006 80)' },
-  segOpt: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '8px 10px', borderRadius: 6, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12.5, color: 'oklch(0.45 0.01 80)', fontFamily: 'var(--font-ui)', fontWeight: 500, transition: 'all 0.12s' },
-  segOptActive: { background: '#fff', color: 'oklch(0.15 0.01 80)', fontWeight: 600, boxShadow: '0 1px 3px oklch(0 0 0 / 0.08)' },
+  settingLabel: { fontSize: 13.5, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-ui)' },
+  settingDesc: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', lineHeight: 1.5, marginBottom: 8 },
+  segmented: { display: 'flex', gap: 4, background: 'var(--surface-2)', padding: 4, borderRadius: 9, border: '1px solid var(--border)' },
+  segOpt: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '8px 10px', borderRadius: 6, border: 'none', background: 'none', cursor: 'pointer', fontSize: 12.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontWeight: 500, transition: 'all 0.12s' },
+  segOptActive: { background: 'var(--surface)', color: 'var(--text)', fontWeight: 600, boxShadow: '0 1px 3px oklch(0 0 0 / 0.08)' },
   credList: { display: 'flex', flexDirection: 'column', gap: 6 },
-  credItem: { display: 'flex', alignItems: 'center', gap: 11, padding: '10px 12px', border: '1px solid oklch(0.92 0.006 80)', borderRadius: 9, background: 'oklch(0.99 0.003 80)' },
+  credItem: { display: 'flex', alignItems: 'center', gap: 11, padding: '10px 12px', border: '1px solid var(--border)', borderRadius: 9, background: 'var(--bg)' },
   credFavicon: { width: 24, height: 24, borderRadius: 6, color: '#fff', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontFamily: 'var(--font-ui)' },
-  credSite: { fontSize: 13, fontWeight: 600, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-  credDetail: { fontSize: 11.5, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  credSite: { fontSize: 13, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  credDetail: { fontSize: 11.5, color: 'var(--muted)', fontFamily: 'var(--font-mono)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
   credKind: { fontSize: 10.5, fontWeight: 600, color: 'oklch(0.45 0.04 260)', background: 'oklch(0.95 0.02 260)', padding: '2px 8px', borderRadius: 5, fontFamily: 'var(--font-ui)', flexShrink: 0, whiteSpace: 'nowrap' },
   credDelete: { width: 28, height: 28, borderRadius: 7, border: 'none', background: 'none', cursor: 'pointer', color: 'oklch(0.55 0.06 25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   addCredBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, padding: '10px', marginTop: 8, borderRadius: 9, border: '1.5px dashed oklch(0.85 0.02 260)', background: 'none', color: 'oklch(0.42 0.12 260)', cursor: 'pointer', fontSize: 12.5, fontWeight: 600, fontFamily: 'var(--font-ui)' },
 
   // ----- Source detail (tab full view) -----
-  detailFull: { flex: 1, overflow: 'auto', background: '#fff', padding: '28px 36px', display: 'flex', flexDirection: 'column' },
-  detailHeader: { display: 'flex', alignItems: 'flex-start', gap: 14, paddingBottom: 22, borderBottom: '1px solid oklch(0.93 0.008 80)', marginBottom: 22 },
+  detailFull: { flex: 1, overflow: 'auto', background: 'var(--surface)', padding: '28px 36px', display: 'flex', flexDirection: 'column' },
+  detailHeader: { display: 'flex', alignItems: 'flex-start', gap: 14, paddingBottom: 22, borderBottom: '1px solid var(--border)', marginBottom: 22 },
   detailType: { fontSize: 11, fontWeight: 700, color: 'oklch(0.55 0.08 260)', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)', marginBottom: 6 },
-  detailTitle: { fontSize: 22, fontWeight: 700, color: 'oklch(0.13 0.015 80)', lineHeight: 1.25, marginBottom: 8, fontFamily: 'var(--font-display)', letterSpacing: '-0.01em' },
-  detailMeta: { fontSize: 13, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)' },
+  detailTitle: { fontSize: 22, fontWeight: 700, color: 'var(--text)', lineHeight: 1.25, marginBottom: 8, fontFamily: 'var(--font-display)', letterSpacing: '-0.01em' },
+  detailMeta: { fontSize: 13, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
   detailGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 22 },
-  detailCard: { background: 'oklch(0.985 0.005 80)', border: '1px solid oklch(0.92 0.008 80)', borderRadius: 8, padding: '14px 16px' },
-  detailLabel: { fontSize: 10.5, fontWeight: 700, color: 'oklch(0.55 0.01 80)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--font-ui)' },
-  statusChip: { fontSize: 12, padding: '3px 9px', borderRadius: 5, border: '1px solid oklch(0.88 0.01 80)', color: 'oklch(0.55 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-ui)' },
+  detailCard: { background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '14px 16px' },
+  detailLabel: { fontSize: 10.5, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--font-ui)' },
+  statusChip: { fontSize: 12, padding: '3px 9px', borderRadius: 5, border: '1px solid var(--border)', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-ui)' },
   statusChipActive: { background: 'oklch(0.55 0.12 170)', borderColor: 'oklch(0.55 0.12 170)', color: '#fff' },
   detailActions: { display: 'flex', gap: 10 },
-  actionBtn: { padding: '9px 18px', borderRadius: 7, background: 'oklch(0.42 0.14 260)', color: '#fff', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
-  actionBtnSecondary: { background: 'none', border: '1px solid oklch(0.88 0.02 260)', color: 'oklch(0.42 0.14 260)' },
+  actionBtn: { padding: '9px 18px', borderRadius: 7, background: 'var(--accent)', color: '#fff', border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
+  actionBtnSecondary: { background: 'none', border: '1px solid oklch(0.88 0.02 260)', color: 'var(--accent)' },
 
   // ----- PRIVATE -----
-  privateRoot: { flex: 1, overflow: 'auto', padding: '20px 32px 28px', display: 'flex', flexDirection: 'column', gap: 16, background: '#fff' },
-  privateBanner: { display: 'flex', alignItems: 'flex-start', gap: 14, background: 'oklch(0.96 0.02 30)', border: '1px solid oklch(0.88 0.06 30)', borderRadius: 10, padding: '16px 20px' },
+  privateRoot: { flex: 1, overflow: 'auto', padding: '20px 32px 28px', display: 'flex', flexDirection: 'column', gap: 16, background: 'var(--surface)' },
+  privateBanner: { display: 'flex', alignItems: 'flex-start', gap: 14, background: 'var(--surface-2)', border: '1px solid oklch(0.88 0.06 30)', borderRadius: 10, padding: '16px 20px' },
   privateBannerIcon: { color: 'oklch(0.4 0.1 30)', flexShrink: 0, lineHeight: 1, marginTop: 2 },
   privateBannerTitle: { fontSize: 15, fontWeight: 700, color: 'oklch(0.28 0.08 30)', fontFamily: 'var(--font-ui)', marginBottom: 4 },
   privateBannerSub: { fontSize: 13, color: 'oklch(0.4 0.06 30)', fontFamily: 'var(--font-ui)', lineHeight: 1.5 },
-  privateLegal: { display: 'flex', alignItems: 'flex-start', gap: 10, background: 'oklch(0.97 0.01 80)', border: '1px solid oklch(0.9 0.01 80)', borderRadius: 8, padding: '12px 16px', fontSize: 12.5, color: 'oklch(0.4 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.6 },
+  privateLegal: { display: 'flex', alignItems: 'flex-start', gap: 10, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, padding: '12px 16px', fontSize: 12.5, color: 'var(--text-soft)', fontFamily: 'var(--font-ui)', lineHeight: 1.6 },
   privateItems: { display: 'flex', flexDirection: 'column', gap: 10 },
-  privateItem: { background: '#fff', border: '1px solid oklch(0.9 0.01 80)', borderRadius: 10, padding: '14px 18px', borderLeft: '3px solid oklch(0.55 0.14 20)' },
+  privateItem: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 18px', borderLeft: '3px solid oklch(0.55 0.14 20)' },
   privateItemHeader: { display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 9 },
   privateItemLock: { color: 'oklch(0.5 0.1 30)', flexShrink: 0, marginTop: 1 },
-  privateItemTitle: { fontSize: 14, fontWeight: 600, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.4, marginBottom: 3 },
+  privateItemTitle: { fontSize: 14, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-ui)', lineHeight: 1.4, marginBottom: 3 },
   privateItemSource: { fontSize: 11.5, color: 'oklch(0.55 0.06 30)', fontFamily: 'var(--font-ui)' },
-  privateItemStats: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', flexShrink: 0, whiteSpace: 'nowrap' },
-  privateItemDot: { color: 'oklch(0.78 0.01 80)' },
-  privateItemPreview: { fontSize: 13, color: 'oklch(0.35 0.02 80)', fontFamily: 'Georgia, serif', fontStyle: 'italic', lineHeight: 1.7, background: 'oklch(0.97 0.008 80)', borderRadius: 6, padding: '10px 14px', marginBottom: 10, borderLeft: '2px solid oklch(0.84 0.04 80)' },
+  privateItemStats: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', flexShrink: 0, whiteSpace: 'nowrap' },
+  privateItemDot: { color: 'var(--muted)' },
+  privateItemPreview: { fontSize: 13, color: 'var(--text-soft)', fontFamily: 'Georgia, serif', fontStyle: 'italic', lineHeight: 1.7, background: 'var(--bg)', borderRadius: 6, padding: '10px 14px', marginBottom: 10, borderLeft: '2px solid oklch(0.84 0.04 80)' },
   privateItemActions: { display: 'flex', gap: 8 },
-  privateBtn: { fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 6, border: '1px solid oklch(0.88 0.01 80)', background: 'none', color: 'oklch(0.45 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-ui)' },
+  privateBtn: { fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'none', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-ui)' },
   privateAddBtn: { display: 'flex', alignItems: 'center', gap: 8, padding: '12px 18px', borderRadius: 10, border: '1.5px dashed oklch(0.82 0.04 30)', background: 'none', cursor: 'pointer', fontSize: 13, color: 'oklch(0.5 0.08 30)', fontFamily: 'var(--font-ui)', width: '100%', justifyContent: 'center' },
 
   // ----- Status bar -----
   statusBar: {
     height: 26, display: 'flex', alignItems: 'center',
     padding: '0 14px', gap: 10,
-    background: 'oklch(0.42 0.14 260)',
+    background: 'var(--accent)',
     color: 'oklch(0.99 0.005 260 / 0.85)',
     fontSize: 11, fontFamily: 'var(--font-ui)',
     flexShrink: 0,

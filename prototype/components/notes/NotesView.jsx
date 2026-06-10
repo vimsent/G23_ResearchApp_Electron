@@ -212,7 +212,7 @@ function NotesView() {
           ) : (
             <div style={nv.emptyEditor}>
               <div style={nv.emptyIcon}>
-                <svg width="34" height="34" viewBox="0 0 16 16" fill="none" stroke="oklch(0.78 0.01 80)" strokeWidth="1.2"><path d="M4 2.5h8a.5.5 0 01.5.5v10a.5.5 0 01-.5.5H4a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5z" /><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3" /></svg>
+                <svg width="34" height="34" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.2"><path d="M4 2.5h8a.5.5 0 01.5.5v10a.5.5 0 01-.5.5H4a.5.5 0 01-.5-.5V3a.5.5 0 01.5-.5z" /><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3" /></svg>
               </div>
               <div>Selecciona una nota de la lista</div>
             </div>
@@ -254,7 +254,7 @@ function NoteList({ activeItem, folders, activeTab, openNote, vaultNotes, onCrea
             Nueva nota
           </button>
           {vaultNotes.length === 0 && (
-            <div style={{ padding: '14px 18px', fontSize: 11.5, color: 'oklch(0.62 0.01 80)', fontFamily: 'var(--font-ui)', fontStyle: 'italic', lineHeight: 1.5 }}>
+            <div style={{ padding: '14px 18px', fontSize: 11.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontStyle: 'italic', lineHeight: 1.5 }}>
               Aún no hay notas en tu vault. Crea una con + Nueva nota — se guarda como archivo .md en tu carpeta de usuario.
             </div>
           )}
@@ -374,12 +374,12 @@ function NoteEditor({ note, onOpenLink }) {
             const isBool = cls.boolFields.includes(f);
             const val = note.fields[f];
             return (
-              <div key={f} style={{ ...nv.fieldRow, borderBottom: i === cls.fields.length - 2 ? 'none' : '1px solid oklch(0.95 0.005 80)' }}>
+              <div key={f} style={{ ...nv.fieldRow, borderBottom: i === cls.fields.length - 2 ? 'none' : '1px solid var(--surface-2)' }}>
                 <div style={nv.fieldKey}>{f}</div>
                 <div style={nv.fieldValue}>
                   {isBool ? (
                     <span style={{ ...nv.boolPill, ...(val ? nv.boolYes : nv.boolNo) }}>
-                      <span style={{ ...nv.boolDot, background: val ? 'oklch(0.6 0.13 145)' : 'oklch(0.6 0.02 80)' }} />
+                      <span style={{ ...nv.boolDot, background: val ? 'oklch(0.6 0.13 145)' : 'var(--muted)' }} />
                       {val ? 'Sí' : 'No'}
                     </span>
                   ) : (f === 'Complejidad temporal' || f === 'Complejidad espacial' || f === 'Peso molecular' || f === 'Tipo espectral' || f === 'Masa (M☉)' || f === 'Distancia (ly)') ? (
@@ -517,7 +517,7 @@ function BacklinksPanel({ noteId, noteTitle, onOpenLink }) {
       </div>
       {links.length === 0 ? (
         <div style={nv.backlinksEmpty}>
-          Ninguna nota enlaza aquí todavía. Usa <code style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, background: 'oklch(0.96 0.005 80)', padding: '1px 5px', borderRadius: 3 }}>[[{noteTitle || 'Título'}]]</code> en otra nota para crear el enlace.
+          Ninguna nota enlaza aquí todavía. Usa <code style={{ fontFamily: 'var(--font-mono)', fontSize: 11.5, background: 'var(--surface-2)', padding: '1px 5px', borderRadius: 3 }}>[[{noteTitle || 'Título'}]]</code> en otra nota para crear el enlace.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
@@ -569,11 +569,11 @@ function GraphOverlay({ onClose }) {
 }
 
 const NV_CSS = `
-  .nv-srow:hover { background: oklch(0.95 0.006 80) !important; }
-  .nv-listrow:hover { background: oklch(0.975 0.006 80); }
-  .nv-plus { width: 24px; height: 24px; border: 1px solid oklch(0.9 0.008 80); background: #fff; color: oklch(0.45 0.01 80); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+  .nv-srow:hover { background: var(--surface-2) !important; }
+  .nv-listrow:hover { background: var(--bg); }
+  .nv-plus { width: 24px; height: 24px; border: 1px solid var(--border); background: #fff; color: var(--muted); border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
   .nv-plus:hover { background: var(--accent-light); color: var(--accent); border-color: oklch(0.85 0.04 var(--accent-hue,260)); opacity: 1; }
-  .nv-newfolder { display: flex; align-items: center; gap: 6px; width: calc(100% - 16px); margin: 6px 8px 2px; padding: 6px 8px; border: 1px dashed oklch(0.85 0.01 80); background: none; color: oklch(0.5 0.01 80); border-radius: 6px; font-size: 11.5px; font-family: var(--font-ui); cursor: pointer; transition: all 0.12s; }
+  .nv-newfolder { display: flex; align-items: center; gap: 6px; width: calc(100% - 16px); margin: 6px 8px 2px; padding: 6px 8px; border: 1px dashed var(--muted); background: none; color: var(--muted); border-radius: 6px; font-size: 11.5px; font-family: var(--font-ui); cursor: pointer; transition: all 0.12s; }
   .nv-newfolder:hover { border-color: oklch(0.78 0.04 var(--accent-hue,260)); color: var(--accent); opacity: 1; }
   .nv-mini { transition: all 0.14s; }
   .nv-mini:hover { opacity: 1; }
@@ -585,111 +585,111 @@ const NV_CSS = `
 `;
 
 const nv = {
-  root: { display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden', background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, margin: '20px 32px 28px' },
+  root: { display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, margin: '20px 32px 28px' },
 
   // Sidebar 1
-  s1: { width: 184, minWidth: 184, flexShrink: 0, borderRight: '1px solid oklch(0.93 0.008 80)', background: 'oklch(0.982 0.005 80)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  s1Head: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 12px 11px 16px', borderBottom: '1px solid oklch(0.93 0.008 80)', flexShrink: 0 },
-  s1Title: { fontSize: 11, fontWeight: 700, color: 'oklch(0.35 0.01 80)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)' },
+  s1: { width: 184, minWidth: 184, flexShrink: 0, borderRight: '1px solid var(--border)', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  s1Head: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '13px 12px 11px 16px', borderBottom: '1px solid var(--border)', flexShrink: 0 },
+  s1Title: { fontSize: 11, fontWeight: 700, color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)' },
   s1Body: { flex: 1, overflowY: 'auto', padding: '10px 0 8px' },
-  s1SecHead: { fontSize: 9.5, fontWeight: 700, color: 'oklch(0.62 0.01 80)', textTransform: 'uppercase', letterSpacing: '0.09em', padding: '4px 16px 6px', fontFamily: 'var(--font-ui)' },
+  s1SecHead: { fontSize: 9.5, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.09em', padding: '4px 16px 6px', fontFamily: 'var(--font-ui)' },
   srow: { display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px 6px 16px', cursor: 'pointer', borderLeft: '2px solid transparent', transition: 'background 0.1s' },
-  srowActive: { background: 'oklch(0.965 0.014 var(--accent-hue,260))', borderLeftColor: 'var(--accent)' },
+  srowActive: { background: 'var(--accent-light)', borderLeftColor: 'var(--accent)' },
   srowIcon: { display: 'inline-flex', flexShrink: 0, width: 16, justifyContent: 'center' },
-  srowLabel: { fontSize: 12.5, color: 'oklch(0.25 0.01 80)', fontFamily: 'var(--font-ui)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
-  srowCount: { fontSize: 10.5, color: 'oklch(0.62 0.01 80)', fontFamily: 'var(--font-mono)', background: 'oklch(0.94 0.006 80)', borderRadius: 9, padding: '1px 6px', minWidth: 18, textAlign: 'center' },
-  srowCountActive: { background: 'oklch(0.92 0.03 var(--accent-hue,260))', color: 'var(--accent)' },
+  srowLabel: { fontSize: 12.5, color: 'var(--text)', fontFamily: 'var(--font-ui)', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' },
+  srowCount: { fontSize: 10.5, color: 'var(--muted)', fontFamily: 'var(--font-mono)', background: 'var(--surface-2)', borderRadius: 9, padding: '1px 6px', minWidth: 18, textAlign: 'center' },
+  srowCountActive: { background: 'var(--accent-light)', color: 'var(--accent)' },
 
   // minimap
-  miniWrap: { margin: '8px 10px 12px', padding: 7, background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 10, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0, fontFamily: 'var(--font-ui)' },
-  miniCanvas: { background: 'oklch(0.99 0.004 80)', border: '1px solid oklch(0.94 0.006 80)', borderRadius: 7, overflow: 'hidden', height: 84, transition: 'border-color 0.14s' },
-  miniLabel: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: 'oklch(0.45 0.01 80)', padding: '0 2px 1px' },
+  miniWrap: { margin: '8px 10px 12px', padding: 7, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0, fontFamily: 'var(--font-ui)' },
+  miniCanvas: { background: 'var(--bg)', border: '1px solid var(--surface-2)', borderRadius: 7, overflow: 'hidden', height: 84, transition: 'border-color 0.14s' },
+  miniLabel: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: 'var(--muted)', padding: '0 2px 1px' },
 
   // Sidebar 2
-  s2: { width: 246, minWidth: 246, flexShrink: 0, borderRight: '1px solid oklch(0.93 0.008 80)', background: 'oklch(0.991 0.003 80)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  listHead: { display: 'flex', alignItems: 'center', gap: 7, padding: '13px 16px 12px', borderBottom: '1px solid oklch(0.93 0.008 80)', flexShrink: 0 },
+  s2: { width: 246, minWidth: 246, flexShrink: 0, borderRight: '1px solid var(--border)', background: 'var(--bg)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  listHead: { display: 'flex', alignItems: 'center', gap: 7, padding: '13px 16px 12px', borderBottom: '1px solid var(--border)', flexShrink: 0 },
   listHeadDot: { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 },
-  listHeadTitle: { fontSize: 13, fontWeight: 700, color: 'oklch(0.18 0.015 80)', fontFamily: 'var(--font-ui)' },
-  listHeadSub: { fontSize: 11.5, color: 'oklch(0.58 0.01 80)', fontFamily: 'var(--font-ui)' },
+  listHeadTitle: { fontSize: 13, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)' },
+  listHeadSub: { fontSize: 11.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
   listBody: { flex: 1, overflowY: 'auto', padding: '4px 0' },
   listRow: { padding: '10px 16px', cursor: 'pointer', borderLeft: '2px solid transparent' },
   listRowActive: { background: 'var(--accent-light)', borderLeftColor: 'var(--accent)' },
-  listTitle: { fontSize: 13, fontWeight: 600, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 3, lineHeight: 1.35 },
+  listTitle: { fontSize: 13, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-ui)', marginBottom: 3, lineHeight: 1.35 },
   listFields: { display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' },
-  fieldVal: { fontSize: 11, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-mono)' },
-  fieldSep: { fontSize: 11, color: 'oklch(0.75 0.01 80)' },
-  listDate: { fontSize: 11, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-mono)' },
+  fieldVal: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)' },
+  fieldSep: { fontSize: 11, color: 'var(--muted)' },
+  listDate: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)' },
 
   // library groups
   srcGroup: { marginBottom: 4 },
   srcHead: { padding: '10px 16px 6px' },
   srcTitle: { fontSize: 11.5, fontWeight: 700, color: 'oklch(0.32 0.04 235)', fontFamily: 'var(--font-ui)' },
-  srcMeta: { fontSize: 10, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-mono)', marginTop: 2 },
+  srcMeta: { fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--font-mono)', marginTop: 2 },
   libRow: { display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 16px 8px 18px', cursor: 'pointer', borderLeft: '2px solid transparent' },
   libTick: { width: 5, height: 5, borderRadius: '50%', background: 'oklch(0.72 0.06 235)', marginTop: 6, flexShrink: 0 },
 
   // Editor
-  editor: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#fff' },
-  tabsBar: { display: 'flex', alignItems: 'stretch', background: 'oklch(0.978 0.005 80)', borderBottom: '1px solid oklch(0.92 0.008 80)', minHeight: 36, overflowX: 'auto', flexShrink: 0 },
-  tab: { display: 'flex', alignItems: 'center', gap: 7, padding: '0 11px 0 13px', height: 36, borderRight: '1px solid oklch(0.93 0.008 80)', fontSize: 12, color: 'oklch(0.5 0.01 80)', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'var(--font-ui)', background: 'oklch(0.978 0.005 80)', flexShrink: 0, maxWidth: 200 },
-  tabActive: { background: '#fff', color: 'oklch(0.13 0.015 80)', borderBottom: '2px solid var(--accent)', marginBottom: -1 },
+  editor: { flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--surface)' },
+  tabsBar: { display: 'flex', alignItems: 'stretch', background: 'var(--bg)', borderBottom: '1px solid var(--border)', minHeight: 36, overflowX: 'auto', flexShrink: 0 },
+  tab: { display: 'flex', alignItems: 'center', gap: 7, padding: '0 11px 0 13px', height: 36, borderRight: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'var(--font-ui)', background: 'var(--bg)', flexShrink: 0, maxWidth: 200 },
+  tabActive: { background: 'var(--surface)', color: 'var(--text)', borderBottom: '2px solid var(--accent)', marginBottom: -1 },
   tabDot: { width: 7, height: 7, borderRadius: '50%', flexShrink: 0 },
   tabLabel: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  tabClose: { width: 16, height: 16, border: 'none', background: 'none', color: 'oklch(0.55 0.01 80)', borderRadius: 3, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 1, flexShrink: 0 },
+  tabClose: { width: 16, height: 16, border: 'none', background: 'none', color: 'var(--muted)', borderRadius: 3, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 1, flexShrink: 0 },
 
-  editorBody: { flex: 1, overflowY: 'auto', background: '#fff' },
+  editorBody: { flex: 1, overflowY: 'auto', background: 'var(--surface)' },
   doc: { maxWidth: 720, margin: '0 auto', padding: '32px 48px 80px' },
-  docTitle: { fontSize: 30, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-ui)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 12 },
+  docTitle: { fontSize: 30, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 12 },
   docMeta: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 },
-  docTypeTag: { display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'oklch(0.35 0.02 80)', fontFamily: 'var(--font-ui)' },
-  docMetaDate: { fontSize: 11.5, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-mono)' },
-  docMetaPlain: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid oklch(0.94 0.006 80)' },
-  docKindPlain: { fontSize: 11, fontWeight: 700, color: 'oklch(0.5 0.02 80)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: 'var(--font-ui)' },
+  docTypeTag: { display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--text-soft)', fontFamily: 'var(--font-ui)' },
+  docMetaDate: { fontSize: 11.5, color: 'var(--muted)', fontFamily: 'var(--font-mono)' },
+  docMetaPlain: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, paddingBottom: 14, borderBottom: '1px solid var(--surface-2)' },
+  docKindPlain: { fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontFamily: 'var(--font-ui)' },
 
   // fields block (visual frontmatter)
-  fields: { background: 'oklch(0.984 0.005 80)', border: '1px solid oklch(0.93 0.008 80)', borderRadius: 10, padding: '4px 16px', marginBottom: 8 },
+  fields: { background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10, padding: '4px 16px', marginBottom: 8 },
   fieldRow: { display: 'flex', alignItems: 'flex-start', gap: 16, padding: '9px 0', minHeight: 20 },
-  fieldKey: { width: 150, flexShrink: 0, fontSize: 11.5, fontWeight: 600, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)', paddingTop: 1 },
-  fieldValue: { flex: 1, fontSize: 13.5, color: 'oklch(0.22 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.5 },
+  fieldKey: { width: 150, flexShrink: 0, fontSize: 11.5, fontWeight: 600, color: 'var(--muted)', fontFamily: 'var(--font-ui)', paddingTop: 1 },
+  fieldValue: { flex: 1, fontSize: 13.5, color: 'var(--text)', fontFamily: 'var(--font-ui)', lineHeight: 1.5 },
   fieldMono: { fontFamily: 'var(--font-mono)', fontSize: 12.5, color: 'oklch(0.3 0.04 260)', background: 'oklch(0.965 0.008 260)', padding: '2px 7px', borderRadius: 5, border: '1px solid oklch(0.93 0.01 260)' },
   boolPill: { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 600, padding: '2px 9px', borderRadius: 20, fontFamily: 'var(--font-ui)' },
   boolYes: { background: 'oklch(0.95 0.05 145)', color: 'oklch(0.45 0.13 145)' },
-  boolNo: { background: 'oklch(0.95 0.008 80)', color: 'oklch(0.5 0.01 80)' },
+  boolNo: { background: 'var(--surface-2)', color: 'var(--muted)' },
   boolDot: { width: 6, height: 6, borderRadius: '50%' },
   fieldDivider: { display: 'flex', alignItems: 'center', gap: 10, margin: '20px 0 18px' },
-  fieldDividerLabel: { fontSize: 10, fontWeight: 700, color: 'oklch(0.62 0.01 80)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)' },
+  fieldDividerLabel: { fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)' },
 
-  emptyEditor: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 14, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', fontSize: 13 },
+  emptyEditor: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 14, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontSize: 13 },
   emptyIcon: { opacity: 0.7 },
 
   // Vault editor (HDU-D)
-  vaultStatus: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, paddingBottom: 12, borderBottom: '1px solid oklch(0.94 0.006 80)' },
+  vaultStatus: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, paddingBottom: 12, borderBottom: '1px solid var(--surface-2)' },
   vaultSaveDot: { width: 7, height: 7, borderRadius: '50%', transition: 'background 0.2s' },
   vaultSaveLabel: { fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-ui)', transition: 'color 0.2s' },
-  vaultDeleteBtn: { fontSize: 11, padding: '3px 10px', borderRadius: 6, border: '1px solid oklch(0.88 0.04 25)', background: '#fff', color: 'oklch(0.5 0.13 25)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 500 },
-  vaultTitleInput: { width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: 30, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-ui)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16, padding: 0 },
-  vaultBodyArea: { width: '100%', minHeight: 360, border: '1px solid oklch(0.93 0.008 80)', borderRadius: 10, padding: '14px 18px', fontSize: 13.5, color: 'oklch(0.2 0.01 80)', background: 'oklch(0.992 0.003 80)', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-mono)', lineHeight: 1.65, boxSizing: 'border-box' },
+  vaultDeleteBtn: { fontSize: 11, padding: '3px 10px', borderRadius: 6, border: '1px solid oklch(0.88 0.04 25)', background: 'var(--surface)', color: 'oklch(0.5 0.13 25)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 500 },
+  vaultTitleInput: { width: '100%', border: 'none', outline: 'none', background: 'transparent', fontSize: 30, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 16, padding: 0 },
+  vaultBodyArea: { width: '100%', minHeight: 360, border: '1px solid var(--border)', borderRadius: 10, padding: '14px 18px', fontSize: 13.5, color: 'var(--text)', background: 'var(--bg)', resize: 'vertical', outline: 'none', fontFamily: 'var(--font-mono)', lineHeight: 1.65, boxSizing: 'border-box' },
 
   // Backlinks panel
-  backlinksBox: { marginTop: 24, padding: '14px 16px', background: 'oklch(0.985 0.005 80)', border: '1px solid oklch(0.94 0.006 80)', borderRadius: 10 },
-  backlinksHead: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'oklch(0.4 0.01 80)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)' },
+  backlinksBox: { marginTop: 24, padding: '14px 16px', background: 'var(--bg)', border: '1px solid var(--surface-2)', borderRadius: 10 },
+  backlinksHead: { display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 700, color: 'var(--text-soft)', textTransform: 'uppercase', letterSpacing: '0.08em', fontFamily: 'var(--font-ui)' },
   backlinksCount: { fontSize: 10, fontFamily: 'var(--font-mono)', background: 'var(--accent-light)', color: 'var(--accent)', borderRadius: 9, padding: '1px 7px', marginLeft: 4 },
-  backlinksEmpty: { fontSize: 12, color: 'oklch(0.58 0.01 80)', fontFamily: 'var(--font-ui)', fontStyle: 'italic', lineHeight: 1.55, marginTop: 8 },
-  backlinkRow: { padding: '8px 10px', background: '#fff', border: '1px solid oklch(0.94 0.006 80)', borderRadius: 7, cursor: 'pointer' },
+  backlinksEmpty: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontStyle: 'italic', lineHeight: 1.55, marginTop: 8 },
+  backlinkRow: { padding: '8px 10px', background: 'var(--surface)', border: '1px solid var(--surface-2)', borderRadius: 7, cursor: 'pointer' },
   backlinkTitle: { fontSize: 12.5, fontWeight: 600, color: 'oklch(0.22 0.02 var(--accent-hue, 260))', fontFamily: 'var(--font-ui)', marginBottom: 3 },
-  backlinkSnippet: { fontSize: 11.5, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.45, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  backlinkSnippet: { fontSize: 11.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', lineHeight: 1.45, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
 
   // overlay
   overlay: { position: 'absolute', inset: 0, background: 'oklch(0.2 0.01 80 / 0.42)', backdropFilter: 'blur(3px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 40, animation: 'fadeIn 0.14s ease' },
-  overlayCard: { width: 'min(1100px, 94%)', height: 'min(760px, 90%)', background: '#fff', borderRadius: 16, border: '1px solid oklch(0.9 0.008 80)', boxShadow: '0 24px 80px oklch(0 0 0 / 0.28)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  overlayHead: { display: 'flex', alignItems: 'center', gap: 20, padding: '18px 22px', borderBottom: '1px solid oklch(0.93 0.008 80)', flexShrink: 0 },
-  overlayTitle: { fontSize: 17, fontWeight: 700, color: 'oklch(0.14 0.015 80)', fontFamily: 'var(--font-ui)', letterSpacing: '-0.01em' },
-  overlaySub: { fontSize: 12, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', marginTop: 2 },
+  overlayCard: { width: 'min(1100px, 94%)', height: 'min(760px, 90%)', background: 'var(--surface)', borderRadius: 16, border: '1px solid var(--border)', boxShadow: '0 24px 80px oklch(0 0 0 / 0.28)', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  overlayHead: { display: 'flex', alignItems: 'center', gap: 20, padding: '18px 22px', borderBottom: '1px solid var(--border)', flexShrink: 0 },
+  overlayTitle: { fontSize: 17, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)', letterSpacing: '-0.01em' },
+  overlaySub: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginTop: 2 },
   overlayLegend: { display: 'flex', flexWrap: 'wrap', gap: 12, marginLeft: 'auto' },
-  legChip: { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, color: 'oklch(0.4 0.01 80)', fontFamily: 'var(--font-ui)' },
+  legChip: { display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, color: 'var(--text-soft)', fontFamily: 'var(--font-ui)' },
   legDot: { width: 9, height: 9, borderRadius: '50%' },
   overlayClose: { width: 30, height: 30, flexShrink: 0 },
-  overlayCanvas: { flex: 1, background: 'radial-gradient(circle at 50% 40%, oklch(0.995 0.003 80), oklch(0.975 0.005 80))', overflow: 'hidden' },
+  overlayCanvas: { flex: 1, background: 'radial-gradient(circle at 50% 40%, var(--bg), var(--bg))', overflow: 'hidden' },
 };
 
 Object.assign(window, { NotesView });

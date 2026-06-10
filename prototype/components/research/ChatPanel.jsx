@@ -218,12 +218,12 @@ function ChatPanel({ openSourceTitles }) {
       {settingsOpen && (
         <div style={{
           padding: '14px 18px', borderBottom: '1px solid var(--border)',
-          background: 'oklch(0.98 0.005 80)', fontSize: 12,
+          background: 'var(--bg)', fontSize: 12,
           fontFamily: 'var(--font-ui)', flexShrink: 0,
         }}>
           {!keysAvailable && (
             <div style={{
-              background: 'oklch(0.96 0.04 25)', padding: '7px 10px',
+              background: 'var(--surface-2)', padding: '7px 10px',
               borderRadius: 6, marginBottom: 10, color: 'oklch(0.45 0.15 25)',
             }}>
               ⚠ safeStorage no disponible. Las API keys no se podrán cifrar. Verifica que tengas gnome-keyring / libsecret instalado.
@@ -306,7 +306,7 @@ function ChatPanel({ openSourceTitles }) {
           {!ragStatus.ready && ragStatus.logTail?.length > 0 && (
             <details style={{ marginTop: 10 }}>
               <summary style={{ cursor: 'pointer', fontSize: 11, color: 'var(--muted)' }}>Backend log</summary>
-              <pre style={{ background: 'oklch(0.95 0.005 80)', padding: 8, borderRadius: 6, fontSize: 10.5, overflow: 'auto', maxHeight: 120, fontFamily: 'var(--font-mono)' }}>
+              <pre style={{ background: 'var(--surface-2)', padding: 8, borderRadius: 6, fontSize: 10.5, overflow: 'auto', maxHeight: 120, fontFamily: 'var(--font-mono)' }}>
 {ragStatus.logTail.join('\n')}
               </pre>
             </details>
@@ -320,7 +320,7 @@ function ChatPanel({ openSourceTitles }) {
           <div style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13, marginTop: 40, fontFamily: 'var(--font-ui)' }}>
             <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.5 }}>💬</div>
             Pregunta algo sobre los PDFs indexados.
-            <div style={{ fontSize: 11.5, marginTop: 6, color: 'oklch(0.7 0.01 80)' }}>
+            <div style={{ fontSize: 11.5, marginTop: 6, color: 'var(--muted)' }}>
               Los PDFs se cargan dejándolos en <code style={codeStyle}>~/.config/Lumen/pdfs/</code><br/>
               y llamando POST /api/index una vez.
             </div>
@@ -381,7 +381,7 @@ function ChatPanel({ openSourceTitles }) {
             }}
           />
           <button onClick={send} disabled={!canSend} style={{
-            background: canSend ? 'var(--accent)' : 'oklch(0.85 0.01 80)',
+            background: canSend ? 'var(--accent)' : 'var(--muted)',
             color: '#fff', border: 'none', borderRadius: 7,
             padding: '6px 14px', fontSize: 12, fontWeight: 600,
             cursor: canSend ? 'pointer' : 'not-allowed',
@@ -407,7 +407,7 @@ function StatusDot({ ready, running }) {
 const inputStyle = {
   border: '1px solid var(--border)', borderRadius: 6,
   padding: '6px 10px', fontSize: 12, color: 'var(--text)',
-  background: '#fff', fontFamily: 'var(--font-ui)', outline: 'none',
+  background: 'var(--surface)', fontFamily: 'var(--font-ui)', outline: 'none',
 }
 const settingsBtnStyle = {
   background: 'var(--surface)', border: '1px solid var(--border)',
@@ -421,7 +421,7 @@ const primaryBtnStyle = {
 }
 const codeStyle = {
   fontFamily: 'var(--font-mono)', fontSize: 11,
-  background: 'oklch(0.95 0.005 80)', padding: '1px 5px', borderRadius: 3,
+  background: 'var(--surface-2)', padding: '1px 5px', borderRadius: 3,
 }
 
 Object.assign(window, { ChatPanel })

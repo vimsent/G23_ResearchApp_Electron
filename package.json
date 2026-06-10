@@ -12,7 +12,7 @@
     "dist": "electron-builder --linux"
   },
   "devDependencies": {
-    "electron": "^31.0.0",
+    "electron": "^31.7.7",
     "electron-builder": "^24.13.0"
   },
   "build": {
@@ -30,7 +30,10 @@
       "!prototype/scraps/**"
     ],
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Education"
     }
   }

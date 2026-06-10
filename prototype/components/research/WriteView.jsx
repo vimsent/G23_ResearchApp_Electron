@@ -56,91 +56,427 @@ const EDITOR_THEMES = {
   },
 };
 
-function LatexEditor({ tex, themeKey = 'normal' }) {
-  const th = EDITOR_THEMES[themeKey] || EDITOR_THEMES.normal;
-  const lines = tex.split('\n');
-  const tokenStyle = {
-    cmd: { color: th.tok.cmd },
-    env: { color: th.tok.env },
-    brace: { color: th.tok.brace },
-    comment: { color: th.tok.comment, fontStyle: 'italic' },
-    text: { color: th.tok.text },
+const LATEX_FORMULAS_AND_COMMANDS = [
+  { id: 'alpha',           label: '\\alpha',           info: 'Greek alpha (α)',                       text: '\\alpha '                                           },
+  { id: 'beta',            label: '\\beta',            info: 'Greek beta (β)',                        text: '\\beta '                                            },
+  { id: 'gamma',           label: '\\gamma',           info: 'Greek gamma (γ)',                       text: '\\gamma '                                           },
+  { id: 'theta',           label: '\\theta',           info: 'Greek theta (θ)',                       text: '\\theta '                                           },
+  { id: 'lambda',          label: '\\lambda',          info: 'Greek lambda (λ)',                      text: '\\lambda '                                          },
+  { id: 'pi',              label: '\\pi',              info: 'Pi constant (π)',                       text: '\\pi '                                              },
+  { id: 'sigma',           label: '\\sigma',           info: 'Greek sigma (σ)',                       text: '\\sigma '                                           },
+  { id: 'Delta',           label: '\\Delta',           info: 'Greek Delta (Δ)',                       text: '\\Delta '                                           },
+  { id: 'mu',              label: '\\mu',              info: 'Greek mu (μ)',                          text: '\\mu '                                              },
+  { id: 'sum',             label: '\\sum_{i=1}^{n}',  info: 'Summation ∑',                           text: '\\sum_{i=1}^{n} '                                   },
+  { id: 'int',             label: '\\int_{a}^{b}',    info: 'Integral ∫',                            text: '\\int_{a}^{b} '                                     },
+  { id: 'frac',            label: '\\frac{a}{b}',     info: 'Fraction',                              text: '\\frac{a}{b}'                                       },
+  { id: 'sqrt',            label: '\\sqrt{x}',        info: 'Square Root',                           text: '\\sqrt{x}'                                          },
+  { id: 'infty',           label: '\\infty',           info: 'Infinity (∞)',                          text: '\\infty'                                            },
+  { id: 'partial',         label: '\\partial',         info: 'Partial derivative (∂)',                text: '\\partial '                                         },
+  { id: 'equation',        label: '\\begin{equation}', info: 'Math Equation Block',                  text: '\\begin{equation}\n  \n\\end{equation}'             },
+  { id: 'align',           label: '\\begin{align}',   info: 'Multi-line Align Block',                text: '\\begin{align}\n  \n\\end{align}'                   },
+  { id: 'section',         label: '\\section{}',       info: 'Section Heading',                       text: '\\section{}'                                        },
+  { id: 'subsection',      label: '\\subsection{}',    info: 'Subsection Heading',                    text: '\\subsection{}'                                     },
+  { id: 'subsubsection',   label: '\\subsubsection{}', info: 'Sub-subsection Heading',                text: '\\subsubsection{}'                                  },
+  { id: 'textbf',          label: '\\textbf{}',        info: 'Bold text style',                       text: '\\textbf{}'                                         },
+  { id: 'textit',          label: '\\textit{}',        info: 'Italic text style',                     text: '\\textit{}'                                         },
+  { id: 'begin_abstract',  label: '\\begin{abstract}', info: 'Abstract block',                        text: '\\begin{abstract}\n  \n\\end{abstract}'             },
+  { id: 'begin_itemize',   label: '\\begin{itemize}',  info: 'Bullet points list',                    text: '\\begin{itemize}\n  \\item \n\\end{itemize}'        },
+  { id: 'begin_enumerate', label: '\\begin{enumerate}',info: 'Numbered list',                         text: '\\begin{enumerate}\n  \\item \n\\end{enumerate}'   },
+  { id: 'item',            label: '\\item',            info: 'List item',                             text: '\\item '                                            },
+  { id: 'label',           label: '\\label{}',         info: 'Cross-reference label',                 text: '\\label{}'                                          },
+  { id: 'ref',             label: '\\ref{}',           info: 'Reference link',                        text: '\\ref{}'                                            },
+  { id: 'href',            label: '\\href{url}{text}', info: 'External hyperlink',                    text: '\\href{}{}'                                         },
+];
+
+const getContextSuggestions = (paper) => {
+  const list = [];
+  if (!paper || !paper.contextFiles) return list;
+  paper.contextFiles.forEach(f => {
+    const lines = (f.content || '').split('\n');
+    lines.forEach(line => {
+      const hMatch = line.match(/(H\d+)(?::|\s+—|\s+conecta)\s*(.*)/i);
+      if (hMatch) {
+        list.push({
+          id: hMatch[1],
+          label: hMatch[1],
+          info: `Hypothesis: ${hMatch[2].trim().slice(0, 50)}...`,
+          text: `${hMatch[1]}: ${hMatch[2].trim()}`,
+          type: 'hypothesis'
+        });
+      }
+      const cMatch = line.match(/^[-*]\s*["']?([^":\-\n\(\)]+?)["']?\s*(?:—|:|\(|→|$)/);
+      if (cMatch && cMatch[1] && cMatch[1].trim().length > 3) {
+        const val = cMatch[1].trim();
+        const forbidden = ['Estado', 'Creado', 'Última actualización', 'Líneas de investigación', 'Hipótesis', 'Active Sources'];
+        if (!forbidden.includes(val) && !val.includes('.bib') && !val.includes('SOURCES') && !val.includes('CONCEPTS')) {
+          list.push({ id: val.replace(/\s+/g, '-').toLowerCase(), label: val, info: `Concept from ${f.name}`, text: val, type: 'concept' });
+        }
+      }
+    });
+  });
+  const seen = new Set();
+  return list.filter(item => {
+    if (seen.has(item.label.toLowerCase())) return false;
+    seen.add(item.label.toLowerCase());
+    return true;
+  });
+};
+
+function getCaretCoordinates(element, position) {
+  const properties = [
+    'direction','boxSizing','width','height','overflowX','overflowY',
+    'borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','borderStyle',
+    'paddingTop','paddingRight','paddingBottom','paddingLeft',
+    'fontStyle','fontVariant','fontWeight','fontStretch','fontSize','fontSizeAdjust',
+    'lineHeight','fontFamily','textAlign','textTransform','textIndent','textDecoration',
+    'letterSpacing','wordSpacing','tabSize','MozTabSize',
+  ];
+  const div = document.createElement('div');
+  document.body.appendChild(div);
+  const style = div.style;
+  const computed = window.getComputedStyle(element);
+  style.whiteSpace = 'pre-wrap';
+  style.wordWrap = 'break-word';
+  style.position = 'absolute';
+  style.visibility = 'hidden';
+  properties.forEach(prop => { style[prop] = computed[prop]; });
+  style.overflow = 'hidden';
+  div.textContent = element.value.substring(0, position);
+  const span = document.createElement('span');
+  span.textContent = element.value.substring(position) || '.';
+  div.appendChild(span);
+  const coordinates = {
+    top: span.offsetTop + parseInt(computed['borderTopWidth']),
+    left: span.offsetLeft + parseInt(computed['borderLeftWidth']),
+    lineHeight: parseInt(computed['lineHeight']) || 20,
   };
+  document.body.removeChild(div);
+  return coordinates;
+}
+
+function LatexEditor({ paper, tex, setTex, themeKey = 'normal' }) {
+  const th = EDITOR_THEMES[themeKey] || EDITOR_THEMES.normal;
+  const lines = (tex || '').split('\n');
+  const textareaRef = React.useRef(null);
+  const backdropRef = React.useRef(null);
+
+  // Feature 3: Smart cursor offset — insertTexAtCursor exposed globally
+  React.useEffect(() => {
+    window.insertTexAtCursor = (textToInsert, cursorOffset) => {
+      const textarea = textareaRef.current;
+      if (!textarea) {
+        setTex(prev => prev + textToInsert);
+        return;
+      }
+      const start = textarea.selectionStart;
+      const end   = textarea.selectionEnd;
+      const nextVal = textarea.value.substring(0, start) + textToInsert + textarea.value.substring(end);
+      setTex(nextVal);
+
+      let offset = cursorOffset;
+      if (offset === undefined) {
+        if (textToInsert.includes('\\caption{}'))        offset = textToInsert.indexOf('\\caption{}') + 9;
+        else if (textToInsert.endsWith('{}'))            offset = textToInsert.length - 1;
+        else if (textToInsert.includes('\n  \n'))        offset = textToInsert.indexOf('\n  \n') + 3;
+        else                                              offset = textToInsert.length;
+      }
+      setTimeout(() => {
+        textarea.focus();
+        const newPos = start + offset;
+        textarea.setSelectionRange(newPos, newPos);
+      }, 50);
+    };
+    return () => { window.insertTexAtCursor = null; };
+  }, [setTex]);
+
+  // Feature 2: Autocomplete state
+  const [suggestions, setSuggestions]       = React.useState([]);
+  const [suggestionRange, setSuggestionRange] = React.useState(null);
+  const [coords, setCoords]                 = React.useState({ top: 0, left: 0 });
+  const [activeIndex, setActiveIndex]       = React.useState(0);
+  const itemRefs = React.useRef([]);
+
+  // Keep the highlighted suggestion scrolled into view
+  React.useEffect(() => {
+    const el = itemRefs.current[activeIndex];
+    if (el) el.scrollIntoView({ block: 'nearest' });
+  }, [activeIndex, suggestions]);
+
+  const handleEditorChangeOrSelect = (text, selectionStart) => {
+    const before = text.substring(0, selectionStart);
+
+    const citeMatch    = before.match(/(?:\\cite|\\citep)\{([^}]*)$/);
+    const atMatch      = before.match(/@([a-zA-Z0-9_-]*)$/);
+    const commandMatch = before.match(/\\([a-zA-Z]*)$/);
+    const hashMatch    = before.match(/#([a-zA-Z0-9_-]*)$/);
+
+    let activeSuggestions = [];
+    let rangeType = null;
+    let queryLength = 0;
+
+    if (citeMatch) {
+      const query = citeMatch[1].split(',').pop().trim();
+      queryLength = query.length;
+      rangeType = 'cite';
+      const sources = (paper && paper.activeSources) || [];
+      activeSuggestions = sources
+        .map(s => ({ id: s.id, label: s.id, info: s.fullTitle || s.name || s.title || '', text: s.id, type: 'citation' }))
+        .filter(s => { const q = query.toLowerCase(); return s.id.toLowerCase().includes(q) || s.info.toLowerCase().includes(q); });
+    } else if (atMatch) {
+      const query = atMatch[1];
+      queryLength = query.length + 1;
+      rangeType = 'at';
+      const sources = (paper && paper.activeSources) || [];
+      activeSuggestions = sources
+        .map(s => ({ id: s.id, label: '@' + s.id, info: s.fullTitle || s.name || s.title || '', text: `\\citep{${s.id}}`, type: 'citation' }))
+        .filter(s => { const q = query.toLowerCase(); return s.id.toLowerCase().includes(q) || s.info.toLowerCase().includes(q); });
+    } else if (commandMatch) {
+      const query = commandMatch[1];
+      queryLength = query.length + 1;
+      rangeType = 'command';
+      activeSuggestions = LATEX_FORMULAS_AND_COMMANDS
+        .filter(cmd => { const q = query.toLowerCase(); return cmd.id.toLowerCase().includes(q) || cmd.label.toLowerCase().includes(q); })
+        .map(cmd => ({ ...cmd, type: 'command' }));
+    } else if (hashMatch) {
+      const query = hashMatch[1];
+      queryLength = query.length + 1;
+      rangeType = 'hash';
+      activeSuggestions = getContextSuggestions(paper)
+        .filter(item => { const q = query.toLowerCase(); return item.id.toLowerCase().includes(q) || item.label.toLowerCase().includes(q); });
+    }
+
+    if (activeSuggestions.length > 0 && textareaRef.current) {
+      setSuggestions(activeSuggestions);
+      setActiveIndex(0);
+      setSuggestionRange({ start: selectionStart - queryLength, end: selectionStart, type: rangeType });
+
+      const caretCoords  = getCaretCoordinates(textareaRef.current, selectionStart);
+      const topVal  = caretCoords.top  - textareaRef.current.scrollTop;
+      const leftVal = caretCoords.left - textareaRef.current.scrollLeft;
+      const boxH = 240, boxW = 320;
+      const lh   = caretCoords.lineHeight || 20;
+      const near = (topVal + lh + boxH + 10) > textareaRef.current.clientHeight;
+      setCoords({
+        top:  near ? Math.max(10, topVal - boxH - 5) : topVal + lh + 5,
+        left: Math.max(10, Math.min(leftVal, textareaRef.current.clientWidth - boxW - 20)),
+      });
+    } else {
+      setSuggestions([]);
+      setSuggestionRange(null);
+    }
+  };
+
+  // Insert the chosen suggestion into the textarea (shared by click + keyboard)
+  const applySuggestion = (s) => {
+    if (!s || !suggestionRange) return;
+    const before = tex.substring(0, suggestionRange.start);
+    const after  = tex.substring(suggestionRange.end);
+    let insertionText  = s.text;
+    let cursorOffset   = insertionText.length;
+    if (suggestionRange.type === 'cite')          { insertionText = s.text + '}'; cursorOffset = insertionText.length; }
+    else if (s.text.endsWith('{}'))               { cursorOffset = s.text.length - 1; }
+    else if (s.text.includes('\n  \n'))           { cursorOffset = s.text.indexOf('\n  \n') + 3; }
+    setTex(before + insertionText + after);
+    setSuggestions([]);
+    setSuggestionRange(null);
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+        const pos = suggestionRange.start + cursorOffset;
+        textareaRef.current.setSelectionRange(pos, pos);
+      }
+    }, 50);
+  };
+
+  const NAV_KEYS = ['ArrowDown', 'ArrowUp', 'Enter', 'Tab', 'Escape'];
+  const onChange  = (e) => { setTex(e.target.value); handleEditorChangeOrSelect(e.target.value, e.target.selectionStart); };
+  const onKeyUp   = (e) => {
+    // Don't recompute on the keys we use to drive the dropdown — it would reset the highlight
+    if (suggestions.length > 0 && NAV_KEYS.includes(e.key)) return;
+    handleEditorChangeOrSelect(e.target.value, e.target.selectionStart);
+  };
+  const onClick   = (e) => { handleEditorChangeOrSelect(e.target.value, e.target.selectionStart); };
+  const onKeyDown = (e) => {
+    if (suggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(i => (i + 1) % suggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(i => (i - 1 + suggestions.length) % suggestions.length);
+    } else if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      applySuggestion(suggestions[activeIndex]);
+    } else if (e.key === 'Escape') {
+      e.preventDefault(); e.stopPropagation();
+      setSuggestions([]); setSuggestionRange(null);
+    }
+  };
+  const onScroll  = (e) => {
+    if (backdropRef.current) { backdropRef.current.scrollTop = e.target.scrollTop; backdropRef.current.scrollLeft = e.target.scrollLeft; }
+    if (suggestions.length > 0 && textareaRef.current && suggestionRange) {
+      const cc   = getCaretCoordinates(textareaRef.current, e.target.selectionStart);
+      const topV = cc.top  - e.target.scrollTop;
+      const lefV = cc.left - e.target.scrollLeft;
+      const boxH = 240, boxW = 320, lh = cc.lineHeight || 20;
+      const near = (topV + lh + boxH + 10) > e.target.clientHeight;
+      setCoords({ top: near ? Math.max(10, topV - boxH - 5) : topV + lh + 5, left: Math.max(10, Math.min(lefV, e.target.clientWidth - boxW - 20)) });
+    }
+  };
+
+  // Tokenize entire tex for highlighted backdrop
+  const highlightedContent = React.useMemo(() => {
+    const tokens = window.highlightLatex ? window.highlightLatex(tex || '') : [{ text: tex || '', kind: 'text' }];
+    return tokens.map((token, i) => (
+      <span key={i} style={{ color: th.tok[token.kind] || th.tok.text }}>{token.text}</span>
+    ));
+  }, [tex, th]);
+
   return (
-    <div style={{
-      display: 'flex', flex: 1, background: th.bg, overflow: 'auto',
-      fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: '20px',
-      transition: 'background 0.2s ease',
-    }}>
-      <div style={{
-        padding: '14px 0', minWidth: 42, textAlign: 'right',
-        color: th.gutterText, userSelect: 'none', flexShrink: 0,
-        background: th.gutterBg, borderRight: `1px solid ${th.gutterBorder}`,
-      }}>
-        {lines.map((_, i) => (
-          <div key={i} style={{ padding: '0 10px', height: 20 }}>{i + 1}</div>
-        ))}
+    <div style={{ display: 'flex', flex: 1, overflow: 'hidden', background: th.bg, position: 'relative' }}>
+      {/* Line numbers gutter */}
+      <div style={{ padding: '14px 0', minWidth: 42, textAlign: 'right', color: th.gutterText, userSelect: 'none', flexShrink: 0, background: th.gutterBg, borderRight: `1px solid ${th.gutterBorder}`, zIndex: 10 }}>
+        {lines.map((_, i) => (<div key={i} style={{ padding: '0 10px', height: 20 }}>{i + 1}</div>))}
       </div>
-      <pre style={{
-        flex: 1, padding: '14px 18px', margin: 0,
-        whiteSpace: 'pre', color: th.tok.text,
-        backgroundImage: th.overlay ? th.overlay.image : 'none',
-        backgroundSize: th.overlay ? th.overlay.size : 'auto',
-        textShadow: themeKey === 'neon' ? `0 0 6px ${th.tok.text}55` : 'none',
-      }}>
-        {lines.map((line, li) => (
-          <div key={li} style={{ height: 20 }}>
-            {highlightLatex(line).map((tok, i) => (
-              <span key={i} style={tokenStyle[tok.kind]}>{tok.text}</span>
-            ))}
+
+      <div style={{ position: 'relative', flex: 1, height: '100%', overflow: 'hidden' }}>
+        {/* Highlighted backdrop */}
+        <pre
+          ref={backdropRef}
+          aria-hidden="true"
+          style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            padding: '14px 18px', margin: 0, border: 'none',
+            fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: '20px',
+            whiteSpace: 'pre', overflow: 'hidden', pointerEvents: 'none',
+            background: 'transparent', boxSizing: 'border-box', zIndex: 1,
+            backgroundImage: th.overlay ? th.overlay.image : 'none',
+            backgroundSize: th.overlay ? th.overlay.size : 'auto',
+            textShadow: themeKey === 'neon' ? `0 0 6px ${th.tok.text}55` : 'none',
+          }}
+        >
+          {highlightedContent}
+        </pre>
+
+        {/* Editable textarea on top */}
+        <textarea
+          ref={textareaRef}
+          value={tex}
+          onChange={onChange}
+          onKeyUp={onKeyUp}
+          onClick={onClick}
+          onKeyDown={onKeyDown}
+          onScroll={onScroll}
+          spellCheck={false}
+          style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            padding: '14px 18px', margin: 0, border: 'none', outline: 'none', resize: 'none',
+            fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: '20px',
+            color: 'transparent', caretColor: th.cursor || 'white',
+            background: 'transparent', whiteSpace: 'pre',
+            boxSizing: 'border-box', overflow: 'auto', zIndex: 5,
+          }}
+        />
+
+        {/* Floating autocomplete dropdown */}
+        {suggestions.length > 0 && (
+          <div style={{
+            position: 'absolute', top: coords.top, left: coords.left, zIndex: 100,
+            background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)', width: 320, maxHeight: 240, overflowY: 'auto',
+            display: 'flex', flexDirection: 'column', padding: 6,
+            fontFamily: 'var(--font-ui)',
+          }}>
+            <div style={{
+              fontSize: 10, fontWeight: 700, color: 'var(--muted)', padding: '6px 8px',
+              textTransform: 'uppercase', letterSpacing: '0.05em',
+              borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', marginBottom: 4,
+            }}>
+              <span>Autocomplete</span>
+              <span style={{ fontSize: 9, textTransform: 'none', fontWeight: 500 }}>
+                ↑↓ navegar · ↵ insertar · esc cerrar
+              </span>
+            </div>
+            {suggestions.map((s, index) => {
+              const badgeMap = {
+                citation: { text: 'Cite',    bg: 'oklch(0.96 0.02 170)', color: 'oklch(0.45 0.12 170)' },
+                command:  { text: s.info && (s.info.startsWith('Greek') || s.info.startsWith('Math')) ? 'Math' : 'Cmd',
+                            bg: 'var(--accent-light)', color: 'var(--accent)' },
+                hypothesis:{ text: 'Hyp',   bg: 'var(--surface-2)',  color: 'oklch(0.55 0.12 80)' },
+                concept:  { text: 'Concept',bg: 'oklch(0.96 0.03 300)', color: 'oklch(0.6 0.14 300)' },
+              };
+              const badge = badgeMap[s.type] || { text: s.type, bg: 'var(--surface-2)', color: 'var(--muted)' };
+              const isActive = index === activeIndex;
+              return (
+                <button
+                  key={s.id + '-' + index}
+                  ref={el => { itemRefs.current[index] = el; }}
+                  onClick={() => applySuggestion(s)}
+                  onMouseMove={() => setActiveIndex(index)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px',
+                    border: 'none', background: isActive ? 'oklch(0.96 0.01 260)' : 'none',
+                    borderRadius: 8, cursor: 'pointer',
+                    textAlign: 'left', width: '100%',
+                  }}
+                >
+                  <span style={{
+                    fontSize: 9.5, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
+                    background: badge.bg, color: badge.color, minWidth: 46, textAlign: 'center',
+                  }}>{badge.text}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text)', fontFamily: s.type === 'command' ? 'var(--font-mono)' : 'var(--font-ui)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {s.label}
+                    </span>
+                    <span style={{ fontSize: 10.5, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {s.info}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        ))}
-        <span style={{
-          display: 'inline-block', width: 1.5, height: 16,
-          background: th.cursor, verticalAlign: 'middle',
-          boxShadow: (themeKey === 'neon' || themeKey === 'modern') ? `0 0 8px ${th.cursor}` : 'none',
-          animation: 'blink 1s steps(2) infinite',
-        }} />
-      </pre>
+        )}
+      </div>
     </div>
   );
 }
 
 function PdfPreview({ paper }) {
+  const tex = (paper && paper.tex) || '';
+  const title = (paper && (paper.fullTitle || paper.title)) || 'Untitled Paper';
+  const parsed = React.useMemo(() => {
+    return window.parseLatexToHtml
+      ? window.parseLatexToHtml(tex, title)
+      : { title, author: '—', date: '', abstract: '', bodyHtml: tex };
+  }, [tex, title]);
+
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: 'oklch(0.95 0.005 80)', padding: '40px 24px' }}>
-      <div style={{
-        maxWidth: 680, margin: '0 auto', background: 'var(--surface)',
-        boxShadow: '0 1px 2px oklch(0 0 0 / 0.04), 0 8px 28px oklch(0 0 0 / 0.08)',
-        padding: '64px 76px', fontFamily: "'Lora', Georgia, serif",
-        color: 'var(--text)', lineHeight: 1.65,
-      }}>
+    <div style={{ flex: 1, overflow: 'auto', background: 'var(--surface-2)', padding: '40px 24px' }}>
+      <div
+        data-pdf-preview="true"
+        style={{
+          maxWidth: 680, margin: '0 auto', background: 'var(--surface)',
+          boxShadow: '0 1px 2px oklch(0 0 0 / 0.04), 0 8px 28px oklch(0 0 0 / 0.08)',
+          padding: '64px 76px', fontFamily: "'Lora', Georgia, serif",
+          color: 'var(--text)', lineHeight: 1.65,
+        }}
+      >
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{ fontSize: 22, fontWeight: 600, lineHeight: 1.3, marginBottom: 16 }}>
-            Open Knowledge Infrastructure:<br />A Framework for Diamond Open Access
-          </div>
-          <div style={{ fontSize: 13, color: 'oklch(0.3 0.01 80)' }}>M. Vargas</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic' }}>Pontificia Universidad Católica de Chile</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>April 2026</div>
+          <div style={{ fontSize: 22, fontWeight: 600, lineHeight: 1.3, marginBottom: 16 }} dangerouslySetInnerHTML={{ __html: parsed.title }} />
+          <div style={{ fontSize: 13, color: 'var(--text-soft)' }} dangerouslySetInnerHTML={{ __html: parsed.author }} />
+          {paper && paper.workspacePath && (
+            <div style={{ fontSize: 12, color: 'var(--muted)', fontStyle: 'italic', marginTop: 4 }}>{paper.workspacePath}</div>
+          )}
+          {parsed.date && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>{parsed.date}</div>}
         </div>
-        <div style={{ fontSize: 12, color: 'oklch(0.3 0.01 80)', textAlign: 'center', marginBottom: 28 }}>
-          <div style={{ fontWeight: 600, fontSize: 11, marginBottom: 8, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Abstract</div>
-          <div style={{ textAlign: 'justify', padding: '0 16px' }}>
-            The academic publishing ecosystem is structurally dominated by five commercial entities controlling over 50% of peer-reviewed literature. This paper proposes a framework for Diamond Open Access infrastructure that eliminates Article Processing Charges while preserving quality signals through institutional consortia and verified contributor identity systems.
+        {parsed.abstract && (
+          <div style={{ fontSize: 12, color: 'var(--text-soft)', textAlign: 'center', marginBottom: 28 }}>
+            <div style={{ fontWeight: 600, fontSize: 11, marginBottom: 8, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Abstract</div>
+            <div style={{ textAlign: 'justify', padding: '0 16px' }} dangerouslySetInnerHTML={{ __html: parsed.abstract }} />
           </div>
-        </div>
-        <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 28, marginBottom: 8 }}>1  Introduction</h2>
-        <p style={{ fontSize: 12.5, marginBottom: 12, textAlign: 'justify' }}>
-          Academic publishing operates under a paradox: publicly-funded research is systematically privatized at the point of publication. The researcher produces content, submits to peer review—also unpaid—and transfers copyright permanently to commercial publishers <span style={{ color: 'var(--accent)' }}>(Larivière et al., 2015)</span>.
-        </p>
-        <p style={{ fontSize: 12.5, marginBottom: 12, textAlign: 'justify' }}>
-          The emergence of open-access mandates <span style={{ color: 'var(--accent)' }}>(cOAlition S, 2021)</span> has not resolved this tension. Gold OA replaces reader-side paywalls with author-side Article Processing Charges (APCs), preserving publisher margins while shifting financial burden onto researchers and institutions.
-        </p>
-        <h2 style={{ fontSize: 15, fontWeight: 600, marginTop: 22, marginBottom: 8 }}>2  Background: The Publishing Oligopoly</h2>
-        <h3 style={{ fontSize: 13, fontWeight: 600, marginTop: 14, marginBottom: 6 }}>2.1  Market Concentration</h3>
-        <p style={{ fontSize: 12.5, marginBottom: 12, textAlign: 'justify' }}>
-          Between 1973 and 2013, the share of papers published by the five largest commercial publishers grew from 20% to over 50% of all indexed scientific literature.
-        </p>
+        )}
+        <div dangerouslySetInnerHTML={{ __html: parsed.bodyHtml }} />
       </div>
     </div>
   );
@@ -166,7 +502,7 @@ function ChatPanel({ paper }) {
           if (m.role === 'context') return (
             <div key={i} style={{
               fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-mono)',
-              padding: '5px 9px', background: 'oklch(0.96 0.006 80)', borderRadius: 6,
+              padding: '5px 9px', background: 'var(--surface-2)', borderRadius: 6,
               borderLeft: '2px solid oklch(0.6 0.13 60)',
             }}>{m.text}</div>
           );
@@ -258,8 +594,8 @@ function PanelToggle({ open, onClick }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         width: 26, height: 26, flexShrink: 0,
         border: 'none', borderRadius: 6, cursor: 'pointer',
-        background: hover ? 'oklch(0.95 0.006 80)' : 'none',
-        color: hover ? 'oklch(0.4 0.01 80)' : 'oklch(0.55 0.01 80)',
+        background: hover ? 'var(--surface-2)' : 'none',
+        color: hover ? 'var(--text-soft)' : 'var(--muted)',
         transition: 'background 0.14s, color 0.14s',
       }}>
       <svg width={14} height={14} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
@@ -276,7 +612,7 @@ function PanelSwatch({ entry, active, onClick }) {
     <button onClick={onClick} title={entry.name} style={{
       width: 22, height: 22, borderRadius: '50%', cursor: 'pointer',
       background: entry.pastel,
-      border: active ? `2px solid ${entry.deep}` : '1px solid oklch(0.86 0.01 80)',
+      border: active ? `2px solid ${entry.deep}` : '1px solid var(--border)',
       boxShadow: active ? `0 0 0 2px ${entry.pastel}` : 'none',
       position: 'relative', flexShrink: 0, padding: 0,
       transition: 'border-color 0.12s, box-shadow 0.12s',
@@ -332,7 +668,7 @@ function WriteSettingsPanel({
           <div style={sectionLabel}>Context file style</div>
           <div style={{
             display: 'flex', padding: 3, gap: 3,
-            background: 'oklch(0.96 0.006 80)', border: '1px solid var(--border)', borderRadius: 9,
+            background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 9,
           }}>
             {[
               { id: 'A', label: 'Folder + bar' },
@@ -387,7 +723,7 @@ function WriteSettingsPanel({
                             fontFamily: 'var(--font-ui)', fontWeight: active ? 600 : 500,
                             border: `1px solid ${active ? PASTEL_PALETTE[idx].deep : 'var(--border)'}`,
                             background: active ? PASTEL_PALETTE[idx].pastel : 'var(--surface)',
-                            color: active ? 'oklch(0.3 0.02 80)' : 'var(--muted)',
+                            color: active ? 'var(--text-soft)' : 'var(--muted)',
                             transition: 'all 0.12s',
                           }}>{t.label}</button>
                         );
@@ -465,6 +801,21 @@ function WriteView({ paper }) {
   const setFileColor = (name, i) => setDisp(d => ({ ...d, fileColors: { ...d.fileColors, [name]: i } }));
   const setFileTexture = (name, t) => setDisp(d => ({ ...d, fileTextures: { ...d.fileTextures, [name]: t } }));
 
+  const [tex, setTex] = React.useState(paper.tex || '');
+
+  // Publish the live editor context so the Topbar "Compile PDF" button can read
+  // the currently-edited text (the button lives outside this component).
+  const compileCtxRef = React.useRef({});
+  compileCtxRef.current = {
+    tex,
+    title: paper.fullTitle || paper.title || 'Untitled Paper',
+    workspacePath: paper.workspacePath || '',
+  };
+  React.useEffect(() => {
+    window.getWriteCompileContext = () => compileCtxRef.current;
+    return () => { window.getWriteCompileContext = null; };
+  }, []);
+
   return (
     <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' }}>
       {/* Center panel */}
@@ -474,7 +825,7 @@ function WriteView({ paper }) {
           borderBottom: '1px solid var(--border)', background: 'var(--bg)',
           padding: '0 8px 0 12px', height: 38, flexShrink: 0,
         }}>
-          {['Editor', 'Preview PDF'].map(t => (
+          {['Editor', 'Preview PDF', 'Split View'].map(t => (
             <button key={t} onClick={() => setCenterTab(t)} style={{
               padding: '8px 14px', fontSize: 12.5,
               border: 'none', background: 'transparent',
@@ -494,9 +845,20 @@ function WriteView({ paper }) {
           <PanelToggle open={rightOpen} onClick={() => setRightOpen(o => !o)} />
         </div>
         <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
-          {centerTab === 'Editor'
-            ? <LatexEditor tex={paper.tex} themeKey={disp.editorBg} />
-            : <PdfPreview paper={paper} />}
+          {centerTab === 'Split View' ? (
+            <>
+              <div style={{ flex: 1, display: 'flex', minWidth: 0, borderRight: '1px solid var(--border)' }}>
+                <LatexEditor paper={paper} tex={tex} setTex={setTex} themeKey={disp.editorBg} />
+              </div>
+              <div style={{ flex: 1, display: 'flex', minWidth: 0 }}>
+                <PdfPreview paper={{ ...paper, tex }} />
+              </div>
+            </>
+          ) : centerTab === 'Editor' ? (
+            <LatexEditor paper={paper} tex={tex} setTex={setTex} themeKey={disp.editorBg} />
+          ) : (
+            <PdfPreview paper={{ ...paper, tex }} />
+          )}
         </div>
       </div>
 
@@ -524,7 +886,7 @@ function WriteView({ paper }) {
                 color: settingsOpen ? 'var(--accent)' : 'var(--muted)',
                 transition: 'background 0.14s, color 0.14s',
               }}
-              onMouseEnter={(e) => { if (!settingsOpen) e.currentTarget.style.background = 'oklch(0.95 0.006 80)'; }}
+              onMouseEnter={(e) => { if (!settingsOpen) e.currentTarget.style.background = 'var(--surface-2)'; }}
               onMouseLeave={(e) => { if (!settingsOpen) e.currentTarget.style.background = 'transparent'; }}
             >
               <GearIcon size={14} />

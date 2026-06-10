@@ -41,7 +41,7 @@ function PaperWorkspace({ papers, activePaperId }) {
   }, [view, status, stateKey]);
 
   return (
-    <div key={activePaperId} style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', overflow: 'hidden', background: '#fff' }}>
+    <div key={activePaperId} style={{ display: 'flex', flexDirection: 'column', flex: 1, height: '100%', overflow: 'hidden', background: 'var(--surface)' }}>
       <Topbar
         view={view}
         setView={setView}

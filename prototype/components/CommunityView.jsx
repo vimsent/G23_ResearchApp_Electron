@@ -49,7 +49,7 @@ function CommunityView() {
           <h1 style={cs.title}>Academic Community</h1>
         </div>
         <div style={cs.searchWrap}>
-          <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="oklch(0.6 0.01 80)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }}>
+          <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }}>
             <circle cx="7" cy="7" r="5" /><path d="M11 11l3 3" />
           </svg>
           <input style={cs.searchInput} placeholder="Search researchers, institutions, fields…"
@@ -153,7 +153,7 @@ function CommunityView() {
 
                 <div style={cs.detailSection}>
                   <div style={cs.detailSectionLabel}>License Default</div>
-                  <span style={{ ...cs.licTag, background: selectedResData.license === 'CC BY' ? 'oklch(0.93 0.07 160)' : 'oklch(0.94 0.03 80)', color: selectedResData.license === 'CC BY' ? 'oklch(0.35 0.12 160)' : 'oklch(0.45 0.08 80)' }}>
+                  <span style={{ ...cs.licTag, background: selectedResData.license === 'CC BY' ? 'oklch(0.93 0.07 160)' : 'var(--surface-2)', color: selectedResData.license === 'CC BY' ? 'oklch(0.35 0.12 160)' : 'oklch(0.45 0.08 80)' }}>
                     {selectedResData.license}
                   </span>
                   <span style={cs.copyrightNote}>author retains ©</span>
@@ -227,69 +227,69 @@ function CommunityView() {
 }
 
 const cs = {
-  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'oklch(0.985 0.006 80)', overflow: 'hidden' },
+  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', overflow: 'hidden' },
   header: { padding: '28px 32px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' },
-  breadcrumb: { fontSize: 17, color: 'oklch(0.6 0.01 80)', marginBottom: 2, fontFamily: 'var(--font-ui)' },
-  title: { fontSize: 30, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em' },
+  breadcrumb: { fontSize: 17, color: 'var(--muted)', marginBottom: 2, fontFamily: 'var(--font-ui)' },
+  title: { fontSize: 30, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em' },
   searchWrap: { position: 'relative', paddingBottom: 2 },
-  searchInput: { background: '#fff', border: '1px solid oklch(0.9 0.01 80)', borderRadius: 12, padding: '7px 12px 7px 30px', fontSize: 16, color: 'oklch(0.2 0.01 80)', outline: 'none', width: 280, fontFamily: 'var(--font-ui)' },
-  tabBar: { display: 'flex', alignItems: 'center', borderBottom: '1px solid oklch(0.92 0.008 80)', padding: '0 32px', marginTop: 14 },
-  tab: { background: 'none', border: 'none', borderBottom: '2px solid transparent', padding: '7px 12px 10px', fontSize: 16, color: 'oklch(0.55 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-ui)', transition: 'all 0.15s' },
-  tabActive: { color: 'oklch(0.42 0.14 260)', borderBottomColor: 'oklch(0.42 0.14 260)', fontWeight: 600 },
+  searchInput: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '7px 12px 7px 30px', fontSize: 16, color: 'var(--text)', outline: 'none', width: 280, fontFamily: 'var(--font-ui)' },
+  tabBar: { display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border)', padding: '0 32px', marginTop: 14 },
+  tab: { background: 'none', border: 'none', borderBottom: '2px solid transparent', padding: '7px 12px 10px', fontSize: 16, color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-ui)', transition: 'all 0.15s' },
+  tabActive: { color: 'var(--accent)', borderBottomColor: 'var(--accent)', fontWeight: 600 },
   tabSpacer: { flex: 1 },
-  networkStats: { fontSize: 17, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', display: 'flex', gap: 14, paddingBottom: 10 },
+  networkStats: { fontSize: 17, color: 'var(--muted)', fontFamily: 'var(--font-ui)', display: 'flex', gap: 14, paddingBottom: 10 },
   body: { display: 'flex', flex: 1, overflow: 'hidden', padding: '18px 32px 28px', gap: 16 },
   list: { flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 14 },
-  researcherCard: { background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', transition: 'all 0.15s' },
-  cardSelected: { border: '1.5px solid oklch(0.72 0.08 260)', boxShadow: '0 0 0 3px oklch(0.96 0.02 260)' },
+  researcherCard: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', transition: 'all 0.15s' },
+  cardSelected: { border: '1.5px solid oklch(0.72 0.08 260)', boxShadow: '0 0 0 3px var(--accent-light)' },
   resAvatar: { width: 40, height: 40, borderRadius: '50%', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 17, fontWeight: 700, flexShrink: 0, fontFamily: 'var(--font-ui)' },
   resInfo: { flex: 1, minWidth: 0 },
-  resName: { fontSize: 17.5, fontWeight: 700, color: 'oklch(0.15 0.01 80)', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 },
+  resName: { fontSize: 17.5, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: 7, marginBottom: 2 },
   orcidBadge: { fontSize: 17, background: 'oklch(0.93 0.07 160)', color: 'oklch(0.35 0.12 160)', padding: '2px 5px', borderRadius: 3, fontWeight: 700, letterSpacing: '0.04em', fontFamily: 'var(--font-ui)' },
-  resTitle: { fontSize: 17.5, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 2 },
+  resTitle: { fontSize: 17.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginBottom: 2 },
   resArea: { fontSize: 16, color: 'oklch(0.3 0.02 260)', fontFamily: 'var(--font-ui)', marginBottom: 5, fontWeight: 500 },
-  resMeta: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 17, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)' },
-  dot: { color: 'oklch(0.78 0.01 80)' },
-  followBtn: { fontSize: 17, fontWeight: 600, padding: '7px 14px', borderRadius: 20, border: '1px solid oklch(0.85 0.04 260)', background: 'none', color: 'oklch(0.42 0.14 260)', cursor: 'pointer', fontFamily: 'var(--font-ui)', flexShrink: 0, transition: 'all 0.12s' },
-  followBtnActive: { background: 'oklch(0.42 0.14 260)', color: '#fff', border: '1px solid oklch(0.42 0.14 260)' },
-  uniCard: { background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 0, cursor: 'pointer', transition: 'all 0.15s', overflow: 'hidden', position: 'relative' },
+  resMeta: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 17, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
+  dot: { color: 'var(--muted)' },
+  followBtn: { fontSize: 17, fontWeight: 600, padding: '7px 14px', borderRadius: 20, border: '1px solid oklch(0.85 0.04 260)', background: 'none', color: 'var(--accent)', cursor: 'pointer', fontFamily: 'var(--font-ui)', flexShrink: 0, transition: 'all 0.12s' },
+  followBtnActive: { background: 'var(--accent)', color: '#fff', border: '1px solid var(--accent)' },
+  uniCard: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 0, cursor: 'pointer', transition: 'all 0.15s', overflow: 'hidden', position: 'relative' },
   uniAccent: { width: 3, height: '100%', position: 'absolute', left: 0, top: 0, borderRadius: '10px 0 0 10px' },
   uniInfo: { flex: 1, minWidth: 0, paddingLeft: 12 },
   uniNameRow: { display: 'flex', alignItems: 'center', gap: 14, marginBottom: 3 },
-  uniName: { fontSize: 17.5, fontWeight: 700, color: 'oklch(0.15 0.01 80)', fontFamily: 'var(--font-ui)' },
+  uniName: { fontSize: 17.5, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)' },
   verifiedBadge: { fontSize: 17, background: 'oklch(0.93 0.07 160)', color: 'oklch(0.35 0.12 160)', padding: '2px 6px', borderRadius: 3, fontWeight: 700, fontFamily: 'var(--font-ui)' },
-  uniMeta: { fontSize: 17.5, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 6 },
+  uniMeta: { fontSize: 17.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginBottom: 6 },
   uniAreas: { display: 'flex', gap: 14, flexWrap: 'wrap' },
-  areaTag: { fontSize: 16, background: 'oklch(0.94 0.015 80)', color: 'oklch(0.4 0.02 80)', padding: '2px 7px', borderRadius: 4, fontFamily: 'var(--font-ui)' },
+  areaTag: { fontSize: 16, background: 'var(--surface-2)', color: 'var(--text-soft)', padding: '2px 7px', borderRadius: 4, fontFamily: 'var(--font-ui)' },
   uniResCount: { textAlign: 'center', paddingLeft: 16 },
-  uniResNum: { fontSize: 30, fontWeight: 700, color: 'oklch(0.42 0.14 260)', fontFamily: 'var(--font-display)' },
-  uniResLabel: { fontSize: 16, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
-  detail: { width: 270, background: '#fff', borderRadius: 12, border: '1px solid oklch(0.91 0.008 80)', padding: 20, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0, alignSelf: 'flex-start', maxHeight: '100%' },
+  uniResNum: { fontSize: 30, fontWeight: 700, color: 'var(--accent)', fontFamily: 'var(--font-display)' },
+  uniResLabel: { fontSize: 16, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
+  detail: { width: 270, background: 'var(--surface)', borderRadius: 12, border: '1px solid var(--border)', padding: 20, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 0, alignSelf: 'flex-start', maxHeight: '100%' },
   detailAvatarCircle: { width: 56, height: 56, borderRadius: '50%', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, fontWeight: 700, marginBottom: 12, fontFamily: 'var(--font-ui)' },
-  detailName: { fontSize: 17, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', letterSpacing: '-0.01em', marginBottom: 3 },
-  detailRole: { fontSize: 17.5, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 2 },
-  detailInst: { fontSize: 17.5, color: 'oklch(0.42 0.14 260)', fontFamily: 'var(--font-ui)', fontWeight: 600, marginBottom: 6 },
+  detailName: { fontSize: 17, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', letterSpacing: '-0.01em', marginBottom: 3 },
+  detailRole: { fontSize: 17.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginBottom: 2 },
+  detailInst: { fontSize: 17.5, color: 'var(--accent)', fontFamily: 'var(--font-ui)', fontWeight: 600, marginBottom: 6 },
   detailOrcid: { display: 'flex', alignItems: 'center', gap: 14, fontSize: 17, color: 'oklch(0.38 0.12 160)', fontFamily: 'var(--font-mono)', marginBottom: 8 },
   detailArea: { fontSize: 16, color: 'oklch(0.3 0.02 260)', fontFamily: 'var(--font-ui)', fontWeight: 500, marginBottom: 12, lineHeight: 1.4 },
   detailStatRow: { display: 'flex', gap: 14, marginBottom: 14 },
-  detailStat: { flex: 1, background: 'oklch(0.97 0.008 80)', borderRadius: 12, padding: '8px 6px', textAlign: 'center' },
-  detailStatNum: { fontSize: 16, fontWeight: 700, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-display)' },
-  detailStatLabel: { fontSize: 16, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', marginTop: 1 },
+  detailStat: { flex: 1, background: 'var(--bg)', borderRadius: 12, padding: '8px 6px', textAlign: 'center' },
+  detailStatNum: { fontSize: 16, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' },
+  detailStatLabel: { fontSize: 16, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginTop: 1 },
   detailSection: { marginBottom: 14 },
-  detailSectionLabel: { fontSize: 16, fontWeight: 700, color: 'oklch(0.6 0.01 80)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--font-ui)' },
+  detailSectionLabel: { fontSize: 16, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--font-ui)' },
   licTag: { fontSize: 17, padding: '3px 7px', borderRadius: 4, fontWeight: 600, fontFamily: 'var(--font-ui)' },
-  copyrightNote: { fontSize: 16, color: 'oklch(0.65 0.01 80)', fontFamily: 'var(--font-ui)', marginLeft: 6 },
-  miniPaper: { fontSize: 16, color: 'oklch(0.3 0.02 260)', fontFamily: 'var(--font-ui)', padding: '5px 0', borderBottom: '1px solid oklch(0.96 0.004 80)', lineHeight: 1.4 },
-  followBtnLarge: { width: '100%', padding: '9px', borderRadius: 12, border: '1.5px solid oklch(0.85 0.04 260)', background: 'none', color: 'oklch(0.42 0.14 260)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 16, fontWeight: 600, marginBottom: 7, transition: 'all 0.12s' },
-  followBtnLargeActive: { background: 'oklch(0.42 0.14 260)', color: '#fff', border: '1.5px solid oklch(0.42 0.14 260)' },
-  msgBtn: { width: '100%', padding: '8px', borderRadius: 12, border: '1px solid oklch(0.91 0.008 80)', background: 'none', color: 'oklch(0.5 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 16 },
+  copyrightNote: { fontSize: 16, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginLeft: 6 },
+  miniPaper: { fontSize: 16, color: 'oklch(0.3 0.02 260)', fontFamily: 'var(--font-ui)', padding: '5px 0', borderBottom: '1px solid var(--surface-2)', lineHeight: 1.4 },
+  followBtnLarge: { width: '100%', padding: '9px', borderRadius: 12, border: '1.5px solid oklch(0.85 0.04 260)', background: 'none', color: 'var(--accent)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 16, fontWeight: 600, marginBottom: 7, transition: 'all 0.12s' },
+  followBtnLargeActive: { background: 'var(--accent)', color: '#fff', border: '1.5px solid var(--accent)' },
+  msgBtn: { width: '100%', padding: '8px', borderRadius: 12, border: '1px solid var(--border)', background: 'none', color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 16 },
   uniDetailBanner: { height: 60, borderRadius: 12, marginBottom: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' },
   uniDetailAbbr: { fontSize: 30, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-ui)', letterSpacing: '0.05em', opacity: 0.9 },
   uniVerifiedRow: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 17, color: 'oklch(0.38 0.12 160)', fontFamily: 'var(--font-ui)', fontWeight: 600, marginBottom: 12 },
-  miniResRow: { display: 'flex', alignItems: 'center', gap: 14, padding: '7px 0', borderBottom: '1px solid oklch(0.96 0.004 80)', cursor: 'pointer' },
+  miniResRow: { display: 'flex', alignItems: 'center', gap: 14, padding: '7px 0', borderBottom: '1px solid var(--surface-2)', cursor: 'pointer' },
   miniAvatar: { width: 28, height: 28, borderRadius: '50%', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 700, flexShrink: 0, fontFamily: 'var(--font-ui)' },
-  miniName: { fontSize: 16, fontWeight: 600, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)' },
-  miniRole: { fontSize: 16, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
+  miniName: { fontSize: 16, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-ui)' },
+  miniRole: { fontSize: 16, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
 };
 
 Object.assign(window, { CommunityView });

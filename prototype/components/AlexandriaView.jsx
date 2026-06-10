@@ -142,7 +142,7 @@ function AlexandriaView() {
       <div style={ax.searchSection}>
         <div style={ax.searchRow}>
           <div style={ax.searchBox}>
-            <svg width={16} height={16} viewBox="0 0 16 16" fill="none" stroke="oklch(0.55 0.01 80)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}>
+            <svg width={16} height={16} viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}>
               <circle cx="7" cy="7" r="5" /><path d="M11 11l3 3" />
             </svg>
             <input style={ax.searchInput}
@@ -197,7 +197,7 @@ function AlexandriaView() {
           {activeTab === 'frontier' && (
             <div style={ax.resultsList}>
               <div style={ax.sectionNote}>
-                <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="oklch(0.42 0.14 260)" strokeWidth="1.5" strokeLinecap="round"><path d="M8 2v2M8 12v2M2 8h2M12 8h2M4.22 4.22l1.41 1.41M10.36 10.36l1.41 1.41M4.22 11.78l1.41-1.41M10.36 5.64l1.41-1.41"/></svg>
+                <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"><path d="M8 2v2M8 12v2M2 8h2M12 8h2M4.22 4.22l1.41 1.41M10.36 10.36l1.41 1.41M4.22 11.78l1.41-1.41M10.36 5.64l1.41-1.41"/></svg>
                 Recent papers semantically closest to your active hypotheses and paper — ordered by relevance to your work
               </div>
               {FRONTIER_RESULTS.map(r => <ResultCard key={r.id} result={r} onAdd={addResult} added={added} />)}
@@ -208,7 +208,7 @@ function AlexandriaView() {
           {activeTab === 'results' && searched && (
             <div style={ax.resultsList}>
               <div style={ax.sectionNote}>
-                <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="oklch(0.42 0.14 260)" strokeWidth="1.5" strokeLinecap="round"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
+                <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"><circle cx="7" cy="7" r="5"/><path d="M11 11l3 3"/></svg>
                 {SEARCH_RESULTS.length} results for "{query}" — ranked by relevance to your AKM context
               </div>
               {SEARCH_RESULTS.map(r => <ResultCard key={r.id} result={r} onAdd={addResult} added={added} />)}
@@ -241,7 +241,7 @@ function AlexandriaView() {
         {showContext && (
           <div style={ax.ctxPanel}>
             <div style={ax.ctxPanelTitle}>
-              <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="oklch(0.42 0.14 260)" strokeWidth="1.5" strokeLinecap="round"><path d="M8 8m-2 0a2 2 0 104 0 2 2 0 10-4 0M3 4a1 1 0 102 0M11 4a1 1 0 102 0M8 6V4"/></svg>
+              <svg width={13} height={13} viewBox="0 0 16 16" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"><path d="M8 8m-2 0a2 2 0 104 0 2 2 0 10-4 0M3 4a1 1 0 102 0M11 4a1 1 0 102 0M8 6V4"/></svg>
               Your research context
             </div>
             <div style={ax.ctxNote}>Results are oriented by your AKM and active paper — not generic keyword ranking</div>
@@ -259,7 +259,7 @@ function AlexandriaView() {
             <div style={ax.ctxSection}>
               <div style={ax.ctxLabel}>Active paper</div>
               <div style={ax.ctxPaper}>
-                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="oklch(0.42 0.14 260)" strokeWidth="1.5" strokeLinecap="round"><path d="M3 2h7l4 4v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm7 0v4h4"/></svg>
+                <svg width={12} height={12} viewBox="0 0 16 16" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round"><path d="M3 2h7l4 4v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm7 0v4h4"/></svg>
                 Diamond OA Framework
               </div>
               <div style={ax.ctxPaperSection}>Writing §2 Background</div>
@@ -300,76 +300,76 @@ function AlexandriaView() {
 }
 
 const ax = {
-  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'oklch(0.985 0.006 80)', overflow: 'hidden' },
+  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', overflow: 'hidden' },
   header: { padding: '28px 32px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' },
-  breadcrumb: { fontSize: 12, color: 'oklch(0.6 0.01 80)', marginBottom: 3, fontFamily: 'var(--font-ui)' },
-  title: { fontSize: 26, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em' },
-  subtitle: { fontSize: 13, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', marginTop: 4, maxWidth: 540 },
-  openclawStatus: { display: 'flex', alignItems: 'center', gap: 10, background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 10, padding: '12px 16px', flexShrink: 0 },
+  breadcrumb: { fontSize: 12, color: 'var(--muted)', marginBottom: 3, fontFamily: 'var(--font-ui)' },
+  title: { fontSize: 26, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em' },
+  subtitle: { fontSize: 13, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginTop: 4, maxWidth: 540 },
+  openclawStatus: { display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 16px', flexShrink: 0 },
   openclawDot: { width: 8, height: 8, borderRadius: '50%', background: 'oklch(0.52 0.14 170)', flexShrink: 0, boxShadow: '0 0 0 3px oklch(0.88 0.07 170)' },
-  openclawLabel: { fontSize: 12, fontWeight: 700, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)' },
-  openclawSub: { fontSize: 11, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', marginTop: 1 },
+  openclawLabel: { fontSize: 12, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)' },
+  openclawSub: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginTop: 1 },
   searchSection: { padding: '16px 32px 0' },
   searchRow: { display: 'flex', gap: 10, marginBottom: 10 },
   searchBox: { position: 'relative', flex: 1, display: 'flex', alignItems: 'center' },
-  searchInput: { flex: 1, border: '1.5px solid oklch(0.88 0.02 260)', borderRadius: '8px 0 0 8px', padding: '11px 14px 11px 42px', fontSize: 14, color: 'oklch(0.15 0.01 80)', outline: 'none', fontFamily: 'var(--font-ui)', background: '#fff' },
-  searchBtn: { background: 'oklch(0.42 0.14 260)', color: '#fff', border: 'none', borderRadius: '0 8px 8px 0', padding: '11px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)', flexShrink: 0 },
-  ctxToggle: { display: 'flex', alignItems: 'center', gap: 6, background: '#fff', border: '1px solid oklch(0.88 0.02 260)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'oklch(0.42 0.14 260)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 600, flexShrink: 0, transition: 'all 0.12s' },
-  ctxToggleActive: { background: 'oklch(0.96 0.02 260)' },
-  tierLegend: { display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 14, borderBottom: '1px solid oklch(0.92 0.008 80)', flexWrap: 'wrap' },
-  legendLabel: { fontSize: 12, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', fontWeight: 600 },
+  searchInput: { flex: 1, border: '1.5px solid oklch(0.88 0.02 260)', borderRadius: '8px 0 0 8px', padding: '11px 14px 11px 42px', fontSize: 14, color: 'var(--text)', outline: 'none', fontFamily: 'var(--font-ui)', background: 'var(--surface)' },
+  searchBtn: { background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '0 8px 8px 0', padding: '11px 20px', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)', flexShrink: 0 },
+  ctxToggle: { display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface)', border: '1px solid oklch(0.88 0.02 260)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--accent)', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 600, flexShrink: 0, transition: 'all 0.12s' },
+  ctxToggleActive: { background: 'var(--accent-light)' },
+  tierLegend: { display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 14, borderBottom: '1px solid var(--border)', flexWrap: 'wrap' },
+  legendLabel: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontWeight: 600 },
   legendItem: { fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, fontFamily: 'var(--font-ui)' },
-  indexNote: { marginLeft: 'auto', fontSize: 11, color: 'oklch(0.65 0.01 80)', fontFamily: 'var(--font-ui)', fontStyle: 'italic' },
+  indexNote: { marginLeft: 'auto', fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontStyle: 'italic' },
   body: { display: 'flex', flex: 1, overflow: 'hidden', padding: '0 32px 24px', gap: 16, marginTop: 0 },
   main: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', paddingTop: 16 },
   tabBar: { display: 'flex', gap: 4, marginBottom: 14, flexShrink: 0 },
-  tab: { display: 'flex', alignItems: 'center', gap: 7, background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 8, padding: '8px 14px', fontSize: 13, color: 'oklch(0.5 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-ui)', transition: 'all 0.15s' },
-  tabActive: { background: 'oklch(0.96 0.02 260)', borderColor: 'oklch(0.8 0.06 260)', color: 'oklch(0.38 0.12 260)', fontWeight: 600 },
+  tab: { display: 'flex', alignItems: 'center', gap: 7, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 14px', fontSize: 13, color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-ui)', transition: 'all 0.15s' },
+  tabActive: { background: 'var(--accent-light)', borderColor: 'oklch(0.8 0.06 260)', color: 'oklch(0.38 0.12 260)', fontWeight: 600 },
   tabBadge: { fontSize: 11, fontWeight: 700, background: 'oklch(0.93 0.02 260)', color: 'oklch(0.42 0.12 260)', padding: '1px 7px', borderRadius: 10, fontFamily: 'var(--font-ui)' },
   resultsList: { flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 10 },
   sectionNote: { display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'oklch(0.38 0.1 260)', background: 'oklch(0.97 0.015 260)', border: '1px solid oklch(0.9 0.04 260)', borderRadius: 8, padding: '10px 14px', fontFamily: 'var(--font-ui)', lineHeight: 1.5, flexShrink: 0 },
-  resultCard: { background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, padding: '15px 18px' },
-  resultCardInLib: { borderStyle: 'dashed', background: 'oklch(0.98 0.005 80)' },
+  resultCard: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '15px 18px' },
+  resultCardInLib: { borderStyle: 'dashed', background: 'var(--bg)' },
   resultTop: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 9, flexWrap: 'wrap' },
-  resultRepo: { fontSize: 11, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', background: 'oklch(0.95 0.005 80)', padding: '2px 7px', borderRadius: 4 },
-  resultYear: { fontSize: 11, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
-  akmMatchPill: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: 'oklch(0.42 0.14 260)', background: 'oklch(0.95 0.03 260)', padding: '2px 8px', borderRadius: 20, fontFamily: 'var(--font-ui)' },
-  relevanceWrap: { width: 44, height: 3, background: 'oklch(0.92 0.01 80)', borderRadius: 2, overflow: 'hidden' },
-  relevanceFill: { height: '100%', background: 'oklch(0.42 0.14 260)', borderRadius: 2 },
-  relevanceNum: { fontSize: 11, fontFamily: 'var(--font-mono)', color: 'oklch(0.42 0.14 260)', fontWeight: 700, minWidth: 30 },
-  resultTitle: { fontSize: 14.5, fontWeight: 600, color: 'oklch(0.15 0.01 80)', lineHeight: 1.4, marginBottom: 5, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
-  resultAuthors: { fontSize: 12, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 10 },
-  resultAbstract: { fontSize: 13, color: 'oklch(0.35 0.01 80)', lineHeight: 1.7, fontFamily: 'var(--font-ui)', background: 'oklch(0.975 0.005 80)', borderRadius: 7, padding: '11px 14px', marginBottom: 10 },
+  resultRepo: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)', background: 'var(--surface-2)', padding: '2px 7px', borderRadius: 4 },
+  resultYear: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
+  akmMatchPill: { display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, fontWeight: 700, color: 'var(--accent)', background: 'oklch(0.95 0.03 260)', padding: '2px 8px', borderRadius: 20, fontFamily: 'var(--font-ui)' },
+  relevanceWrap: { width: 44, height: 3, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' },
+  relevanceFill: { height: '100%', background: 'var(--accent)', borderRadius: 2 },
+  relevanceNum: { fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 700, minWidth: 30 },
+  resultTitle: { fontSize: 14.5, fontWeight: 600, color: 'var(--text)', lineHeight: 1.4, marginBottom: 5, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
+  resultAuthors: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginBottom: 10 },
+  resultAbstract: { fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.7, fontFamily: 'var(--font-ui)', background: 'var(--bg)', borderRadius: 7, padding: '11px 14px', marginBottom: 10 },
   resultActions: { display: 'flex', alignItems: 'center', gap: 10 },
   expandBtn: { fontSize: 12, color: 'oklch(0.55 0.05 260)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', padding: 0 },
   ingestBtn: { marginLeft: 'auto', fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 7, border: '1.5px solid', cursor: 'pointer', fontFamily: 'var(--font-ui)', transition: 'all 0.15s', display: 'flex', alignItems: 'center', gap: 5 },
   ingestBtnDone: {},
   inLibraryBadge: { marginLeft: 'auto', fontSize: 12, color: 'oklch(0.38 0.12 160)', background: 'oklch(0.93 0.07 160)', padding: '5px 12px', borderRadius: 7, fontWeight: 700, fontFamily: 'var(--font-ui)' },
-  missingCard: { background: '#fff', border: '1px solid oklch(0.88 0.07 60)', borderLeft: '3px solid oklch(0.65 0.12 60)', borderRadius: 10, padding: '14px 18px' },
+  missingCard: { background: 'var(--surface)', border: '1px solid oklch(0.88 0.07 60)', borderLeft: '3px solid oklch(0.65 0.12 60)', borderRadius: 10, padding: '14px 18px' },
   missingTop: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7 },
-  missingYear: { fontSize: 12, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
+  missingYear: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
   missingReason: { fontSize: 12, color: 'oklch(0.44 0.1 60)', fontFamily: 'var(--font-ui)', fontStyle: 'italic' },
-  missingTitle: { fontSize: 14.5, fontWeight: 600, color: 'oklch(0.18 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 5, lineHeight: 1.4 },
-  missingAuthors: { fontSize: 12, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 10 },
+  missingTitle: { fontSize: 14.5, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-ui)', marginBottom: 5, lineHeight: 1.4 },
+  missingAuthors: { fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginBottom: 10 },
   missingBtn: { fontSize: 12, fontWeight: 600, color: 'oklch(0.44 0.1 60)', background: 'none', border: '1px solid oklch(0.85 0.07 60)', borderRadius: 6, padding: '5px 12px', cursor: 'pointer', fontFamily: 'var(--font-ui)' },
   // Context panel
-  ctxPanel: { width: 256, background: '#fff', borderRadius: 12, border: '1px solid oklch(0.91 0.008 80)', padding: '18px 18px', overflow: 'auto', flexShrink: 0, alignSelf: 'flex-start', marginTop: 16 },
-  ctxPanelTitle: { fontSize: 13, fontWeight: 700, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 },
+  ctxPanel: { width: 256, background: 'var(--surface)', borderRadius: 12, border: '1px solid var(--border)', padding: '18px 18px', overflow: 'auto', flexShrink: 0, alignSelf: 'flex-start', marginTop: 16 },
+  ctxPanelTitle: { fontSize: 13, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)', display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 },
   ctxNote: { fontSize: 12, color: 'oklch(0.5 0.02 260)', fontFamily: 'var(--font-ui)', lineHeight: 1.5, background: 'oklch(0.97 0.015 260)', borderRadius: 7, padding: '9px 12px', marginBottom: 16 },
   ctxSection: { marginBottom: 18 },
-  ctxLabel: { fontSize: 11, fontWeight: 700, color: 'oklch(0.6 0.01 80)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--font-ui)' },
-  ctxHyp: { display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: 'oklch(0.3 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.5, marginBottom: 5 },
+  ctxLabel: { fontSize: 11, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8, fontFamily: 'var(--font-ui)' },
+  ctxHyp: { display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12, color: 'var(--text-soft)', fontFamily: 'var(--font-ui)', lineHeight: 1.5, marginBottom: 5 },
   ctxHypDot: { width: 7, height: 7, borderRadius: '50%', flexShrink: 0, marginTop: 5 },
   ctxPaper: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, fontWeight: 600, color: 'oklch(0.3 0.08 260)', fontFamily: 'var(--font-ui)', marginBottom: 4 },
-  ctxPaperSection: { fontSize: 11, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', paddingLeft: 20 },
+  ctxPaperSection: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)', paddingLeft: 20 },
   ctxStatRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 },
   ctxStatBadge: { fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, fontFamily: 'var(--font-ui)' },
-  ctxStatVal: { fontSize: 13, fontWeight: 700, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-display)' },
+  ctxStatVal: { fontSize: 13, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)' },
   ctxCoverage: { display: 'flex', flexDirection: 'column', gap: 6 },
-  ctxCoverageBar: { height: 5, background: 'oklch(0.93 0.01 80)', borderRadius: 3, overflow: 'hidden' },
-  ctxCoverageOpen: { height: '100%', background: 'oklch(0.42 0.14 260)', borderRadius: 3 },
-  ctxCoverageLabel: { fontSize: 11, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
-  ctxFootnote: { fontSize: 11, color: 'oklch(0.65 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.6, marginTop: 8, fontStyle: 'italic', borderTop: '1px solid oklch(0.93 0.005 80)', paddingTop: 12 },
+  ctxCoverageBar: { height: 5, background: 'var(--border)', borderRadius: 3, overflow: 'hidden' },
+  ctxCoverageOpen: { height: '100%', background: 'var(--accent)', borderRadius: 3 },
+  ctxCoverageLabel: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
+  ctxFootnote: { fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)', lineHeight: 1.6, marginTop: 8, fontStyle: 'italic', borderTop: '1px solid var(--border)', paddingTop: 12 },
 };
 
 Object.assign(window, { AlexandriaView });

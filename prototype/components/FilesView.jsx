@@ -173,14 +173,14 @@ const FILE_CONTENTS = {
 
 // Lumen-themed token palette (matches project oklch system, not the upload's branded colors)
 const TOKEN_COLORS = {
-  head:    { color: 'oklch(0.18 0.02 80)', weight: 600 },
-  section: { color: 'oklch(0.42 0.14 260)', weight: 600 },
-  val:     { color: 'oklch(0.35 0.02 80)', weight: 400 },
+  head:    { color: 'var(--text)', weight: 600 },
+  section: { color: 'var(--accent)', weight: 600 },
+  val:     { color: 'var(--text-soft)', weight: 400 },
   tag:     { color: 'oklch(0.45 0.12 320)', weight: 500 },
   active:  { color: 'oklch(0.45 0.12 170)', weight: 500 },
   ref:     { color: 'oklch(0.45 0.12 220)', weight: 500 },
-  comment: { color: 'oklch(0.6 0.01 80)',  weight: 400, italic: true },
-  blank:   { color: 'oklch(0.6 0.01 80)',  weight: 400 },
+  comment: { color: 'var(--muted)',  weight: 400, italic: true },
+  blank:   { color: 'var(--muted)',  weight: 400 },
 };
 
 // ── Nested file-tree model ────────────────────────────────────────────────
@@ -239,7 +239,7 @@ const TREE = {
 function Chevron({ open }) {
   return (
     <svg width={11} height={11} viewBox="0 0 16 16" fill="none"
-      stroke="oklch(0.55 0.01 80)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
+      stroke="var(--muted)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
       style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.12s', flexShrink: 0 }}>
       <path d="M6 4l4 4-4 4" />
     </svg>
@@ -271,7 +271,7 @@ function FileGlyph({ ext }) {
     case 'zip':
       return <svg {...common} stroke="oklch(0.5 0.04 80)"><path d="M3 3h7l3 3v7a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M10 3v3h3"/><path d="M6 3v1.5M6 5.5V7M6 8v1.5"/></svg>;
     default:
-      return <svg {...common} stroke="oklch(0.55 0.01 80)"><path d="M3 3h7l3 3v7a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M10 3v3h3"/></svg>;
+      return <svg {...common} stroke="var(--muted)"><path d="M3 3h7l3 3v7a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z"/><path d="M10 3v3h3"/></svg>;
   }
 }
 
@@ -296,7 +296,7 @@ function TreeRow({ node, path, depth, expanded, toggle, activePath, openFile }) 
           ...fv.treeItem,
           paddingLeft: indent,
           ...(isActive ? { background: 'var(--accent-light)' } : {}),
-          color: isActive ? 'oklch(0.18 0.015 80)' : (isFolder ? 'oklch(0.3 0.01 80)' : 'oklch(0.4 0.01 80)'),
+          color: isActive ? 'var(--text)' : (isFolder ? 'var(--text-soft)' : 'var(--text-soft)'),
           fontWeight: isFolder ? 500 : 400,
         }}
       >
@@ -461,17 +461,17 @@ const FV_CSS = `
   .fv-action {
     width: 26px; height: 26px;
     border: none; background: none;
-    color: oklch(0.5 0.01 80);
+    color: var(--muted);
     border-radius: 5px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     position: relative;
     transition: background 0.12s, color 0.12s;
   }
-  .fv-action:hover { background: oklch(0.92 0.01 80); color: oklch(0.28 0.01 80); opacity: 1; }
+  .fv-action:hover { background: var(--border); color: var(--text); opacity: 1; }
   .fv-action::after {
     content: attr(data-tip);
     position: absolute; top: calc(100% + 7px); left: 50%; transform: translateX(-50%);
-    background: oklch(0.24 0.01 80); color: #fff;
+    background: var(--text); color: #fff;
     font-family: var(--font-ui); font-size: 10.5px; font-weight: 500;
     padding: 3px 8px; border-radius: 5px; white-space: nowrap;
     opacity: 0; pointer-events: none; transition: opacity 0.12s 0.04s;
@@ -479,16 +479,16 @@ const FV_CSS = `
   }
   .fv-action:hover::after { opacity: 1; }
   .fv-row { transition: background 0.08s; }
-  .fv-row:hover { background: oklch(0.945 0.006 80); }
+  .fv-row:hover { background: var(--surface-2); }
 `;
 
 const fv = {
-  root: { display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden', background: '#fff' },
+  root: { display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden', background: 'var(--surface)' },
   tree: {
     width: 240,
     flexShrink: 0,
-    borderRight: '1px solid oklch(0.92 0.008 80)',
-    background: 'oklch(0.975 0.005 80)',
+    borderRight: '1px solid var(--border)',
+    background: 'var(--bg)',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
@@ -500,11 +500,11 @@ const fv = {
     padding: '8px 10px 8px 14px',
     fontSize: 10.5,
     fontWeight: 700,
-    color: 'oklch(0.5 0.01 80)',
+    color: 'var(--muted)',
     textTransform: 'uppercase',
     letterSpacing: '0.08em',
     fontFamily: 'var(--font-ui)',
-    borderBottom: '1px solid oklch(0.93 0.008 80)',
+    borderBottom: '1px solid var(--border)',
   },
   treeActions: { display: 'flex', gap: 2 },
   treeBody: { flex: 1, overflowY: 'auto', padding: '6px 0' },
@@ -528,8 +528,8 @@ const fv = {
   tabsBar: {
     display: 'flex',
     alignItems: 'stretch',
-    background: 'oklch(0.97 0.006 80)',
-    borderBottom: '1px solid oklch(0.92 0.008 80)',
+    background: 'var(--bg)',
+    borderBottom: '1px solid var(--border)',
     minHeight: 34,
     overflowX: 'auto',
     flexShrink: 0,
@@ -540,18 +540,18 @@ const fv = {
     gap: 7,
     padding: '0 12px',
     height: 34,
-    borderRight: '1px solid oklch(0.93 0.008 80)',
+    borderRight: '1px solid var(--border)',
     fontSize: 12,
-    color: 'oklch(0.5 0.01 80)',
+    color: 'var(--muted)',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
     fontFamily: 'var(--font-ui)',
-    background: 'oklch(0.97 0.006 80)',
+    background: 'var(--bg)',
     flexShrink: 0,
   },
   tabActive: {
-    background: '#fff',
-    color: 'oklch(0.13 0.015 80)',
+    background: 'var(--surface)',
+    color: 'var(--text)',
     borderBottom: '2px solid var(--accent)',
     marginBottom: -1,
   },
@@ -559,7 +559,7 @@ const fv = {
   tabClose: {
     width: 16, height: 16,
     border: 'none', background: 'none',
-    color: 'oklch(0.55 0.01 80)',
+    color: 'var(--muted)',
     borderRadius: 3,
     fontSize: 13,
     cursor: 'pointer',
@@ -569,12 +569,12 @@ const fv = {
   tabAdd: {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     border: 'none', background: 'none',
-    color: 'oklch(0.55 0.01 80)',
+    color: 'var(--muted)',
     padding: '0 12px',
     cursor: 'pointer',
   },
 
-  editorBody: { flex: 1, overflow: 'auto', background: '#fff', padding: '18px 0' },
+  editorBody: { flex: 1, overflow: 'auto', background: 'var(--surface)', padding: '18px 0' },
   code: {
     margin: 0,
     fontFamily: 'var(--font-mono)',
@@ -587,13 +587,13 @@ const fv = {
     width: 42,
     textAlign: 'right',
     paddingRight: 18,
-    color: 'oklch(0.72 0.01 80)',
+    color: 'var(--muted)',
     userSelect: 'none',
     flexShrink: 0,
     fontFamily: 'var(--font-mono)',
     fontSize: 11.5,
   },
-  empty: { padding: 40, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
+  empty: { padding: 40, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
 
   editorStatus: {
     height: 26,

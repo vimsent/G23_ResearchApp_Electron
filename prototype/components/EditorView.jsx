@@ -192,7 +192,7 @@ function EditorView({ papers, activePaperId }) {
   };
 
   const ctxTabs = ['LUMEN.md', 'SOURCES.md', 'CONCEPTS.md'];
-  const ctxColors = { 'LUMEN.md': 'oklch(0.42 0.14 260)', 'SOURCES.md': 'oklch(0.45 0.12 170)', 'CONCEPTS.md': 'oklch(0.48 0.11 300)' };
+  const ctxColors = { 'LUMEN.md': 'var(--accent)', 'SOURCES.md': 'oklch(0.45 0.12 170)', 'CONCEPTS.md': 'oklch(0.48 0.11 300)' };
 
   return (
     <div style={ed.root}>
@@ -260,7 +260,7 @@ function EditorView({ papers, activePaperId }) {
             {ACTIVE_SOURCES.map((s, i) => (
               <div key={i} style={ed.sourceRow}>
                 <div style={{ ...ed.sourceTypeIcon, background: s.type === 'code' ? 'oklch(0.93 0.06 170)' : 'oklch(0.94 0.03 260)' }}>
-                  <svg width={10} height={10} viewBox="0 0 16 16" fill="none" stroke={s.type === 'code' ? 'oklch(0.42 0.12 170)' : 'oklch(0.42 0.14 260)'} strokeWidth="1.5" strokeLinecap="round">
+                  <svg width={10} height={10} viewBox="0 0 16 16" fill="none" stroke={s.type === 'code' ? 'oklch(0.42 0.12 170)' : 'var(--accent)'} strokeWidth="1.5" strokeLinecap="round">
                     {s.type === 'code'
                       ? <path d="M8 3l-5 5 5 5M16 3l-5 5 5 5" />
                       : <path d="M3 2h7l4 4v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm7 0v4h4" />}
@@ -325,7 +325,7 @@ function EditorView({ papers, activePaperId }) {
           {/* Context load indicator */}
           <div style={ed.ctxIndicator}>
             <div style={ed.ctxIndRow}>
-              <span style={{ ...ed.ctxDot, background: 'oklch(0.42 0.14 260)' }} />
+              <span style={{ ...ed.ctxDot, background: 'var(--accent)' }} />
               <span style={ed.ctxIndLabel}>LUMEN.md</span>
               <span style={ed.ctxIndStatus}>always loaded</span>
             </div>
@@ -387,77 +387,77 @@ function EditorView({ papers, activePaperId }) {
 const ed = {
   root: { display: 'flex', flexDirection: 'column', height: '100%', background: '#fefefe', overflow: 'hidden' },
   header: { padding: '22px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexShrink: 0 },
-  breadcrumb: { fontSize: 12, color: 'oklch(0.6 0.01 80)', marginBottom: 3, fontFamily: 'var(--font-ui)' },
-  title: { fontSize: 20, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em', maxWidth: 480, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  breadcrumb: { fontSize: 12, color: 'var(--muted)', marginBottom: 3, fontFamily: 'var(--font-ui)' },
+  title: { fontSize: 20, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em', maxWidth: 480, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   headerRight: { display: 'flex', gap: 8, alignItems: 'center', paddingBottom: 2 },
   statusBadge: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'oklch(0.38 0.12 170)', background: 'oklch(0.93 0.06 170)', padding: '4px 10px', borderRadius: 6, fontFamily: 'var(--font-ui)', fontWeight: 600 },
   statusDot: { width: 6, height: 6, borderRadius: '50%', background: 'oklch(0.52 0.14 170)' },
-  headerBtn: { background: 'none', border: '1px solid oklch(0.88 0.01 80)', borderRadius: 6, padding: '5px 12px', fontSize: 12, color: 'oklch(0.4 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-ui)' },
-  publishBtn: { background: 'oklch(0.42 0.14 260)', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
+  headerBtn: { background: 'none', border: '1px solid var(--border)', borderRadius: 6, padding: '5px 12px', fontSize: 12, color: 'var(--text-soft)', cursor: 'pointer', fontFamily: 'var(--font-ui)' },
+  publishBtn: { background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-ui)' },
   licenseTag: { display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: 'oklch(0.38 0.12 160)', background: 'oklch(0.94 0.06 160)', padding: '4px 10px', borderRadius: 6, fontFamily: 'var(--font-ui)', fontWeight: 600 },
 
   workspace: { display: 'flex', flex: 1, overflow: 'hidden', padding: '14px 0 0', gap: 0 },
 
   // LEFT panel
-  leftPanel: { width: 260, minWidth: 260, borderRight: '1px solid oklch(0.92 0.008 80)', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#fff' },
-  ctxTabBar: { display: 'flex', borderBottom: '1px solid oklch(0.92 0.008 80)', flexShrink: 0 },
-  ctxTab: { flex: 1, background: 'none', border: 'none', borderBottom: '2px solid transparent', padding: '9px 4px 10px', fontSize: 11, color: 'oklch(0.55 0.01 80)', cursor: 'pointer', fontFamily: 'var(--font-mono)', transition: 'all 0.12s', position: 'relative' },
+  leftPanel: { width: 260, minWidth: 260, borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--surface)' },
+  ctxTabBar: { display: 'flex', borderBottom: '1px solid var(--border)', flexShrink: 0 },
+  ctxTab: { flex: 1, background: 'none', border: 'none', borderBottom: '2px solid transparent', padding: '9px 4px 10px', fontSize: 11, color: 'var(--muted)', cursor: 'pointer', fontFamily: 'var(--font-mono)', transition: 'all 0.12s', position: 'relative' },
   ctxTabActive: { fontWeight: 700 },
   liveTag: { position: 'absolute', top: 5, right: 2, fontSize: 8, background: 'oklch(0.52 0.14 170)', color: '#fff', padding: '1px 4px', borderRadius: 3, fontWeight: 700, letterSpacing: '0.04em', fontFamily: 'var(--font-ui)' },
   ctxContent: { flex: 1, overflow: 'auto' },
-  ctxLoading: { display: 'flex', alignItems: 'center', gap: 8, padding: '20px 16px', fontSize: 12, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
-  ctxLoadingDot: { width: 8, height: 8, borderRadius: '50%', background: 'oklch(0.42 0.14 260)', animation: 'pulse 1s ease-in-out infinite' },
+  ctxLoading: { display: 'flex', alignItems: 'center', gap: 8, padding: '20px 16px', fontSize: 12, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
+  ctxLoadingDot: { width: 8, height: 8, borderRadius: '50%', background: 'var(--accent)', animation: 'pulse 1s ease-in-out infinite' },
   ctxPre: { fontSize: 11, lineHeight: 1.7, fontFamily: 'var(--font-mono)', margin: 0, padding: '14px 16px', whiteSpace: 'pre-wrap', wordBreak: 'break-word' },
-  sourcesSection: { borderTop: '1px solid oklch(0.92 0.008 80)', padding: '12px 14px', flexShrink: 0, background: 'oklch(0.985 0.005 80)' },
+  sourcesSection: { borderTop: '1px solid var(--border)', padding: '12px 14px', flexShrink: 0, background: 'var(--bg)' },
   sourcesSectionHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
-  sourcesSectionTitle: { fontSize: 11, fontWeight: 700, color: 'oklch(0.4 0.01 80)', letterSpacing: '0.05em', textTransform: 'uppercase', fontFamily: 'var(--font-ui)' },
-  sourcesHint: { fontSize: 10, color: 'oklch(0.65 0.01 80)', fontFamily: 'var(--font-ui)', fontStyle: 'italic' },
-  sourceRow: { display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid oklch(0.95 0.004 80)' },
+  sourcesSectionTitle: { fontSize: 11, fontWeight: 700, color: 'var(--text-soft)', letterSpacing: '0.05em', textTransform: 'uppercase', fontFamily: 'var(--font-ui)' },
+  sourcesHint: { fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontStyle: 'italic' },
+  sourceRow: { display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: '1px solid var(--surface-2)' },
   sourceTypeIcon: { width: 22, height: 22, borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  sourceTitle: { fontSize: 11.5, fontWeight: 500, color: 'oklch(0.25 0.01 80)', fontFamily: 'var(--font-ui)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  sourceSection: { fontSize: 10, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
+  sourceTitle: { fontSize: 11.5, fontWeight: 500, color: 'var(--text)', fontFamily: 'var(--font-ui)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  sourceSection: { fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
   dropZone: { display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, padding: '7px 10px', border: '1.5px dashed oklch(0.84 0.04 260)', borderRadius: 7, fontSize: 11, color: 'oklch(0.6 0.05 260)', fontFamily: 'var(--font-ui)', cursor: 'pointer', justifyContent: 'center' },
 
   // CENTER panel
   centerPanel: { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  editorArea: { display: 'flex', flex: 1, overflow: 'auto', background: '#fff' },
-  lineNums: { padding: '16px 0', background: 'oklch(0.97 0.005 80)', borderRight: '1px solid oklch(0.92 0.005 80)', minWidth: 44, userSelect: 'none', flexShrink: 0 },
-  lineNum: { fontSize: 12, color: 'oklch(0.7 0.005 80)', textAlign: 'right', padding: '0 10px', lineHeight: '21px', height: 21 },
-  textarea: { flex: 1, border: 'none', outline: 'none', resize: 'none', fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: '21px', padding: '16px 20px', color: 'oklch(0.15 0.01 80)', background: 'transparent', whiteSpace: 'pre', overflowX: 'auto' },
-  pdfPreview: { height: '45%', borderTop: '1px solid oklch(0.92 0.008 80)', overflow: 'auto', background: 'oklch(0.97 0.003 80)' },
-  pdfHeader: { padding: '8px 16px', fontSize: 11, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', fontWeight: 600, background: 'oklch(0.94 0.005 80)', borderBottom: '1px solid oklch(0.9 0.008 80)' },
+  editorArea: { display: 'flex', flex: 1, overflow: 'auto', background: 'var(--surface)' },
+  lineNums: { padding: '16px 0', background: 'var(--bg)', borderRight: '1px solid var(--border)', minWidth: 44, userSelect: 'none', flexShrink: 0 },
+  lineNum: { fontSize: 12, color: 'var(--muted)', textAlign: 'right', padding: '0 10px', lineHeight: '21px', height: 21 },
+  textarea: { flex: 1, border: 'none', outline: 'none', resize: 'none', fontFamily: 'var(--font-mono)', fontSize: 13, lineHeight: '21px', padding: '16px 20px', color: 'var(--text)', background: 'transparent', whiteSpace: 'pre', overflowX: 'auto' },
+  pdfPreview: { height: '45%', borderTop: '1px solid var(--border)', overflow: 'auto', background: 'var(--bg)' },
+  pdfHeader: { padding: '8px 16px', fontSize: 11, color: 'var(--muted)', fontFamily: 'var(--font-ui)', fontWeight: 600, background: 'var(--surface-2)', borderBottom: '1px solid var(--border)' },
   pdfMock: { padding: '24px 32px', maxWidth: 560, margin: '0 auto' },
-  pdfTitle: { fontSize: 16, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', textAlign: 'center', lineHeight: 1.4 },
-  pdfAuthor: { fontSize: 12, color: 'oklch(0.5 0.01 80)', textAlign: 'center', marginTop: 6, fontFamily: 'var(--font-ui)' },
-  pdfRule: { height: 1, background: 'oklch(0.88 0.008 80)', margin: '16px 0' },
-  pdfAbstractLabel: { fontSize: 12, fontWeight: 700, color: 'oklch(0.3 0.01 80)', marginBottom: 6, fontFamily: 'var(--font-ui)' },
-  pdfAbstract: { fontSize: 12, color: 'oklch(0.3 0.01 80)', lineHeight: 1.7, fontFamily: 'Georgia, serif', fontStyle: 'italic' },
-  pdfSection: { fontSize: 14, fontWeight: 700, color: 'oklch(0.15 0.01 80)', marginBottom: 8, marginTop: 16, fontFamily: 'var(--font-ui)' },
-  pdfBody: { fontSize: 13, color: 'oklch(0.3 0.01 80)', lineHeight: 1.7, fontFamily: 'Georgia, serif' },
+  pdfTitle: { fontSize: 16, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', textAlign: 'center', lineHeight: 1.4 },
+  pdfAuthor: { fontSize: 12, color: 'var(--muted)', textAlign: 'center', marginTop: 6, fontFamily: 'var(--font-ui)' },
+  pdfRule: { height: 1, background: 'var(--border)', margin: '16px 0' },
+  pdfAbstractLabel: { fontSize: 12, fontWeight: 700, color: 'var(--text-soft)', marginBottom: 6, fontFamily: 'var(--font-ui)' },
+  pdfAbstract: { fontSize: 12, color: 'var(--text-soft)', lineHeight: 1.7, fontFamily: 'Georgia, serif', fontStyle: 'italic' },
+  pdfSection: { fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 8, marginTop: 16, fontFamily: 'var(--font-ui)' },
+  pdfBody: { fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.7, fontFamily: 'Georgia, serif' },
 
   // RIGHT panel
-  rightPanel: { width: 280, minWidth: 280, borderLeft: '1px solid oklch(0.92 0.008 80)', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#fff' },
-  aiHeader: { padding: '12px 16px 10px', borderBottom: '1px solid oklch(0.92 0.008 80)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 },
-  aiTitle: { fontSize: 13, fontWeight: 700, color: 'oklch(0.2 0.01 80)', display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-ui)' },
+  rightPanel: { width: 280, minWidth: 280, borderLeft: '1px solid var(--border)', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--surface)' },
+  aiHeader: { padding: '12px 16px 10px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 },
+  aiTitle: { fontSize: 13, fontWeight: 700, color: 'var(--text)', display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-ui)' },
   aiModel: { fontSize: 10, background: 'oklch(0.94 0.02 260)', color: 'oklch(0.42 0.12 260)', padding: '2px 7px', borderRadius: 4, fontFamily: 'var(--font-mono)', fontWeight: 600 },
-  ctxIndicator: { padding: '10px 14px', borderBottom: '1px solid oklch(0.94 0.005 80)', display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0, background: 'oklch(0.985 0.005 80)' },
+  ctxIndicator: { padding: '10px 14px', borderBottom: '1px solid var(--surface-2)', display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0, background: 'var(--bg)' },
   ctxIndRow: { display: 'flex', alignItems: 'center', gap: 7 },
   ctxDot: { width: 6, height: 6, borderRadius: '50%', flexShrink: 0 },
-  ctxIndLabel: { fontSize: 11, fontFamily: 'var(--font-mono)', color: 'oklch(0.3 0.01 80)', flex: 1 },
-  ctxIndStatus: { fontSize: 10, color: 'oklch(0.65 0.01 80)', fontFamily: 'var(--font-ui)' },
-  alertsBox: { padding: '10px 14px', borderBottom: '1px solid oklch(0.94 0.008 80)', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0, background: 'oklch(0.99 0.01 60)' },
+  ctxIndLabel: { fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-soft)', flex: 1 },
+  ctxIndStatus: { fontSize: 10, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
+  alertsBox: { padding: '10px 14px', borderBottom: '1px solid var(--surface-2)', display: 'flex', flexDirection: 'column', gap: 6, flexShrink: 0, background: 'oklch(0.99 0.01 60)' },
   alertRow: { display: 'flex', alignItems: 'flex-start', gap: 7, fontSize: 11.5, color: 'oklch(0.3 0.02 60)', fontFamily: 'var(--font-ui)', lineHeight: 1.5, borderLeft: '3px solid', paddingLeft: 8 },
   alertDot: { width: 5, height: 5, borderRadius: '50%', flexShrink: 0, marginTop: 5 },
   messages: { flex: 1, overflow: 'auto', padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10 },
   message: { borderRadius: 10 },
-  msgUser: { alignSelf: 'flex-end', maxWidth: '85%', background: 'oklch(0.42 0.14 260)', color: '#fff', padding: '10px 14px' },
+  msgUser: { alignSelf: 'flex-end', maxWidth: '85%', background: 'var(--accent)', color: '#fff', padding: '10px 14px' },
   msgAI: { alignSelf: 'flex-start', maxWidth: '90%', background: 'oklch(0.97 0.01 260)', border: '1px solid oklch(0.91 0.03 260)', padding: '10px 14px' },
   msgSystem: { alignSelf: 'stretch', background: 'oklch(0.95 0.04 170)', border: '1px solid oklch(0.87 0.07 170)', padding: '9px 12px', borderRadius: 8 },
   msgRole: { fontSize: 10, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: 4, opacity: 0.6, fontFamily: 'var(--font-ui)' },
-  msgText: { fontSize: 13, lineHeight: 1.6, fontFamily: 'var(--font-ui)', color: 'oklch(0.15 0.01 80)' },
-  inputRow: { borderTop: '1px solid oklch(0.92 0.008 80)', padding: '12px 14px', display: 'flex', gap: 8, background: '#fff', flexShrink: 0 },
-  aiInput: { flex: 1, border: '1px solid oklch(0.88 0.02 260)', borderRadius: 8, padding: '9px 13px', fontSize: 13, outline: 'none', fontFamily: 'var(--font-ui)', color: 'oklch(0.15 0.01 80)' },
-  sendBtn: { background: 'oklch(0.42 0.14 260)', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', fontSize: 15, cursor: 'pointer' },
+  msgText: { fontSize: 13, lineHeight: 1.6, fontFamily: 'var(--font-ui)', color: 'var(--text)' },
+  inputRow: { borderTop: '1px solid var(--border)', padding: '12px 14px', display: 'flex', gap: 8, background: 'var(--surface)', flexShrink: 0 },
+  aiInput: { flex: 1, border: '1px solid oklch(0.88 0.02 260)', borderRadius: 8, padding: '9px 13px', fontSize: 13, outline: 'none', fontFamily: 'var(--font-ui)', color: 'var(--text)' },
+  sendBtn: { background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', fontSize: 15, cursor: 'pointer' },
 };
 
 Object.assign(window, { EditorView });

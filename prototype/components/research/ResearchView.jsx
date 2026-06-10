@@ -2,24 +2,24 @@
 
 function CodeViewer({ source }) {
   return (
-    <div style={{ flex: 1, overflow: 'auto', background: 'oklch(0.18 0.01 80)', padding: 24 }}>
+    <div style={{ flex: 1, overflow: 'auto', background: 'var(--text)', padding: 24 }}>
       <div style={{
-        maxWidth: 760, margin: '0 auto', background: 'oklch(0.13 0.015 80)',
+        maxWidth: 760, margin: '0 auto', background: 'var(--text)',
         borderRadius: 10, padding: '16px 20px',
         fontFamily: 'var(--font-mono)', fontSize: 12.5,
-        color: 'oklch(0.92 0.005 80)', lineHeight: 1.6, whiteSpace: 'pre',
+        color: 'var(--border)', lineHeight: 1.6, whiteSpace: 'pre',
         boxShadow: '0 4px 16px oklch(0 0 0 / 0.3)',
       }}>
-        <div style={{ fontSize: 11, color: 'oklch(0.55 0.01 80)', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid oklch(0.25 0.01 80)' }}>
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 12, paddingBottom: 10, borderBottom: '1px solid var(--text)' }}>
           {source.file} · Python · {source.year}
         </div>
         {(source.code || '').split('\n').map((line, i) => (
           <div key={i}>
-            <span style={{ color: 'oklch(0.4 0.01 80)', display: 'inline-block', width: 24, textAlign: 'right', marginRight: 12, userSelect: 'none' }}>{i + 1}</span>
+            <span style={{ color: 'var(--text-soft)', display: 'inline-block', width: 24, textAlign: 'right', marginRight: 12, userSelect: 'none' }}>{i + 1}</span>
             <span dangerouslySetInnerHTML={{ __html: line
               .replace(/(import|from|as|def|return|print|for|in)/g, '<span style="color:oklch(0.7 0.12 290)">$1</span>')
               .replace(/("[^"]*"|'[^']*')/g, '<span style="color:oklch(0.78 0.12 80)">$1</span>')
-              .replace(/(#.*)/g, '<span style="color:oklch(0.55 0.01 80);font-style:italic">$1</span>')
+              .replace(/(#.*)/g, '<span style="color:var(--muted);font-style:italic">$1</span>')
             }} />
           </div>
         ))}
@@ -49,7 +49,7 @@ function PaperTabContent({ source }) {
           library/papers/{source.file}
         </span>
       </div>
-      <div style={{ flex: 1, overflow: 'auto', background: 'oklch(0.95 0.005 80)', padding: '32px 20px' }}>
+      <div style={{ flex: 1, overflow: 'auto', background: 'var(--surface-2)', padding: '32px 20px' }}>
         <div style={{
           maxWidth: 680, margin: '0 auto', background: 'var(--surface)',
           boxShadow: '0 1px 2px oklch(0 0 0 / 0.04), 0 8px 28px oklch(0 0 0 / 0.08)',
@@ -58,7 +58,7 @@ function PaperTabContent({ source }) {
         }}>
           {!source.accessible && (
             <div style={{
-              background: 'oklch(0.96 0.04 25)', border: '1px solid oklch(0.85 0.08 25)',
+              background: 'var(--surface-2)', border: '1px solid oklch(0.85 0.08 25)',
               padding: '10px 14px', borderRadius: 8, marginBottom: 20,
               fontSize: 12, color: 'oklch(0.5 0.16 25)',
               fontFamily: 'var(--font-ui)',
@@ -72,11 +72,11 @@ function PaperTabContent({ source }) {
           <h1 style={{ fontSize: 22, fontWeight: 600, lineHeight: 1.3, marginBottom: 14 }}>
             {source.fullTitle || source.name}
           </h1>
-          <div style={{ fontSize: 13, color: 'oklch(0.3 0.01 80)', marginBottom: 6 }}>{source.authors}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-soft)', marginBottom: 6 }}>{source.authors}</div>
           <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 24 }}>
             {source.year} · {source.license}
           </div>
-          <div style={{ fontWeight: 600, fontSize: 11, marginBottom: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'oklch(0.3 0.01 80)' }}>Abstract</div>
+          <div style={{ fontWeight: 600, fontSize: 11, marginBottom: 8, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-soft)' }}>Abstract</div>
           <p style={{ fontSize: 13, marginBottom: 16, textAlign: 'justify' }}>
             {source.abstract}
           </p>
@@ -87,9 +87,9 @@ function PaperTabContent({ source }) {
               </div>
               {source.citations.map((c, i) => (
                 <div key={i} style={{
-                  background: 'oklch(0.96 0.04 85)', borderLeft: '3px solid oklch(0.7 0.1 80)',
+                  background: 'var(--surface-2)', borderLeft: '3px solid oklch(0.7 0.1 80)',
                   padding: '9px 12px', marginBottom: 6, fontSize: 12,
-                  color: 'oklch(0.3 0.01 80)', fontStyle: 'italic',
+                  color: 'var(--text-soft)', fontStyle: 'italic',
                   fontFamily: 'var(--font-ui)', borderRadius: '0 6px 6px 0',
                 }}>{c}</div>
               ))}
@@ -178,7 +178,7 @@ function PlaceholderTab({ kind }) {
     <div style={{
       flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: 'var(--bg)',
-      backgroundImage: 'radial-gradient(circle, oklch(0.86 0.01 80) 1px, transparent 1px)',
+      backgroundImage: 'radial-gradient(circle, var(--border) 1px, transparent 1px)',
       backgroundSize: '20px 20px', position: 'relative', overflow: 'hidden',
     }}>
       {isCanvas && (
@@ -202,7 +202,7 @@ function PlaceholderTab({ kind }) {
         <div style={{ marginBottom: 12, opacity: 0.5 }}>
           {isCanvas ? <CanvasIcon size={36} /> : <ChartIcon size={36} />}
         </div>
-        <div style={{ fontSize: 14, color: 'oklch(0.3 0.01 80)', fontWeight: 600, fontFamily: 'var(--font-ui)' }}>
+        <div style={{ fontSize: 14, color: 'var(--text-soft)', fontWeight: 600, fontFamily: 'var(--font-ui)' }}>
           {isCanvas ? 'Canvas de investigación' : 'Gráficos e visualizaciones'}
         </div>
         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 4, fontFamily: 'var(--font-ui)' }}>próximamente</div>
@@ -519,7 +519,7 @@ function ResearchView({ paper }) {
             }}>
               <div style={{ opacity: 0.4 }}><PaperIcon color="var(--muted)" size={32} /></div>
               <div style={{ fontSize: 13 }}>Open a source from the panel to start</div>
-              <div style={{ fontSize: 11.5, color: 'oklch(0.7 0.01 80)' }}>or use + to add a chat, web, chart, or canvas tab</div>
+              <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>or use + to add a chat, web, chart, or canvas tab</div>
             </div>
           )}
           {active && active.type === 'source' && (() => {

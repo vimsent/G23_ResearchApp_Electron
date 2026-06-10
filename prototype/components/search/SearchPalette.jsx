@@ -95,7 +95,7 @@ function SearchPalette({ open, onClose }) {
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '14px 18px', borderBottom: '1px solid var(--border)',
         }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="oklch(0.55 0.01 80)" strokeWidth="1.8" strokeLinecap="round">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--muted)" strokeWidth="1.8" strokeLinecap="round">
             <circle cx="7" cy="7" r="4.5" />
             <path d="M11 11l3 3" />
           </svg>
@@ -118,7 +118,7 @@ function SearchPalette({ open, onClose }) {
             <div style={emptyHintStyle}>
               <div style={{ fontSize: 22, opacity: 0.4, marginBottom: 8 }}>⌕</div>
               Escribe para buscar en tu vault y notas demo.<br />
-              <span style={{ fontSize: 11.5, color: 'oklch(0.65 0.01 80)' }}>
+              <span style={{ fontSize: 11.5, color: 'var(--muted)' }}>
                 ↑↓ para navegar · Enter para abrir · Esc para cerrar
               </span>
             </div>
@@ -148,9 +148,9 @@ function SearchPalette({ open, onClose }) {
                 </span>
                 {kindBadge(r.kind)}
                 <div style={{ flex: 1 }} />
-                <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'oklch(0.6 0.01 80)' }}>{r.score}</span>
+                <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--muted)' }}>{r.score}</span>
               </div>
-              <div style={{ fontSize: 12, color: 'oklch(0.45 0.01 80)', lineHeight: 1.5 }}>
+              <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
                 <HighlightedText text={r.snippet} tokens={r.queryTokens} />
               </div>
             </div>

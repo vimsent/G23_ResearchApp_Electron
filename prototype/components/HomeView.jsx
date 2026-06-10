@@ -33,14 +33,14 @@ function HomeView({ setActive }) {
         <div style={hs.modesRow}>
           <div style={hs.modeCard} onClick={() => setActive('library')}>
             <div style={hs.modeIcon}>
-              <svg width={22} height={22} viewBox="0 0 16 16" fill="none" stroke="oklch(0.42 0.14 260)" strokeWidth="1.3" strokeLinecap="round"><path d="M3 4h10v1H3zM3 7h10v1H3zM3 10h7v1H3zM3 13h4v1H3z"/></svg>
+              <svg width={22} height={22} viewBox="0 0 16 16" fill="none" stroke="var(--accent)" strokeWidth="1.3" strokeLinecap="round"><path d="M3 4h10v1H3zM3 7h10v1H3zM3 10h7v1H3zM3 13h4v1H3z"/></svg>
             </div>
             <div style={hs.modeTitle}>Library & Knowledge</div>
             <div style={hs.modeDesc}>Ingest sources · Build research lines · Declare hypotheses</div>
             <div style={hs.modeMeta}>My Library · My Knowledge</div>
           </div>
           <div style={{ ...hs.modeCard, ...hs.modeCardPaper }} onClick={() => setActive('editor')}>
-            <div style={{ ...hs.modeIcon, background: 'oklch(0.96 0.03 170)' }}>
+            <div style={{ ...hs.modeIcon, background: 'var(--surface-2)' }}>
               <svg width={22} height={22} viewBox="0 0 16 16" fill="none" stroke="oklch(0.42 0.12 170)" strokeWidth="1.3" strokeLinecap="round"><path d="M3 2h7l4 4v9a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1zm7 0v4h4"/></svg>
             </div>
             <div style={hs.modeTitle}>Research Assistant</div>
@@ -53,7 +53,7 @@ function HomeView({ setActive }) {
         <div style={hs.statsRow}>
           {STATS.map(stat => (
             <div key={stat.label} style={hs.statCard}>
-              <svg width={16} height={16} viewBox="0 0 16 16" fill="none" stroke="oklch(0.42 0.14 260)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
+              <svg width={16} height={16} viewBox="0 0 16 16" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
                 <path d={stat.icon} />
               </svg>
               <div style={hs.statValue}>{stat.value}</div>
@@ -130,49 +130,49 @@ function HomeView({ setActive }) {
 }
 
 const hs = {
-  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'oklch(0.985 0.006 80)', overflow: 'hidden' },
+  root: { display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)', overflow: 'hidden' },
   header: { padding: '24px 28px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' },
-  greeting: { fontSize: 16, color: 'oklch(0.55 0.01 80)', marginBottom: 3, fontFamily: 'var(--font-ui)' },
-  title: { fontSize: 30, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em' },
+  greeting: { fontSize: 16, color: 'var(--muted)', marginBottom: 3, fontFamily: 'var(--font-ui)' },
+  title: { fontSize: 30, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', margin: 0, letterSpacing: '-0.02em' },
   dateBlock: { textAlign: 'right', paddingBottom: 4 },
-  dateDay: { fontSize: 17, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
-  dateFull: { fontSize: 17, fontWeight: 600, color: 'oklch(0.35 0.01 80)', fontFamily: 'var(--font-ui)' },
+  dateDay: { fontSize: 17, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
+  dateFull: { fontSize: 17, fontWeight: 600, color: 'var(--text-soft)', fontFamily: 'var(--font-ui)' },
   body: { flex: 1, overflow: 'auto', padding: '24px 32px 32px', display: 'flex', flexDirection: 'column', gap: 16 },
   modesRow: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 },
-  modeCard: { background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, padding: '20px 22px', cursor: 'pointer', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', gap: 6 },
-  modeCardPaper: { borderColor: 'oklch(0.85 0.06 170)', background: 'oklch(0.99 0.008 170)' },
-  modeIcon: { width: 42, height: 42, borderRadius: 10, background: 'oklch(0.96 0.02 260)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
-  modeTitle: { fontSize: 16, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-ui)' },
-  modeDesc: { fontSize: 13, color: 'oklch(0.5 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.5 },
-  modeMeta: { fontSize: 12, color: 'oklch(0.42 0.14 260)', fontFamily: 'var(--font-ui)', fontWeight: 600, marginTop: 2 },
+  modeCard: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '20px 22px', cursor: 'pointer', transition: 'all 0.15s', display: 'flex', flexDirection: 'column', gap: 6 },
+  modeCardPaper: { borderColor: 'oklch(0.85 0.06 170)', background: 'var(--surface-2)' },
+  modeIcon: { width: 42, height: 42, borderRadius: 10, background: 'var(--accent-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4 },
+  modeTitle: { fontSize: 16, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)' },
+  modeDesc: { fontSize: 13, color: 'var(--muted)', fontFamily: 'var(--font-ui)', lineHeight: 1.5 },
+  modeMeta: { fontSize: 12, color: 'var(--accent)', fontFamily: 'var(--font-ui)', fontWeight: 600, marginTop: 2 },
   statsRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 },
-  statCard: { background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, padding: '18px 20px', display: 'flex', flexDirection: 'column' },
-  statValue: { fontSize: 30, fontWeight: 700, color: 'oklch(0.13 0.015 80)', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', lineHeight: 1 },
-  statLabel: { fontSize: 16, fontWeight: 600, color: 'oklch(0.3 0.01 80)', fontFamily: 'var(--font-ui)', marginTop: 4 },
-  statSub: { fontSize: 17, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)', marginTop: 2 },
+  statCard: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px', display: 'flex', flexDirection: 'column' },
+  statValue: { fontSize: 30, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-display)', letterSpacing: '-0.02em', lineHeight: 1 },
+  statLabel: { fontSize: 16, fontWeight: 600, color: 'var(--text-soft)', fontFamily: 'var(--font-ui)', marginTop: 4 },
+  statSub: { fontSize: 17, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginTop: 2 },
   twoCol: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 },
-  card: { background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, padding: '18px 20px' },
+  card: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' },
   cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  cardTitle: { fontSize: 16, fontWeight: 700, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)' },
-  cardAction: { fontSize: 17, color: 'oklch(0.42 0.14 260)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 600 },
-  paperRow: { display: 'flex', gap: 14, padding: '10px 0', borderBottom: '1px solid oklch(0.96 0.004 80)', cursor: 'pointer', alignItems: 'flex-start' },
+  cardTitle: { fontSize: 16, fontWeight: 700, color: 'var(--text)', fontFamily: 'var(--font-ui)' },
+  cardAction: { fontSize: 17, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 600 },
+  paperRow: { display: 'flex', gap: 14, padding: '10px 0', borderBottom: '1px solid var(--surface-2)', cursor: 'pointer', alignItems: 'flex-start' },
   paperRowLeft: { flex: 1, minWidth: 0 },
-  paperRowTitle: { fontSize: 16, fontWeight: 500, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.4, marginBottom: 3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' },
-  paperRowMeta: { fontSize: 16.5, color: 'oklch(0.55 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 6 },
-  progressTrack: { height: 3, background: 'oklch(0.92 0.01 80)', borderRadius: 2, overflow: 'hidden' },
-  progressFill: { height: '100%', background: 'oklch(0.42 0.14 260)', borderRadius: 2 },
+  paperRowTitle: { fontSize: 16, fontWeight: 500, color: 'var(--text)', fontFamily: 'var(--font-ui)', lineHeight: 1.4, marginBottom: 3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' },
+  paperRowMeta: { fontSize: 16.5, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginBottom: 6 },
+  progressTrack: { height: 3, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' },
+  progressFill: { height: '100%', background: 'var(--accent)', borderRadius: 2 },
   paperRowRight: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 14, flexShrink: 0 },
   statusPill: { fontSize: 16, padding: '2px 7px', borderRadius: 4, fontWeight: 600, fontFamily: 'var(--font-ui)' },
-  progressPct: { fontSize: 17, fontFamily: 'var(--font-mono)', color: 'oklch(0.42 0.14 260)', fontWeight: 600 },
-  activityRow: { display: 'flex', alignItems: 'flex-start', gap: 9, padding: '7px 0', borderBottom: '1px solid oklch(0.97 0.003 80)' },
+  progressPct: { fontSize: 17, fontFamily: 'var(--font-mono)', color: 'var(--accent)', fontWeight: 600 },
+  activityRow: { display: 'flex', alignItems: 'flex-start', gap: 9, padding: '7px 0', borderBottom: '1px solid var(--bg)' },
   actDot: { width: 7, height: 7, borderRadius: '50%', marginTop: 4, flexShrink: 0 },
-  actLabel: { fontSize: 16, color: 'oklch(0.25 0.01 80)', fontFamily: 'var(--font-ui)', lineHeight: 1.4 },
-  actTime: { fontSize: 16, color: 'oklch(0.65 0.01 80)', fontFamily: 'var(--font-ui)', marginTop: 1 },
+  actLabel: { fontSize: 16, color: 'var(--text)', fontFamily: 'var(--font-ui)', lineHeight: 1.4 },
+  actTime: { fontSize: 16, color: 'var(--muted)', fontFamily: 'var(--font-ui)', marginTop: 1 },
   quickRow: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 },
-  quickCard: { background: '#fff', border: '1px solid oklch(0.91 0.008 80)', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', fontFamily: 'var(--font-ui)' },
-  quickIcon: { fontSize: 30, color: 'oklch(0.42 0.14 260)', marginBottom: 8, lineHeight: 1 },
-  quickLabel: { fontSize: 16, fontWeight: 600, color: 'oklch(0.2 0.01 80)', fontFamily: 'var(--font-ui)', marginBottom: 3 },
-  quickDesc: { fontSize: 17, color: 'oklch(0.6 0.01 80)', fontFamily: 'var(--font-ui)' },
+  quickCard: { background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s', fontFamily: 'var(--font-ui)' },
+  quickIcon: { fontSize: 30, color: 'var(--accent)', marginBottom: 8, lineHeight: 1 },
+  quickLabel: { fontSize: 16, fontWeight: 600, color: 'var(--text)', fontFamily: 'var(--font-ui)', marginBottom: 3 },
+  quickDesc: { fontSize: 17, color: 'var(--muted)', fontFamily: 'var(--font-ui)' },
 };
 
 Object.assign(window, { HomeView });

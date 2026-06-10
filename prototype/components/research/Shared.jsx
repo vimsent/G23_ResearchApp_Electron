@@ -43,7 +43,7 @@ function ChatIcon({ color = 'var(--muted)', size = 12 }) {
   );
 }
 
-function ChartIcon({ color = 'oklch(0.7 0.01 80)', size = 14 }) {
+function ChartIcon({ color = 'var(--muted)', size = 14 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round">
       <path d="M2 13h12M3 13V8M6 13V5M9 13V9M12 13V3" />
@@ -51,7 +51,7 @@ function ChartIcon({ color = 'oklch(0.7 0.01 80)', size = 14 }) {
   );
 }
 
-function CanvasIcon({ color = 'oklch(0.7 0.01 80)', size = 14 }) {
+function CanvasIcon({ color = 'var(--muted)', size = 14 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth="1.4">
       <rect x="2" y="3" width="12" height="10" rx="1" />
@@ -88,8 +88,8 @@ function LoadBadge({ file, isAlways, onPastel }) {
   return (
     <span style={{
       fontSize: 10, padding: '2px 6px', borderRadius: 4,
-      background: onPastel ? 'rgba(255,255,255,0.62)' : (isAlways ? 'oklch(0.94 0.05 170)' : 'oklch(0.95 0.006 80)'),
-      color: isAlways ? 'oklch(0.34 0.12 170)' : 'oklch(0.48 0.01 80)',
+      background: onPastel ? 'rgba(255,255,255,0.62)' : (isAlways ? 'oklch(0.94 0.05 170)' : 'var(--surface-2)'),
+      color: isAlways ? 'oklch(0.34 0.12 170)' : 'var(--muted)',
       fontWeight: 600, letterSpacing: '0.01em',
       fontFamily: 'var(--font-ui)', whiteSpace: 'nowrap',
     }}>{isAlways && file.name === 'LUMEN.md' ? (
@@ -114,7 +114,7 @@ function ContextFileItem({ file, expanded, onToggle, compact, styleMode = 'A', c
   return (
     <div style={{
       borderRadius: 9, overflow: 'hidden', marginBottom: 2,
-      background: !styleB && expanded ? 'oklch(0.97 0.005 80)' : 'transparent',
+      background: !styleB && expanded ? 'var(--bg)' : 'transparent',
       transition: 'background 0.1s ease',
     }}>
       {styleB ? (
@@ -133,11 +133,11 @@ function ContextFileItem({ file, expanded, onToggle, compact, styleMode = 'A', c
           }} />
           <span style={{
             fontFamily: 'var(--font-mono)', fontSize: 12, fontWeight: 600,
-            color: 'oklch(0.26 0.02 80)', flex: 1,
+            color: 'var(--text)', flex: 1,
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>{file.name}</span>
           <LoadBadge file={file} isAlways={isAlways} onPastel />
-          <span style={{ fontSize: 9, color: 'oklch(0.4 0.02 80)' }}>{expanded ? '▾' : '▸'}</span>
+          <span style={{ fontSize: 9, color: 'var(--text-soft)' }}>{expanded ? '▾' : '▸'}</span>
         </button>
       ) : (
         /* ===== Style A — folder icon + left accent bar ===== */
@@ -146,7 +146,7 @@ function ContextFileItem({ file, expanded, onToggle, compact, styleMode = 'A', c
           background: 'transparent', border: 'none', padding: 0,
           cursor: 'pointer', textAlign: 'left', borderRadius: 8, overflow: 'hidden',
         }}
-        onMouseEnter={(e) => { if (!expanded) e.currentTarget.style.background = 'oklch(0.96 0.006 80)'; }}
+        onMouseEnter={(e) => { if (!expanded) e.currentTarget.style.background = 'var(--surface-2)'; }}
         onMouseLeave={(e) => { if (!expanded) e.currentTarget.style.background = 'transparent'; }}
         >
           <div style={{ width: 3, background: accent, flexShrink: 0 }} />
@@ -185,11 +185,11 @@ function ContextFileItem({ file, expanded, onToggle, compact, styleMode = 'A', c
 function MarkdownView({ md, accent }) {
   const blocks = renderMarkdown(md);
   return (
-    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'oklch(0.3 0.01 80)', lineHeight: 1.55 }}>
+    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-soft)', lineHeight: 1.55 }}>
       {blocks.map(b => {
         if (b.kind === 'h1') return <div key={b.key} style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text)', margin: '8px 0 5px', fontFamily: 'var(--font-mono)' }}>{b.text}</div>;
         if (b.kind === 'h2') return <div key={b.key} style={{ fontSize: 11, fontWeight: 700, color: accent || 'var(--muted)', margin: '7px 0 3px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{b.text}</div>;
-        if (b.kind === 'h3') return <div key={b.key} style={{ fontSize: 11.5, fontWeight: 600, color: 'oklch(0.3 0.01 80)', margin: '5px 0 2px' }}>{b.text}</div>;
+        if (b.kind === 'h3') return <div key={b.key} style={{ fontSize: 11.5, fontWeight: 600, color: 'var(--text-soft)', margin: '5px 0 2px' }}>{b.text}</div>;
         if (b.kind === 'li') return <div key={b.key} style={{ paddingLeft: b.indent ? 18 : 8, position: 'relative', margin: '1px 0' }}>
           <span style={{ position: 'absolute', left: b.indent ? 8 : 0, color: 'var(--muted)' }}>·</span>
           {renderInlineMd(b.text)}
@@ -232,7 +232,7 @@ function SourceRow({ source, onClick, expanded, opened, dense }) {
   return (
     <div style={{
       borderRadius: 8, overflow: 'hidden',
-      background: expanded || opened ? 'oklch(0.97 0.005 80)' : 'transparent',
+      background: expanded || opened ? 'var(--bg)' : 'transparent',
     }}>
       <button onClick={onClick} style={{
         display: 'flex', alignItems: 'center', gap: 8, width: '100%',
@@ -241,12 +241,12 @@ function SourceRow({ source, onClick, expanded, opened, dense }) {
         cursor: 'pointer', textAlign: 'left',
         borderLeft: opened ? '2px solid var(--accent)' : '2px solid transparent',
       }}
-      onMouseEnter={(e) => { if (!expanded && !opened) e.currentTarget.style.background = 'oklch(0.96 0.006 80)'; }}
+      onMouseEnter={(e) => { if (!expanded && !opened) e.currentTarget.style.background = 'var(--surface-2)'; }}
       onMouseLeave={(e) => { if (!expanded && !opened) e.currentTarget.style.background = 'transparent'; }}
       >
-        {getSourceIcon(source.type, source.accessible ? 'var(--muted)' : 'oklch(0.7 0.01 80)', 12)}
+        {getSourceIcon(source.type, source.accessible ? 'var(--muted)' : 'var(--muted)', 12)}
         <span style={{
-          flex: 1, fontSize: 12, color: source.accessible ? 'var(--text)' : 'oklch(0.65 0.01 80)',
+          flex: 1, fontSize: 12, color: source.accessible ? 'var(--text)' : 'var(--muted)',
           fontFamily: 'var(--font-ui)', fontWeight: 500,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
         }}>{source.name}</span>
@@ -254,14 +254,14 @@ function SourceRow({ source, onClick, expanded, opened, dense }) {
           {source.sections && source.sections.map(s => <SectionPill key={s}>{s}</SectionPill>)}
           {source.note && (
             <span style={{
-              padding: '1px 6px', background: 'oklch(0.95 0.006 80)', color: 'var(--muted)',
+              padding: '1px 6px', background: 'var(--surface-2)', color: 'var(--muted)',
               borderRadius: 4, fontSize: 10, fontWeight: 600,
               fontFamily: 'var(--font-ui)',
             }}>{source.note}</span>
           )}
           <span style={{
             display: 'inline-block', width: 6, height: 6, borderRadius: '50%',
-            background: source.accessible ? 'oklch(0.55 0.12 170)' : 'oklch(0.7 0.01 80)', marginLeft: 4,
+            background: source.accessible ? 'oklch(0.55 0.12 170)' : 'var(--muted)', marginLeft: 4,
           }} title={source.accessible ? 'Accessible' : 'Restricted'} />
         </div>
       </button>
@@ -300,13 +300,13 @@ function SourcePreview({ source }) {
       {source.type === 'code' && source.code ? (
         <pre style={{
           fontFamily: 'var(--font-mono)', fontSize: 11,
-          background: 'oklch(0.97 0.005 80)', padding: '8px 10px', borderRadius: 6,
-          color: 'oklch(0.3 0.01 80)', lineHeight: 1.55, margin: 0, overflow: 'auto',
+          background: 'var(--bg)', padding: '8px 10px', borderRadius: 6,
+          color: 'var(--text-soft)', lineHeight: 1.55, margin: 0, overflow: 'auto',
           border: '1px solid var(--border)',
         }}>{source.code}</pre>
       ) : (
         <>
-          <div style={{ fontSize: 11.5, color: 'oklch(0.3 0.01 80)', lineHeight: 1.55, marginBottom: 6 }}>
+          <div style={{ fontSize: 11.5, color: 'var(--text-soft)', lineHeight: 1.55, marginBottom: 6 }}>
             {source.abstract}
           </div>
           {source.citations && (
@@ -335,7 +335,7 @@ function SectionTitle({ children, hint, action }) {
       }}>{children}</span>
       {hint && (
         <span style={{
-          fontSize: 10.5, color: 'oklch(0.65 0.01 80)', fontStyle: 'italic',
+          fontSize: 10.5, color: 'var(--muted)', fontStyle: 'italic',
           fontFamily: 'var(--font-ui)', marginLeft: 'auto',
         }}>{hint}</span>
       )}

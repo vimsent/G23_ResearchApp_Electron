@@ -209,14 +209,15 @@ mechanism without author-side charges.`
 // LaTeX syntax highlighter — returns array of {text, kind} tokens
 function highlightLatex(text) {
   const tokens = [];
-  const re = /(%[^\n]*)|(\\begin\{[^}]*\}|\\end\{[^}]*\})|(\\[a-zA-Z]+\*?)|([{}])|([^\\%{}]+)/g;
+  const re = /(%[^\n]*)|(\\begin\{[^}]*\}|\\end\{[^}]*\})|(\\[a-zA-Z]+\*?)|([{}])|([^\\%{}]+)|(.)/g;
   let m;
   while ((m = re.exec(text)) !== null) {
     if (m[1]) tokens.push({ text: m[1], kind: 'comment' });
     else if (m[2]) tokens.push({ text: m[2], kind: 'env' });
     else if (m[3]) tokens.push({ text: m[3], kind: 'cmd' });
     else if (m[4]) tokens.push({ text: m[4], kind: 'brace' });
-    else tokens.push({ text: m[5], kind: 'text' });
+    else if (m[5]) tokens.push({ text: m[5], kind: 'text' });
+    else if (m[6]) tokens.push({ text: m[6], kind: 'text' });
   }
   return tokens;
 }
@@ -234,4 +235,116 @@ function renderMarkdown(md) {
   });
 }
 
-Object.assign(window, { PAPER_DATA, highlightLatex, renderMarkdown });
+// LaTeX → HTML renderer for the PDF preview / compile output
+function parseLatexToHtml(tex, paperTitle = 'Untitled Paper') {
+  if (!tex) return { title: paperTitle, author: '—', date: '', abstract: '', bodyHtml: '' };
+
+  // Clean comments
+  const cleanTex = tex.replace(/%[^\n]*/g, '');
+
+  const titleMatch = cleanTex.match(/\\title\{([\s\S]*?)\}/);
+  const authorMatch = cleanTex.match(/\\author\{([\s\S]*?)\}/);
+  const dateMatch = cleanTex.match(/\\date\{([\s\S]*?)\}/);
+  const absMatch = cleanTex.match(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/);
+
+  const inlineFmt = (s) => s
+    .replace(/\\\\/g, '<br/>')
+    .replace(/\\textbf\{([^}]+)\}/g, '<strong>$1</strong>')
+    .replace(/\\textit\{([^}]+)\}/g, '<em>$1</em>')
+    .replace(/\\underline\{([^}]+)\}/g, '<u>$1</u>')
+    .trim();
+
+  const title = titleMatch ? inlineFmt(titleMatch[1]) : paperTitle;
+  const author = authorMatch ? inlineFmt(authorMatch[1]) : '—';
+  const date = dateMatch ? dateMatch[1].trim() : '';
+  const abstract = absMatch ? absMatch[1].trim() : '';
+
+  // Parse sections and paragraphs
+  let bodyContent = cleanTex;
+  const docStart = cleanTex.indexOf('\\begin{document}');
+  if (docStart !== -1) {
+    bodyContent = cleanTex.substring(docStart + 16);
+  }
+  const docEnd = bodyContent.indexOf('\\end{document}');
+  if (docEnd !== -1) {
+    bodyContent = bodyContent.substring(0, docEnd);
+  }
+
+  // Remove maketitle and abstract from body content
+  bodyContent = bodyContent.replace(/\\maketitle/g, '');
+  bodyContent = bodyContent.replace(/\\begin\{abstract\}[\s\S]*?\\end\{abstract\}/g, '');
+
+  const lines = bodyContent.split('\n');
+  let html = '';
+  let currentParagraph = '';
+  let sectionCounter = 0;
+  let subsectionCounter = 0;
+  const flushParagraph = () => {
+    if (currentParagraph) {
+      html += `<p style="font-size: 12.5px; margin-bottom: 12px; text-align: justify; text-indent: 1.5em; line-height: 1.6;">${currentParagraph}</p>`;
+      currentParagraph = '';
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i].trim();
+    if (!line) { flushParagraph(); continue; }
+
+    const secMatch = line.match(/\\section(\*?)\s*\{\s*([^}]+?)\s*\}/);
+    if (secMatch) {
+      flushParagraph();
+      const isStarred = secMatch[1] === '*';
+      let headingText = secMatch[2];
+      if (!isStarred) {
+        sectionCounter++;
+        subsectionCounter = 0;
+        headingText = `${sectionCounter}  ${headingText}`;
+      }
+      html += `<h2 style="font-size: 15px; font-weight: 600; margin-top: 24px; margin-bottom: 8px; font-family: 'Lora', Georgia, serif;">${headingText}</h2>`;
+      continue;
+    }
+
+    const subMatch = line.match(/\\subsection(\*?)\s*\{\s*([^}]+?)\s*\}/);
+    if (subMatch) {
+      flushParagraph();
+      const isStarred = subMatch[1] === '*';
+      let headingText = subMatch[2];
+      if (!isStarred) {
+        subsectionCounter++;
+        headingText = `${sectionCounter}.${subsectionCounter}  ${headingText}`;
+      }
+      html += `<h3 style="font-size: 13.5px; font-weight: 600; margin-top: 18px; margin-bottom: 6px; font-family: 'Lora', Georgia, serif; font-style: italic;">${headingText}</h3>`;
+      continue;
+    }
+
+    const subsubMatch = line.match(/\\subsubsection(\*?)\s*\{\s*([^}]+?)\s*\}/);
+    if (subsubMatch) {
+      flushParagraph();
+      html += `<h4 style="font-size: 12.5px; font-weight: 600; margin-top: 14px; margin-bottom: 4px; font-family: 'Lora', Georgia, serif;">${subsubMatch[2]}</h4>`;
+      continue;
+    }
+
+    // Inline LaTeX → HTML
+    line = line.replace(/\\\\/g, '<br/>');
+    line = line.replace(/\\href\s*\{\s*([^}]+?)\s*\}\s*\{\s*([^}]+?)\s*\}/g, '<a href="$1" target="_blank" style="color: var(--accent); text-decoration: underline;">$2</a>');
+    line = line.replace(/\\url\s*\{\s*([^}]+?)\s*\}/g, '<a href="$1" target="_blank" style="color: var(--accent); text-decoration: underline;">$1</a>');
+    line = line.replace(/\\citep\s*\{\s*([^}]+?)\s*\}/g, '[$1]');
+    line = line.replace(/\\cite\s*\{\s*([^}]+?)\s*\}/g, '[$1]');
+    line = line.replace(/\\ref\s*\{\s*([^}]+?)\s*\}/g, '<span style="color: var(--accent); font-weight: 600;">$1</span>');
+    line = line.replace(/\\footnote\s*\{\s*([^}]+?)\s*\}/g, '<span style="font-size: 8.5px; vertical-align: super; color: var(--accent); cursor: help; font-weight: bold;" title="$1">[nota]</span>');
+    line = line.replace(/\\textbf\s*\{\s*([^}]+?)\s*\}/g, '<strong>$1</strong>');
+    line = line.replace(/\\textit\s*\{\s*([^}]+?)\s*\}/g, '<em>$1</em>');
+    line = line.replace(/\\underline\s*\{\s*([^}]+?)\s*\}/g, '<u>$1</u>');
+    line = line.replace(/\\[a-zA-Z]+\*?/g, '');
+    line = line.replace(/\\\{/g, '&#123;');
+    line = line.replace(/\\\}/g, '&#125;');
+    line = line.replace(/[{}]/g, '');
+
+    currentParagraph += (currentParagraph ? ' ' : '') + line;
+  }
+  flushParagraph();
+
+  return { title, author, date, abstract, bodyHtml: html };
+}
+
+Object.assign(window, { PAPER_DATA, highlightLatex, renderMarkdown, parseLatexToHtml });
