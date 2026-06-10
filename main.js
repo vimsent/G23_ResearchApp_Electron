@@ -1,9 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 
-const ragProcess = require('./services/ragProcess')
-const keyVault   = require('./services/keyVault')
-const notesVault = require('./services/notesVault')
+const ragProcess  = require('./services/ragProcess')
+const keyVault    = require('./services/keyVault')
+const notesVault  = require('./services/notesVault')
+const latexExport = require('./services/latexExport')
 
 let mainWindow = null
 
@@ -54,6 +55,10 @@ ipcMain.handle('notes:read',   (_e, id) => notesVault.read(id))
 ipcMain.handle('notes:create', () => notesVault.create())
 ipcMain.handle('notes:write',  (_e, id, payload) => notesVault.write(id, payload))
 ipcMain.handle('notes:delete', (_e, id) => notesVault.remove(id))
+
+// ───────── IPC: native LaTeX → PDF export ─────────
+ipcMain.handle('latex:export-pdf', (_e, html, defaultName) =>
+  latexExport.exportPdf(mainWindow, html, defaultName))
 
 // ───────── App lifecycle ─────────
 app.whenReady().then(async () => {

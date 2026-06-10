@@ -234,4 +234,166 @@ function renderMarkdown(md) {
   });
 }
 
-Object.assign(window, { PAPER_DATA, highlightLatex, renderMarkdown });
+// ── HDU-G: LaTeX integration ───────────────────────────────────────────────
+
+// Autocomplete dictionary triggered by '\' inside the editor.
+// `snippet` lets the inserter place the caret intelligently (see insertTexAtCursor).
+const LATEX_COMMANDS = [
+  // Greek
+  { cmd: '\\alpha',   label: '\\alpha — α',    kind: 'greek',  snippet: '\\alpha' },
+  { cmd: '\\beta',    label: '\\beta — β',     kind: 'greek',  snippet: '\\beta' },
+  { cmd: '\\gamma',   label: '\\gamma — γ',    kind: 'greek',  snippet: '\\gamma' },
+  { cmd: '\\delta',   label: '\\delta — δ',    kind: 'greek',  snippet: '\\delta' },
+  { cmd: '\\epsilon', label: '\\epsilon — ε',  kind: 'greek',  snippet: '\\epsilon' },
+  { cmd: '\\theta',   label: '\\theta — θ',    kind: 'greek',  snippet: '\\theta' },
+  { cmd: '\\lambda',  label: '\\lambda — λ',   kind: 'greek',  snippet: '\\lambda' },
+  { cmd: '\\mu',      label: '\\mu — μ',       kind: 'greek',  snippet: '\\mu' },
+  { cmd: '\\pi',      label: '\\pi — π',       kind: 'greek',  snippet: '\\pi' },
+  { cmd: '\\sigma',   label: '\\sigma — σ',    kind: 'greek',  snippet: '\\sigma' },
+  { cmd: '\\phi',     label: '\\phi — φ',      kind: 'greek',  snippet: '\\phi' },
+  { cmd: '\\omega',   label: '\\omega — ω',    kind: 'greek',  snippet: '\\omega' },
+  // Math operators
+  { cmd: '\\sum',     label: '\\sum — sumatoria',     kind: 'math',  snippet: '\\sum_{i=0}^{n}' },
+  { cmd: '\\int',     label: '\\int — integral',      kind: 'math',  snippet: '\\int_{a}^{b}' },
+  { cmd: '\\prod',    label: '\\prod — producto',     kind: 'math',  snippet: '\\prod_{i=1}^{n}' },
+  { cmd: '\\frac',    label: '\\frac — fracción',     kind: 'math',  snippet: '\\frac{}{}' },
+  { cmd: '\\sqrt',    label: '\\sqrt — raíz',         kind: 'math',  snippet: '\\sqrt{}' },
+  { cmd: '\\lim',     label: '\\lim — límite',        kind: 'math',  snippet: '\\lim_{x \\to \\infty}' },
+  { cmd: '\\infty',   label: '\\infty — ∞',           kind: 'math',  snippet: '\\infty' },
+  { cmd: '\\partial', label: '\\partial — ∂',         kind: 'math',  snippet: '\\partial' },
+  { cmd: '\\nabla',   label: '\\nabla — ∇',           kind: 'math',  snippet: '\\nabla' },
+  // Structure
+  { cmd: '\\section',       label: '\\section{}',       kind: 'struct', snippet: '\\section{}' },
+  { cmd: '\\subsection',    label: '\\subsection{}',    kind: 'struct', snippet: '\\subsection{}' },
+  { cmd: '\\subsubsection', label: '\\subsubsection{}', kind: 'struct', snippet: '\\subsubsection{}' },
+  { cmd: '\\paragraph',     label: '\\paragraph{}',     kind: 'struct', snippet: '\\paragraph{}' },
+  // Text style
+  { cmd: '\\textbf',  label: '\\textbf — negrita',    kind: 'text', snippet: '\\textbf{}' },
+  { cmd: '\\textit',  label: '\\textit — cursiva',    kind: 'text', snippet: '\\textit{}' },
+  { cmd: '\\underline', label: '\\underline',         kind: 'text', snippet: '\\underline{}' },
+  { cmd: '\\emph',    label: '\\emph — énfasis',      kind: 'text', snippet: '\\emph{}' },
+  // References
+  { cmd: '\\cite',    label: '\\cite{}',              kind: 'ref',  snippet: '\\cite{}' },
+  { cmd: '\\citep',   label: '\\citep{} (paren.)',    kind: 'ref',  snippet: '\\citep{}' },
+  { cmd: '\\citet',   label: '\\citet{} (textual)',   kind: 'ref',  snippet: '\\citet{}' },
+  { cmd: '\\ref',     label: '\\ref{}',               kind: 'ref',  snippet: '\\ref{}' },
+  { cmd: '\\label',   label: '\\label{}',             kind: 'ref',  snippet: '\\label{}' },
+  { cmd: '\\href',    label: '\\href{url}{text}',     kind: 'ref',  snippet: '\\href{}{}' },
+  { cmd: '\\url',     label: '\\url{}',               kind: 'ref',  snippet: '\\url{}' },
+  // Environments
+  { cmd: '\\begin{equation}',  label: 'equation env',  kind: 'env', snippet: '\\begin{equation}\n  \n\\end{equation}' },
+  { cmd: '\\begin{itemize}',   label: 'itemize env',   kind: 'env', snippet: '\\begin{itemize}\n  \\item \n\\end{itemize}' },
+  { cmd: '\\begin{enumerate}', label: 'enumerate env', kind: 'env', snippet: '\\begin{enumerate}\n  \\item \n\\end{enumerate}' },
+  { cmd: '\\begin{figure}',    label: 'figure env',    kind: 'env', snippet: '\\begin{figure}[h]\n  \\centering\n  \\includegraphics[width=0.8\\textwidth]{}\n  \\caption{}\n  \\label{fig:}\n\\end{figure}' },
+  { cmd: '\\begin{table}',     label: 'table env',     kind: 'env', snippet: '\\begin{table}[h]\n  \\centering\n  \\begin{tabular}{cc}\n    a & b \\\\\n    c & d \\\\\n  \\end{tabular}\n  \\caption{}\n\\end{table}' },
+  { cmd: '\\item',    label: '\\item — entrada lista', kind: 'env', snippet: '\\item ' },
+];
+
+const KIND_HUE = { greek: 70, math: 260, struct: 170, text: 145, ref: 30, env: 305 };
+
+// ── parseLatexToHtml ───────────────────────────────────────────────────────
+// Translates the main LaTeX commands into semantic HTML so PdfPreview can
+// render a "compiled" view. Math (inline $...$ and display $$...$$ or
+// equation/align envs) is left untouched so MathJax can typeset it afterwards.
+// Designed to tolerate spaces between command name and braces: \section { x }.
+function parseLatexToHtml(tex) {
+  if (!tex) return '';
+
+  // Strip preamble (everything before \begin{document}) but capture title meta.
+  let title = '', author = '', date = '';
+  const titleM   = tex.match(/\\title\s*\{([^}]*)\}/);
+  const authorM  = tex.match(/\\author\s*\{([\s\S]*?)\}/);
+  const dateM    = tex.match(/\\date\s*\{([^}]*)\}/);
+  if (titleM)  title  = titleM[1].replace(/\\\\/g, '<br/>');
+  if (authorM) author = authorM[1].replace(/\\\\/g, '<br/>');
+  if (dateM)   date   = dateM[1];
+
+  const docStart = tex.indexOf('\\begin{document}');
+  let body = docStart === -1 ? tex : tex.slice(docStart + '\\begin{document}'.length);
+  const docEnd = body.indexOf('\\end{document}');
+  if (docEnd !== -1) body = body.slice(0, docEnd);
+
+  // Strip comments (% ... end of line, but not \%).
+  body = body.replace(/(^|[^\\])%[^\n]*/g, '$1');
+
+  // Escape HTML entities first so we don't break MathJax.
+  body = body.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  // \maketitle → render the captured title block.
+  body = body.replace(/\\maketitle/g, () => `
+    <header class="lx-title-block">
+      <h1 class="lx-title">${title}</h1>
+      ${author ? `<div class="lx-author">${author}</div>` : ''}
+      ${date   ? `<div class="lx-date">${date}</div>`     : ''}
+    </header>
+  `);
+
+  // abstract env
+  body = body.replace(/\\begin\{abstract\}([\s\S]*?)\\end\{abstract\}/g,
+    (_, inner) => `<section class="lx-abstract"><div class="lx-abstract-label">Abstract</div>${inner}</section>`);
+
+  // Section headings (tolerant of spaces and starred forms).
+  body = body.replace(/\\subsubsection\*?\s*\{\s*([^}]*?)\s*\}/g, '<h3 class="lx-h3">$1</h3>');
+  body = body.replace(/\\subsection\*?\s*\{\s*([^}]*?)\s*\}/g,    '<h2 class="lx-h2">$1</h2>');
+  body = body.replace(/\\section\*?\s*\{\s*([^}]*?)\s*\}/g,       '<h1 class="lx-h1">$1</h1>');
+  body = body.replace(/\\paragraph\*?\s*\{\s*([^}]*?)\s*\}/g,     '<h4 class="lx-h4">$1</h4>');
+
+  // Text style
+  body = body.replace(/\\textbf\s*\{\s*([^}]*?)\s*\}/g, '<strong>$1</strong>');
+  body = body.replace(/\\textit\s*\{\s*([^}]*?)\s*\}/g, '<em>$1</em>');
+  body = body.replace(/\\emph\s*\{\s*([^}]*?)\s*\}/g,   '<em>$1</em>');
+  body = body.replace(/\\underline\s*\{\s*([^}]*?)\s*\}/g, '<u>$1</u>');
+  body = body.replace(/\\texttt\s*\{\s*([^}]*?)\s*\}/g, '<code>$1</code>');
+
+  // References — render as styled inline citations
+  body = body.replace(/\\citep\s*\{\s*([^}]*?)\s*\}/g, '<span class="lx-cite">($1)</span>');
+  body = body.replace(/\\citet\s*\{\s*([^}]*?)\s*\}/g, '<span class="lx-cite">$1</span>');
+  body = body.replace(/\\cite\s*\{\s*([^}]*?)\s*\}/g,  '<span class="lx-cite">[$1]</span>');
+  body = body.replace(/\\ref\s*\{\s*([^}]*?)\s*\}/g,   '<span class="lx-ref">§$1</span>');
+  body = body.replace(/\\label\s*\{\s*([^}]*?)\s*\}/g, ''); // drop labels from rendered output
+  body = body.replace(/\\href\s*\{\s*([^}]*?)\s*\}\s*\{\s*([^}]*?)\s*\}/g, '<a class="lx-link" href="$1">$2</a>');
+  body = body.replace(/\\url\s*\{\s*([^}]*?)\s*\}/g,   '<a class="lx-link" href="$1">$1</a>');
+  body = body.replace(/\\footnote\s*\{\s*([^}]*?)\s*\}/g, '<sup class="lx-foot">[$1]</sup>');
+
+  // Lists
+  body = body.replace(/\\begin\{itemize\}([\s\S]*?)\\end\{itemize\}/g, (_, inner) => {
+    const items = inner.split(/\\item\s*/).filter(s => s.trim()).map(s => `<li>${s.trim()}</li>`).join('');
+    return `<ul class="lx-ul">${items}</ul>`;
+  });
+  body = body.replace(/\\begin\{enumerate\}([\s\S]*?)\\end\{enumerate\}/g, (_, inner) => {
+    const items = inner.split(/\\item\s*/).filter(s => s.trim()).map(s => `<li>${s.trim()}</li>`).join('');
+    return `<ol class="lx-ol">${items}</ol>`;
+  });
+
+  // Figure / table envs — render a placeholder with the caption.
+  body = body.replace(/\\begin\{figure\}[\s\S]*?\\caption\s*\{\s*([^}]*?)\s*\}[\s\S]*?\\end\{figure\}/g,
+    (_, cap) => `<figure class="lx-figure"><div class="lx-fig-ph">[figure]</div><figcaption>${cap}</figcaption></figure>`);
+  body = body.replace(/\\begin\{table\}([\s\S]*?)\\end\{table\}/g, (_, inner) => {
+    const cap = (inner.match(/\\caption\s*\{\s*([^}]*?)\s*\}/) || [, ''])[1];
+    return `<figure class="lx-figure"><div class="lx-fig-ph">[table]</div><figcaption>${cap}</figcaption></figure>`;
+  });
+
+  // Equation env → wrap in $$...$$ so MathJax handles it.
+  body = body.replace(/\\begin\{(equation\*?|align\*?|gather\*?)\}([\s\S]*?)\\end\{\1\}/g,
+    (_, env, inner) => `<div class="lx-eq">$$${inner.trim()}$$</div>`);
+
+  // Inline em-dash convention LaTeX --- and --
+  body = body.replace(/---/g, '—').replace(/--/g, '–');
+
+  // Escaped percent
+  body = body.replace(/\\%/g, '%').replace(/\\\$/g, '$').replace(/\\&amp;/g, '&').replace(/\\#/g, '#').replace(/\\_/g, '_');
+
+  // Paragraphs: split on blank lines, wrap raw text segments in <p>.
+  // Don't wrap anything already inside a block element we generated.
+  const HTML_BLOCK_RE = /^\s*<(?:header|section|h1|h2|h3|h4|ul|ol|figure|div)/;
+  body = body.split(/\n\s*\n/).map(seg => {
+    const t = seg.trim();
+    if (!t) return '';
+    if (HTML_BLOCK_RE.test(t)) return t;
+    return `<p class="lx-p">${t.replace(/\n/g, ' ')}</p>`;
+  }).join('\n');
+
+  return body;
+}
+
+Object.assign(window, { PAPER_DATA, highlightLatex, renderMarkdown, LATEX_COMMANDS, KIND_HUE, parseLatexToHtml });

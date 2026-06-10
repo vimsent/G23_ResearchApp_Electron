@@ -112,11 +112,14 @@ function Topbar({ view, setView, status, setStatus, workspacePath }) {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'flex-end' }}>
         <StatusBadge status={status} onChange={setStatus} />
-        <button style={{
-          background: 'transparent', border: '1px solid var(--border)', borderRadius: 8,
-          padding: '6px 12px', fontSize: 12.5, color: 'var(--muted)', cursor: 'pointer',
-          fontFamily: 'var(--font-ui)', fontWeight: 500,
-        }}>Compile PDF</button>
+        <button
+          onClick={() => window.__lumenCompilePdf && window.__lumenCompilePdf()}
+          title="Compilar el LaTeX a PDF (vía Electron printToPDF)"
+          style={{
+            background: 'transparent', border: '1px solid var(--border)', borderRadius: 8,
+            padding: '6px 12px', fontSize: 12.5, color: 'var(--muted)', cursor: 'pointer',
+            fontFamily: 'var(--font-ui)', fontWeight: 500,
+          }}>Compile PDF</button>
         <button style={{
           background: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: 8,
           padding: '6px 12px', fontSize: 12.5, color: '#fff', cursor: 'pointer',
@@ -132,50 +135,73 @@ function Topbar({ view, setView, status, setStatus, workspacePath }) {
   );
 }
 
+// HDU-G: 14 tools + dividers. Each `insert` is fed to window.insertTexAtCursor.
 const TOOLS = [
-  { id: 'bold', label: 'B', tooltip: 'Bold — \\textbf{}', style: { fontWeight: 700 } },
-  { id: 'section', label: '§', tooltip: 'Section — \\section{}' },
-  { id: 'eq', label: '∑', tooltip: 'Equation' },
-  { id: 'table', label: '⊞', tooltip: 'Table' },
-  { id: 'env', label: '{ }', tooltip: 'Environment', style: { fontSize: 11.5, fontFamily: 'var(--font-mono)' } },
+  { id: 'bold',      label: 'B', tooltip: 'Negrita — \\textbf{|}',                    insert: '\\textbf{}',  style: { fontWeight: 700 } },
+  { id: 'italic',    label: 'I', tooltip: 'Cursiva — \\textit{|}',                    insert: '\\textit{}',  style: { fontStyle: 'italic' } },
+  { id: 'underline', label: 'U', tooltip: 'Subrayado — \\underline{|}',               insert: '\\underline{}', style: { textDecoration: 'underline' } },
+  { divider: 1 },
+  { id: 'section',    label: '§',  tooltip: 'Sección — \\section{|}',                 insert: '\\section{}' },
+  { id: 'subsection', label: '§§', tooltip: 'Subsección — \\subsection{|}',           insert: '\\subsection{}',  style: { fontSize: 10 } },
+  { divider: 2 },
+  { id: 'eq',     label: '∑',   tooltip: 'Ecuación — \\begin{equation}',              insert: '\\begin{equation}\n  \n\\end{equation}' },
+  { id: 'table',  label: '⊞',   tooltip: 'Tabla — entorno tabular',                   insert: '\\begin{table}[h]\n  \\centering\n  \\begin{tabular}{cc}\n    a & b \\\\\n    c & d \\\\\n  \\end{tabular}\n  \\caption{}\n\\end{table}' },
+  { id: 'figure', label: '🖼',  tooltip: 'Figura — \\includegraphics',                insert: '\\begin{figure}[h]\n  \\centering\n  \\includegraphics[width=0.8\\textwidth]{}\n  \\caption{}\n  \\label{fig:}\n\\end{figure}' },
+  { divider: 3 },
+  { id: 'itemize',    label: '•',  tooltip: 'Lista con viñetas',                      insert: '\\begin{itemize}\n  \\item \n\\end{itemize}' },
+  { id: 'enumerate',  label: '1.', tooltip: 'Lista numerada',                         insert: '\\begin{enumerate}\n  \\item \n\\end{enumerate}', style: { fontSize: 11 } },
+  { divider: 4 },
+  { id: 'cite',     label: '📖', tooltip: 'Cita bibliográfica — \\citep{|}',          insert: '\\citep{}' },
+  { id: 'ref',      label: '🔗', tooltip: 'Referencia cruzada — \\ref{|}',            insert: '\\ref{}' },
+  { id: 'footnote', label: '🦶', tooltip: 'Nota al pie — \\footnote{|}',              insert: '\\footnote{}' },
+  { divider: 5 },
+  { id: 'env',  label: '{ }', tooltip: 'Entorno personalizado',                       insert: '\\begin{name}\n  \n\\end{name}', style: { fontSize: 11.5, fontFamily: 'var(--font-mono)' } },
 ];
 
 function VerticalToolbar() {
   const [hover, setHover] = React.useState(null);
+  const click = (insert) => {
+    if (typeof window.insertTexAtCursor === 'function') {
+      window.insertTexAtCursor(insert);
+    }
+  };
   return (
     <div style={{
       width: 42, minWidth: 42, borderRight: '1px solid var(--border)',
       background: 'var(--bg)', display: 'flex', flexDirection: 'column',
       alignItems: 'center', padding: '8px 0', gap: 2, flexShrink: 0,
+      overflow: 'visible',
     }}>
-      {TOOLS.map(t => (
-        <div key={t.id} style={{ position: 'relative' }} onMouseEnter={() => setHover(t.id)} onMouseLeave={() => setHover(null)}>
-          <button style={{
-            width: 30, height: 30, border: '1px solid transparent', borderRadius: 7,
-            background: hover === t.id ? 'var(--surface)' : 'transparent',
-            color: 'var(--muted)', fontSize: 13.5, cursor: 'pointer',
-            fontFamily: 'var(--font-ui)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            ...(t.style || {}),
-            transition: 'background 0.1s ease',
-          }}>{t.label}</button>
-          {hover === t.id && (
-            <div style={{
-              position: 'absolute', left: 'calc(100% + 6px)', top: '50%',
-              transform: 'translateY(-50%)', background: 'var(--text)', color: '#fff',
-              fontSize: 11.5, padding: '5px 9px', borderRadius: 6, whiteSpace: 'nowrap',
-              fontFamily: 'var(--font-ui)', zIndex: 50,
-              pointerEvents: 'none',
-            }}>{t.tooltip}</div>
-          )}
-        </div>
-      ))}
+      {TOOLS.map((t, idx) => {
+        if (t.divider) return <div key={`d${idx}`} style={{ width: 22, height: 1, background: 'var(--border)', margin: '4px 0' }} />;
+        return (
+          <div key={t.id} style={{ position: 'relative' }} onMouseEnter={() => setHover(t.id)} onMouseLeave={() => setHover(null)}>
+            <button
+              onClick={() => click(t.insert)}
+              title={t.tooltip}
+              style={{
+                width: 30, height: 30, border: '1px solid transparent', borderRadius: 7,
+                background: hover === t.id ? 'var(--surface)' : 'transparent',
+                color: 'var(--muted)', fontSize: 13.5, cursor: 'pointer',
+                fontFamily: 'var(--font-ui)', padding: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                ...(t.style || {}),
+                transition: 'background 0.1s ease',
+              }}>{t.label}</button>
+            {hover === t.id && (
+              <div style={{
+                position: 'absolute', left: 'calc(100% + 6px)', top: '50%',
+                transform: 'translateY(-50%)', background: 'var(--text)', color: 'var(--bg)',
+                fontSize: 11.5, padding: '5px 9px', borderRadius: 6, whiteSpace: 'nowrap',
+                fontFamily: 'var(--font-ui)', zIndex: 50,
+                pointerEvents: 'none',
+                boxShadow: '0 2px 8px oklch(0 0 0 / 0.15)',
+              }}>{t.tooltip}</div>
+            )}
+          </div>
+        );
+      })}
       <div style={{ flex: 1 }} />
-      <div style={{ width: 22, height: 1, background: 'var(--border)', margin: '4px 0' }} />
-      <button style={{
-        width: 30, height: 30, border: 'none', borderRadius: 7,
-        background: 'transparent', color: 'var(--muted)', fontSize: 14, cursor: 'pointer',
-      }}>···</button>
     </div>
   );
 }
