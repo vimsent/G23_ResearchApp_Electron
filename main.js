@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
+const os   = require('os')
 
 const ragProcess = require('./services/ragProcess')
 const keyVault   = require('./services/keyVault')
@@ -54,6 +55,12 @@ ipcMain.handle('notes:read',   (_e, id) => notesVault.read(id))
 ipcMain.handle('notes:create', () => notesVault.create())
 ipcMain.handle('notes:write',  (_e, id, payload) => notesVault.write(id, payload))
 ipcMain.handle('notes:delete', (_e, id) => notesVault.remove(id))
+
+// ───────── IPC: system memory probe (used to warn about heavy LLMs) ─────────
+ipcMain.handle('system:meminfo', () => ({
+  totalMB: Math.round(os.totalmem() / 1024 / 1024),
+  freeMB:  Math.round(os.freemem() / 1024 / 1024),
+}))
 
 // ───────── App lifecycle ─────────
 app.whenReady().then(async () => {

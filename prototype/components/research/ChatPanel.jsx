@@ -3,11 +3,30 @@
 // encrypted via Electron safeStorage (set/get via electronAPI.keys.*).
 
 const PROVIDERS = [
-  { id: 'ollama',    label: 'Ollama (local)',  defaultModel: 'deepseek-r1:8b', needsKey: false },
+  // Default is the smallest DeepSeek distill so a user on 8 GB RAM doesn't
+  // accidentally load a 5 GB model by hitting Send.
+  { id: 'ollama',    label: 'Ollama (local)',  defaultModel: 'deepseek-r1:1.5b', needsKey: false },
   { id: 'openai',    label: 'OpenAI',          defaultModel: 'gpt-4o-mini',    needsKey: true  },
   { id: 'anthropic', label: 'Anthropic',       defaultModel: 'claude-sonnet-4-5-20250929', needsKey: true },
   { id: 'gemini',    label: 'Google Gemini',   defaultModel: 'gemini-1.5-flash', needsKey: true },
 ]
+
+// Approximate resident memory (MB) for popular Ollama models at q4_K_M.
+// Numbers are conservative: actual RSS includes the KV-cache for the context
+// window, so we leave 30% headroom on top of the model weights.
+const OLLAMA_MODELS = [
+  { id: 'deepseek-r1:1.5b', label: 'DeepSeek-R1 Distill Qwen 1.5B', ramMB: 1500,  tag: 'liviano' },
+  { id: 'llama3.2:3b',      label: 'Llama 3.2 3B',                  ramMB: 2600,  tag: 'liviano' },
+  { id: 'deepseek-r1:7b',   label: 'DeepSeek-R1 Distill Qwen 7B',   ramMB: 5200,  tag: 'medio'   },
+  { id: 'deepseek-r1:8b',   label: 'DeepSeek-R1 Distill Llama 8B',  ramMB: 5800,  tag: 'medio'   },
+  { id: 'deepseek-r1:14b',  label: 'DeepSeek-R1 Distill Qwen 14B',  ramMB: 9500,  tag: 'pesado'  },
+  { id: 'deepseek-r1:32b',  label: 'DeepSeek-R1 Distill Qwen 32B',  ramMB: 20000, tag: 'pesado'  },
+]
+
+function lookupModelRAM(id) {
+  const m = OLLAMA_MODELS.find(x => x.id === id)
+  return m ? m.ramMB : null   // null = unknown → no warning, just info
+}
 
 function ChatPanel({ openSourceTitles }) {
   const [messages, setMessages] = React.useState([])
@@ -16,11 +35,15 @@ function ChatPanel({ openSourceTitles }) {
   const [ragStatus, setRagStatus] = React.useState({ ready: false, running: false, port: 3847, logTail: [] })
 
   const [provider, setProvider] = React.useState(() => localStorage.getItem('chat_provider') || 'ollama')
-  const [model, setModel] = React.useState(() => localStorage.getItem('chat_model') || 'deepseek-r1:8b')
+  const [model, setModel] = React.useState(() => localStorage.getItem('chat_model') || 'deepseek-r1:1.5b')
   const [keysAvailable, setKeysAvailable] = React.useState(true)
   const [storedKeys, setStoredKeys] = React.useState([])    // [{provider, hasKey}]
   const [settingsOpen, setSettingsOpen] = React.useState(false)
   const [keyInput, setKeyInput] = React.useState('')
+
+  // System memory (refreshed every 4s) and one-shot override for the warning.
+  const [mem, setMem] = React.useState(null)         // { totalMB, freeMB }
+  const [forceHeavy, setForceHeavy] = React.useState(false)
 
   const scrollRef = React.useRef(null)
 
@@ -52,14 +75,39 @@ function ChatPanel({ openSourceTitles }) {
 
   React.useEffect(() => { localStorage.setItem('chat_provider', provider) }, [provider])
   React.useEffect(() => { localStorage.setItem('chat_model', model) }, [model])
+  React.useEffect(() => { setForceHeavy(false) }, [model])   // reset override when model changes
   React.useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages])
 
+  // Refresh system memory every 4s.
+  React.useEffect(() => {
+    let cancelled = false
+    const tick = async () => {
+      try {
+        const m = await window.electronAPI?.system?.meminfo?.()
+        if (!cancelled && m) setMem(m)
+      } catch {}
+    }
+    tick()
+    const id = setInterval(tick, 4000)
+    return () => { cancelled = true; clearInterval(id) }
+  }, [])
+
   const currentProvider = PROVIDERS.find(p => p.id === provider) || PROVIDERS[0]
   const providerHasKey = storedKeys.find(k => k.provider === provider)?.hasKey
+
+  // Memory guard: only applies to Ollama (the only provider that loads weights
+  // locally). For unknown model ids ramMB is null → no warning.
+  const isOllama   = provider === 'ollama'
+  const modelRamMB = isOllama ? lookupModelRAM(model) : null
+  // We consider the model "too heavy" if it needs more than 85% of currently
+  // free RAM. The 85% leaves a small buffer for the OS and the Electron app.
+  const heavyForRam = isOllama && modelRamMB && mem && modelRamMB > Math.floor(mem.freeMB * 0.85)
+
   const canSend = ragStatus.ready && !sending && input.trim().length > 0 &&
-                  (!currentProvider.needsKey || providerHasKey)
+                  (!currentProvider.needsKey || providerHasKey) &&
+                  (!heavyForRam || forceHeavy)
 
   const send = async () => {
     if (!canSend) return
@@ -129,11 +177,42 @@ function ChatPanel({ openSourceTitles }) {
           </span>
         )}
         <div style={{ flex: 1 }} />
+        {mem && (
+          <span title={`RAM libre / total (refrescado cada 4s)`} style={{
+            fontSize: 10.5, fontFamily: 'var(--font-mono)',
+            padding: '2px 7px', borderRadius: 5,
+            background: 'var(--bg)', border: '1px solid var(--border)',
+            color: mem.freeMB < 2000 ? 'oklch(0.5 0.16 25)' : 'var(--muted)',
+          }}>
+            RAM {(mem.freeMB / 1024).toFixed(1)}/{(mem.totalMB / 1024).toFixed(1)} GB
+          </span>
+        )}
         <span style={{ fontSize: 11, color: 'var(--muted)' }}>{currentProvider.label} · {model}</span>
         <button onClick={() => setSettingsOpen(o => !o)} style={settingsBtnStyle}>
           ⚙ Ajustes
         </button>
       </div>
+
+      {/* RAM warning banner — visible only when the chosen Ollama model would
+          exceed ~85% of free RAM. User can force-send with one click. */}
+      {heavyForRam && !forceHeavy && (
+        <div style={{
+          padding: '9px 18px', borderBottom: '1px solid oklch(0.85 0.08 25)',
+          background: 'oklch(0.96 0.04 25)', color: 'oklch(0.4 0.14 25)',
+          fontSize: 12, fontFamily: 'var(--font-ui)', display: 'flex',
+          alignItems: 'center', gap: 10, flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 14 }}>⚠</span>
+          <span style={{ flex: 1 }}>
+            <strong>{model}</strong> necesita ~{(modelRamMB / 1024).toFixed(1)} GB y sólo hay {(mem.freeMB / 1024).toFixed(1)} GB libres.
+            Tu sistema puede saturarse. Elige un modelo más liviano (p.ej. <code style={codeStyle}>deepseek-r1:1.5b</code>) o cierra apps.
+          </span>
+          <button onClick={() => setForceHeavy(true)} style={{
+            ...settingsBtnStyle, borderColor: 'oklch(0.7 0.14 25)',
+            color: 'oklch(0.4 0.14 25)', fontWeight: 600,
+          }}>Enviar de todas formas</button>
+        </div>
+      )}
 
       {/* Settings popover */}
       {settingsOpen && (
@@ -162,7 +241,39 @@ function ChatPanel({ openSourceTitles }) {
             </select>
 
             <label>Modelo</label>
-            <input value={model} onChange={e => setModel(e.target.value)} style={inputStyle} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <input value={model} onChange={e => setModel(e.target.value)} style={inputStyle} />
+              {currentProvider.id === 'ollama' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {OLLAMA_MODELS.map(m => {
+                    const active = m.id === model
+                    const tagColor =
+                      m.tag === 'liviano' ? 'oklch(0.55 0.13 145)' :
+                      m.tag === 'medio'   ? 'oklch(0.55 0.12 80)'  :
+                                            'oklch(0.55 0.16 25)'
+                    return (
+                      <button key={m.id} onClick={() => setModel(m.id)}
+                        title={`${m.label} · ~${(m.ramMB / 1024).toFixed(1)} GB RAM`}
+                        style={{
+                          fontSize: 10.5, padding: '3px 8px', borderRadius: 5,
+                          border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+                          background: active ? 'var(--accent-light)' : 'var(--surface)',
+                          color: active ? 'var(--accent)' : 'var(--muted)',
+                          cursor: 'pointer', fontFamily: 'var(--font-mono)',
+                          fontWeight: active ? 600 : 500,
+                          display: 'inline-flex', alignItems: 'center', gap: 5,
+                        }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: tagColor }} />
+                        {m.id}
+                        <span style={{ fontFamily: 'var(--font-ui)', fontSize: 9.5, opacity: 0.75 }}>
+                          ~{(m.ramMB / 1024).toFixed(1)}GB
+                        </span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
 
             {currentProvider.needsKey && (
               <>

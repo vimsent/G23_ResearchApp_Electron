@@ -27,4 +27,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     write:  (id, payload)       => ipcRenderer.invoke('notes:write', id, payload),
     remove: (id)                => ipcRenderer.invoke('notes:delete', id),
   },
+
+  system: {
+    meminfo: () => ipcRenderer.invoke('system:meminfo'),
+  },
 })
