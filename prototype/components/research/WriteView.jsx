@@ -89,6 +89,38 @@ function getCaretCoordinates(textarea, position) {
   return coords;
 }
 
+// ── HDU-G: Smart Cursor Offset ─────────────────────────────────────────────
+// Mirrors the original repo's window.insertTexAtCursor placement rules.
+// Returns the offset (from the start of the inserted snippet) where the caret
+// should land. Ordered by specificity — more specific cases must come first.
+//
+//   1. \caption{}    → caret lands inside the caption braces
+//   2. \n  \n        → caret lands on the indented middle line of a multi-line env
+//   3. \item   …     → caret lands after the first "\\item " of a list snippet
+//   4. {}{}          → caret lands inside the FIRST pair (handles \\href{|}{})
+//   5. {}            → caret lands inside the trailing braces (handles \\textbf{|})
+//   6. (none)        → caret lands at the end of the snippet
+function smartCaretOffset(snippet) {
+  // Most specific first.
+  const capIdx = snippet.indexOf('\\caption{}');
+  if (capIdx !== -1) return capIdx + '\\caption{'.length;          // \caption{|}
+
+  const multiIdx = snippet.indexOf('\n  \n');
+  if (multiIdx !== -1) return multiIdx + 3;                         // middle indented line
+
+  // List entry: after the first "\\item " so the user types the first item now.
+  const itemMatch = snippet.match(/\\item\s/);
+  if (itemMatch) return itemMatch.index + itemMatch[0].length;      // \item |
+
+  // Two-arg commands: \\href{url}{text} → land in url braces. Check BEFORE {}.
+  if (snippet.endsWith('{}{}')) return snippet.length - 3;          // {|}{}
+
+  // One-arg commands: \\textbf{|}, \\section{|}, etc.
+  if (snippet.endsWith('{}'))   return snippet.length - 1;          // {|}
+
+  return snippet.length;
+}
+
 // ── HDU-G: editable LaTeX editor with overlay highlighting + autocomplete ──
 function LatexEditor({ tex, setTex, paper, themeKey = 'normal' }) {
   const th = EDITOR_THEMES[themeKey] || EDITOR_THEMES.normal;
@@ -100,12 +132,18 @@ function LatexEditor({ tex, setTex, paper, themeKey = 'normal' }) {
   const lines = tex.split('\n');
 
   // Sync scroll between textarea, highlight pre, and gutter.
+  // The autocomplete dropdown follows the scroll instead of closing —
+  // getCaretCoordinates returns viewport-relative coords, so we just recompute.
   const onScroll = () => {
     const ta = textareaRef.current;
     if (!ta) return;
     if (preRef.current)    { preRef.current.scrollTop = ta.scrollTop; preRef.current.scrollLeft = ta.scrollLeft; }
     if (gutterRef.current) gutterRef.current.scrollTop = ta.scrollTop;
-    if (acState) setAcState(null);   // close on scroll
+    if (acState) {
+      const c = getCaretCoordinates(ta, ta.selectionStart);
+      const lh = parseFloat(window.getComputedStyle(ta).lineHeight) || 20;
+      setAcState(s => s && ({ ...s, x: c.left, y: c.top + lh + 4 }));
+    }
   };
 
   // Compute autocomplete state based on the current caret.
@@ -136,7 +174,7 @@ function LatexEditor({ tex, setTex, paper, themeKey = 'normal' }) {
       items = hyps
         .filter(h => h.id.toLowerCase().includes(q) || (h.text || '').toLowerCase().includes(q))
         .slice(0, 6)
-        .map(h => ({ kind: 'hyp', label: `#${h.id} — ${(h.text || '').slice(0, 60)}…`, insert: `\\textbf{${h.id}}`, replaceLen: query.length + 1 }));
+        .map(h => ({ kind: 'hyp', label: `#${h.id} — ${(h.text || '').slice(0, 60)}…`, insert: `\\ref{${h.id}}`, replaceLen: query.length + 1 }));
     }
     if (!items.length) return null;
     const c = getCaretCoordinates(textareaRef.current, pos);
@@ -166,19 +204,7 @@ function LatexEditor({ tex, setTex, paper, themeKey = 'normal' }) {
     const after  = ta.value.slice(end);
     const next   = before + snippet + after;
     setTex(next);
-
-    // Smart cursor placement.
-    let caret = start + snippet.length;
-    if (snippet.includes('\\caption{}')) {
-      const offset = snippet.indexOf('\\caption{}') + '\\caption{'.length;
-      caret = start + offset;
-    } else if (snippet.includes('\n  \n')) {
-      caret = start + snippet.indexOf('\n  \n') + 3;
-    } else if (snippet.endsWith('{}')) {
-      caret = start + snippet.length - 1;
-    } else if (snippet.endsWith('{}{}')) {
-      caret = start + snippet.length - 3;
-    }
+    const caret = start + smartCaretOffset(snippet);
     requestAnimationFrame(() => {
       ta.focus();
       ta.setSelectionRange(caret, caret);
@@ -200,10 +226,7 @@ function LatexEditor({ tex, setTex, paper, themeKey = 'normal' }) {
     const next   = before + item.insert + after;
     setTex(next);
     setAcState(null);
-    let caret = before.length + item.insert.length;
-    if (item.insert.endsWith('{}')) caret = before.length + item.insert.length - 1;
-    else if (item.insert.endsWith('{}{}')) caret = before.length + item.insert.length - 3;
-    else if (item.insert.includes('\n  \n')) caret = before.length + item.insert.indexOf('\n  \n') + 3;
+    const caret = before.length + smartCaretOffset(item.insert);
     requestAnimationFrame(() => {
       ta.focus();
       ta.setSelectionRange(caret, caret);

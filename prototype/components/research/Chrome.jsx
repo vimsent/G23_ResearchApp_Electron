@@ -148,7 +148,7 @@ const TOOLS = [
   { id: 'table',  label: '⊞',   tooltip: 'Tabla — entorno tabular',                   insert: '\\begin{table}[h]\n  \\centering\n  \\begin{tabular}{cc}\n    a & b \\\\\n    c & d \\\\\n  \\end{tabular}\n  \\caption{}\n\\end{table}' },
   { id: 'figure', label: '🖼',  tooltip: 'Figura — \\includegraphics',                insert: '\\begin{figure}[h]\n  \\centering\n  \\includegraphics[width=0.8\\textwidth]{}\n  \\caption{}\n  \\label{fig:}\n\\end{figure}' },
   { divider: 3 },
-  { id: 'itemize',    label: '•',  tooltip: 'Lista con viñetas',                      insert: '\\begin{itemize}\n  \\item \n\\end{itemize}' },
+  { id: 'itemize',    label: '•=', tooltip: 'Lista con viñetas',                      insert: '\\begin{itemize}\n  \\item \n\\end{itemize}', style: { fontSize: 11 } },
   { id: 'enumerate',  label: '1.', tooltip: 'Lista numerada',                         insert: '\\begin{enumerate}\n  \\item \n\\end{enumerate}', style: { fontSize: 11 } },
   { divider: 4 },
   { id: 'cite',     label: '📖', tooltip: 'Cita bibliográfica — \\citep{|}',          insert: '\\citep{}' },
