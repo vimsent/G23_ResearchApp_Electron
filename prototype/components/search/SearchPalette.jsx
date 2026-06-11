@@ -32,8 +32,14 @@ function SearchPalette({ open, onClose }) {
 
   const choose = React.useCallback((res) => {
     if (!res) return;
-    window.__lumenPendingOpen = res.id;
-    window.dispatchEvent(new CustomEvent('lumen:nav'));
+    // HDU-5: if the result is a web source (URL), open it in a new window.
+    // Otherwise, cascade into the notes view to open the note.
+    if (res.url && /^https?:\/\//i.test(res.url)) {
+      try { window.open(res.url, '_blank'); } catch {}
+    } else {
+      window.__lumenPendingOpen = res.id;
+      window.dispatchEvent(new CustomEvent('lumen:nav'));
+    }
     onClose();
   }, [onClose]);
 
@@ -153,6 +159,25 @@ function SearchPalette({ open, onClose }) {
               <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
                 <HighlightedText text={r.snippet} tokens={r.queryTokens} />
               </div>
+              {(r.source || r.date) && (
+                <div style={{
+                  display: 'flex', gap: 8, alignItems: 'center',
+                  fontSize: 10.5, color: 'var(--muted)',
+                  fontFamily: 'var(--font-mono)', marginTop: 2,
+                }}>
+                  {r.source && (
+                    <span title={r.source} style={{
+                      maxWidth: '60%', overflow: 'hidden',
+                      textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {r.url && /^https?:/i.test(r.url) ? '🌐 ' : '📄 '}{r.source}
+                    </span>
+                  )}
+                  {r.date && (
+                    <span style={{ marginLeft: 'auto' }}>{r.date}</span>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

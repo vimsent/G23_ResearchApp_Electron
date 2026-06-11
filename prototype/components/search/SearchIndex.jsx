@@ -28,7 +28,15 @@
     for (const n of Object.values(idx)) {
       const body = n.body || '';
       const text = (n.title || '') + ' ' + body;
-      docs.set(n.id, { id: n.id, title: n.title || 'Untitled', kind: n.kind, body });
+      docs.set(n.id, {
+        id:     n.id,
+        title:  n.title || 'Untitled',
+        kind:   n.kind,
+        body,
+        url:    n.url    || '',
+        source: n.source || n.url || (n.kind === 'vault' ? 'Vault · markdown' : ''),
+        date:   n.date   || n.updated || n.created || '',
+      });
       for (const tok of tokenize(text)) {
         let postings = tokens.get(tok);
         if (!postings) { postings = new Map(); tokens.set(tok, postings); }

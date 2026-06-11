@@ -1,6 +1,7 @@
 const express     = require('express')
 const cors        = require('cors')
 const path        = require('path')
+const fs          = require('fs').promises
 const config      = require('./config')
 const { loadPdfsFromFolder } = require('./pdfLoader')
 const { indexDocuments, queryIndex } = require('./rag')
@@ -60,6 +61,50 @@ app.post('/api/index', async (req, res) => {
     res.status(500).json({ error: err.message })
   }
 })
+
+// ---------------------------------------------------------------------------
+// POST /api/upload-pdf
+// Headers: x-filename (the original file name, .pdf)
+// Body:    raw PDF bytes (application/octet-stream)
+// Saves the file into PDF_FOLDER and reruns the full reindex.
+// ---------------------------------------------------------------------------
+app.post(
+  '/api/upload-pdf',
+  express.raw({ type: 'application/octet-stream', limit: '100mb' }),
+  async (req, res) => {
+    try {
+      const raw = req.header('x-filename') || ''
+      // Strip any path component, allow only filename chars; force .pdf extension
+      const base = path.basename(raw).replace(/[^\w.\-() ]+/g, '_').trim()
+      if (!base || !base.toLowerCase().endsWith('.pdf')) {
+        return res.status(400).json({ error: 'x-filename header must be a .pdf name' })
+      }
+      if (!req.body || !req.body.length) {
+        return res.status(400).json({ error: 'empty body — send the PDF as application/octet-stream' })
+      }
+
+      await fs.mkdir(path.resolve(config.PDF_FOLDER), { recursive: true })
+      const dest = path.join(path.resolve(config.PDF_FOLDER), base)
+      await fs.writeFile(dest, req.body)
+      console.log(`[upload] saved ${base} (${req.body.length} bytes) → ${dest}`)
+
+      // Reindex everything (same path as POST /api/index)
+      const documents   = await loadPdfsFromFolder(config.PDF_FOLDER)
+      const totalChunks = await indexDocuments(documents)
+
+      res.json({
+        status:            'ok',
+        saved_as:          base,
+        bytes:             req.body.length,
+        documents_indexed: documents.length,
+        total_chunks:      totalChunks,
+      })
+    } catch (err) {
+      console.error('[upload] error:', err.message)
+      res.status(500).json({ error: err.message })
+    }
+  }
+)
 
 // ---------------------------------------------------------------------------
 // POST /api/query

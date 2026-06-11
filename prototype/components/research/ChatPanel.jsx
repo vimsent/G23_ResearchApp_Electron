@@ -45,6 +45,10 @@ function ChatPanel({ openSourceTitles }) {
   const [mem, setMem] = React.useState(null)         // { totalMB, freeMB }
   const [forceHeavy, setForceHeavy] = React.useState(false)
 
+  // PDF upload
+  const [uploading, setUploading] = React.useState(false)
+  const fileInputRef = React.useRef(null)
+
   const scrollRef = React.useRef(null)
 
   // Poll RAG status every 2s
@@ -139,6 +143,42 @@ function ChatPanel({ openSourceTitles }) {
       setMessages(m => [...m, { role: 'assistant', text: 'Error: ' + err.message, error: true }])
     } finally {
       setSending(false)
+    }
+  }
+
+  const uploadPdf = async (file) => {
+    if (!file || uploading) return
+    if (!ragStatus.ready) {
+      setMessages(m => [...m, { role: 'assistant', text: 'Backend no está listo todavía.', error: true }])
+      return
+    }
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      setMessages(m => [...m, { role: 'assistant', text: `"${file.name}" no es un PDF.`, error: true }])
+      return
+    }
+    setUploading(true)
+    setMessages(m => [...m, { role: 'assistant', text: `📎 Subiendo "${file.name}" e indexando…` }])
+    try {
+      const buf = await file.arrayBuffer()
+      const res = await fetch(`http://localhost:${ragStatus.port}/api/upload-pdf`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'x-filename':   file.name,
+        },
+        body: buf,
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`)
+      setMessages(m => [...m, {
+        role: 'assistant',
+        text: `✓ "${data.saved_as}" subido. Índice reconstruido: ${data.documents_indexed} doc(s), ${data.total_chunks} chunks.`,
+      }])
+    } catch (err) {
+      setMessages(m => [...m, { role: 'assistant', text: 'Error subiendo PDF: ' + err.message, error: true }])
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
     }
   }
 
@@ -364,27 +404,44 @@ function ChatPanel({ openSourceTitles }) {
 
       {/* Composer */}
       <div style={{ borderTop: '1px solid var(--border)', padding: 12, background: 'var(--bg)', flexShrink: 0 }}>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,application/pdf"
+          style={{ display: 'none' }}
+          onChange={e => uploadPdf(e.target.files?.[0])}
+        />
         <div style={{
           display: 'flex', gap: 6, alignItems: 'center',
           background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10,
-          padding: '6px 6px 6px 12px',
+          padding: '6px 6px 6px 8px',
         }}>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={!ragStatus.ready || uploading}
+            title="Subir PDF y reindexar"
+            style={{
+              background: 'transparent', border: 'none', borderRadius: 6,
+              padding: '4px 8px', fontSize: 15, cursor: (!ragStatus.ready || uploading) ? 'not-allowed' : 'pointer',
+              color: 'var(--muted)', opacity: (!ragStatus.ready || uploading) ? 0.5 : 1,
+            }}
+          >{uploading ? '⏳' : '📎'}</button>
           <input
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-            placeholder={ragStatus.ready ? 'Pregunta sobre tus fuentes...' : 'Esperando backend...'}
-            disabled={!ragStatus.ready || sending}
+            placeholder={ragStatus.ready ? (uploading ? 'Subiendo PDF…' : 'Pregunta sobre tus fuentes...') : 'Esperando backend...'}
+            disabled={!ragStatus.ready || sending || uploading}
             style={{
               flex: 1, border: 'none', outline: 'none', fontSize: 13,
               color: 'var(--text)', fontFamily: 'var(--font-ui)', background: 'transparent',
             }}
           />
-          <button onClick={send} disabled={!canSend} style={{
-            background: canSend ? 'var(--accent)' : 'var(--muted)',
+          <button onClick={send} disabled={!canSend || uploading} style={{
+            background: (canSend && !uploading) ? 'var(--accent)' : 'var(--muted)',
             color: '#fff', border: 'none', borderRadius: 7,
             padding: '6px 14px', fontSize: 12, fontWeight: 600,
-            cursor: canSend ? 'pointer' : 'not-allowed',
+            cursor: (canSend && !uploading) ? 'pointer' : 'not-allowed',
             fontFamily: 'var(--font-ui)',
           }}>Send</button>
         </div>

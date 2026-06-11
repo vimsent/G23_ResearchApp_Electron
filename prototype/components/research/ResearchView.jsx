@@ -278,11 +278,45 @@ function ResearchView({ paper }) {
     toastTimer.current = setTimeout(() => setToast(null), 2800);
   };
 
-  const handleCapture = ({ text, url, title }) => {
+  const handleCapture = async ({ text, url, title }) => {
     if (!text) { showToast('Selecciona texto en la página primero', false); return; }
-    const ts = new Date().toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
-    setCaptures(cs => [{ id: Date.now(), text, url, title, ts }, ...cs]);
-    showToast('Captura guardada');
+    const tsNow = new Date();
+    const tsShort = tsNow.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+    const tsFull  = tsNow.toLocaleString('es', { dateStyle: 'short', timeStyle: 'short' });
+    let host = '';
+    try { host = new URL(url).hostname; } catch {}
+    const noteTitle = `Captura: ${(title || host || 'Web').slice(0, 60)}`;
+    const cite = text.split('\n').map(l => '> ' + l).join('\n');
+    const body =
+`${cite}
+
+— ${title || 'Sin título'}
+[${url}](${url})
+
+_Capturado: ${tsFull}_
+`;
+
+    let noteId = null;
+    try {
+      if (window.electronAPI?.notes) {
+        const blank = await window.electronAPI.notes.create();
+        const saved = await window.electronAPI.notes.write(blank.id, { title: noteTitle, body });
+        noteId = saved.id;
+        // Refresh the global index so the note is searchable + openable immediately.
+        const list = await window.electronAPI.notes.list();
+        if (window.applyVault) window.applyVault(list);
+      }
+    } catch (err) {
+      console.error('[capture] persist failed:', err);
+    }
+    setCaptures(cs => [{ id: Date.now(), text, url, title, ts: tsShort, noteId }, ...cs]);
+    showToast(noteId ? 'Captura guardada como nota .md' : 'Captura guardada (no se pudo persistir)');
+  };
+
+  const openCapture = (capture) => {
+    if (!capture.noteId) return;
+    window.__lumenPendingOpen = capture.noteId;
+    window.dispatchEvent(new CustomEvent('lumen:nav'));
   };
 
   React.useEffect(() => {
@@ -389,10 +423,14 @@ function ResearchView({ paper }) {
               <SectionTitle hint={String(captures.length)}>Capturas web</SectionTitle>
               <div style={{ padding: '0 12px 14px', display: 'flex', flexDirection: 'column', gap: 7 }}>
                 {captures.map(c => (
-                  <div key={c.id} style={{
-                    background: 'var(--surface)', border: '1px solid var(--border)',
-                    borderRadius: 7, padding: '8px 10px', position: 'relative',
-                  }}>
+                  <div key={c.id}
+                    onClick={() => openCapture(c)}
+                    title={c.noteId ? 'Abrir en Notes' : 'Captura sin persistir'}
+                    style={{
+                      background: 'var(--surface)', border: '1px solid var(--border)',
+                      borderRadius: 7, padding: '8px 10px', position: 'relative',
+                      cursor: c.noteId ? 'pointer' : 'default',
+                    }}>
                     <div style={{
                       fontSize: 11.5, fontStyle: 'italic', color: 'var(--text)',
                       lineHeight: 1.4, borderLeft: '2px solid var(--accent)',
@@ -402,15 +440,20 @@ function ResearchView({ paper }) {
                     }}>
                       {c.text}
                     </div>
-                    <div style={{ fontSize: 10, color: 'var(--muted)', lineHeight: 1.3 }}>
-                      {c.title
-                        ? (c.title.length > 40 ? c.title.slice(0, 40) + '…' : c.title)
-                        : (() => { try { return new URL(c.url).hostname } catch { return c.url } })()
-                      } · {c.ts}
+                    <div style={{ fontSize: 10, color: 'var(--muted)', lineHeight: 1.3, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {c.title
+                          ? (c.title.length > 40 ? c.title.slice(0, 40) + '…' : c.title)
+                          : (() => { try { return new URL(c.url).hostname } catch { return c.url } })()
+                        } · {c.ts}
+                      </span>
+                      {c.noteId && (
+                        <span style={{ fontSize: 9, color: 'var(--accent)', fontFamily: 'var(--font-mono)' }}>.md</span>
+                      )}
                     </div>
                     <button
-                      onClick={() => setCaptures(cs => cs.filter(x => x.id !== c.id))}
-                      title="Descartar"
+                      onClick={(e) => { e.stopPropagation(); setCaptures(cs => cs.filter(x => x.id !== c.id)); }}
+                      title="Descartar de esta lista"
                       style={{
                         position: 'absolute', top: 5, right: 6,
                         background: 'transparent', border: 'none',

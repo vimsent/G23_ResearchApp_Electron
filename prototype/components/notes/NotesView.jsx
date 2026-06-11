@@ -416,23 +416,56 @@ function NoteEditor({ note, onOpenLink }) {
   );
 }
 
-// ── Vault editor (HDU-D) ───────────────────────────────────────────────────
+// ── Vault editor (HDU-D, HDU-1) ────────────────────────────────────────────
 // Editable markdown notes persisted as .md files in userData/notes/<id>.md.
 // Autosaves 600ms after the last keystroke; resyncs local state when the
 // active note id changes; shows backlinks computed across the whole index.
+// [[ ]] autocomplete dropdown over the textarea and a live Markdown preview
+// pane (toggleable, state persisted in localStorage).
+function getCaretCoords(el, position) {
+  if (!el) return { left: 0, top: 0, height: 18 };
+  const cs = window.getComputedStyle(el);
+  const div = document.createElement('div');
+  document.body.appendChild(div);
+  const s = div.style;
+  s.whiteSpace = 'pre-wrap'; s.wordWrap = 'break-word';
+  s.position = 'absolute'; s.visibility = 'hidden';
+  s.top = '0'; s.left = '0';
+  const props = ['boxSizing','width','height','overflowX','overflowY','borderTopWidth','borderRightWidth','borderBottomWidth','borderLeftWidth','paddingTop','paddingRight','paddingBottom','paddingLeft','fontStyle','fontVariant','fontWeight','fontStretch','fontSize','lineHeight','fontFamily','textAlign','textTransform','textIndent','letterSpacing','wordSpacing','tabSize'];
+  for (const p of props) s[p] = cs[p];
+  div.textContent = el.value.substring(0, position);
+  const span = document.createElement('span');
+  span.textContent = el.value.substring(position) || '.';
+  div.appendChild(span);
+  const rect = el.getBoundingClientRect();
+  const coords = {
+    top:  rect.top  + span.offsetTop  + (parseInt(cs.borderTopWidth)  || 0) - el.scrollTop,
+    left: rect.left + span.offsetLeft + (parseInt(cs.borderLeftWidth) || 0) - el.scrollLeft,
+    height: parseInt(cs.lineHeight) || (parseInt(cs.fontSize) * 1.4) || 18,
+  };
+  document.body.removeChild(div);
+  return coords;
+}
+
 function VaultEditor({ note, onSave, onDelete, onOpenLink }) {
   const [title, setTitle] = React.useState(note.title);
   const [body,  setBody]  = React.useState(note.body || '');
   const [status, setStatus] = React.useState('saved');     // 'editing' | 'saving' | 'saved'
+  const [preview, setPreview] = React.useState(() => localStorage.getItem('vault_preview') !== '0');
+  const [ac, setAc] = React.useState({ open: false, query: '', items: [], selected: 0, x: 0, y: 0, anchor: 0 });
   const saveTimer = React.useRef(null);
   const lastSavedRef = React.useRef({ title: note.title, body: note.body || '' });
+  const taRef = React.useRef(null);
 
   React.useEffect(() => {
     setTitle(note.title);
     setBody(note.body || '');
     setStatus('saved');
+    setAc(a => ({ ...a, open: false }));
     lastSavedRef.current = { title: note.title, body: note.body || '' };
   }, [note.id]);
+
+  React.useEffect(() => { localStorage.setItem('vault_preview', preview ? '1' : '0'); }, [preview]);
 
   const scheduleSave = (nextTitle, nextBody) => {
     setStatus('editing');
@@ -450,7 +483,6 @@ function VaultEditor({ note, onSave, onDelete, onOpenLink }) {
     }, 600);
   };
 
-  // Flush pending save on unmount / note switch so nothing is ever lost.
   React.useEffect(() => () => {
     if (saveTimer.current) {
       clearTimeout(saveTimer.current);
@@ -460,6 +492,71 @@ function VaultEditor({ note, onSave, onDelete, onOpenLink }) {
       }
     }
   }, [note.id]);
+
+  // Detect [[query   trigger and build candidate list.
+  const refreshAutocomplete = (nextBody, caret) => {
+    const before = nextBody.slice(0, caret);
+    const m = before.match(/\[\[([^\]\n|]*)$/);
+    if (!m) { setAc(a => a.open ? { ...a, open: false } : a); return; }
+    const q = m[1].toLowerCase();
+    const titles = Object.keys(window.TITLE_TO_ID || {});
+    const items = titles
+      .filter(t => t.includes(q) && t !== title.toLowerCase())
+      .slice(0, 8)
+      .map(t => {
+        const id = window.TITLE_TO_ID[t];
+        const n  = window.NOTE_INDEX?.[id];
+        return { id, title: n?.title || t, kind: n?.kind || '' };
+      });
+    if (!items.length) { setAc(a => a.open ? { ...a, open: false } : a); return; }
+    const coords = getCaretCoords(taRef.current, caret);
+    setAc({
+      open: true, query: q, items, selected: 0,
+      x: coords.left, y: coords.top + coords.height + 2,
+      anchor: m.index + 2,   // first char of query (after `[[`)
+    });
+  };
+
+  const insertWikilink = (chosenTitle) => {
+    const ta = taRef.current;
+    if (!ta) return;
+    const caret = ta.selectionStart;
+    const before = body.slice(0, ac.anchor - 2);     // up to but not including the `[[`
+    const after  = body.slice(caret);
+    const insert = `[[${chosenTitle}]]`;
+    const newBody = before + insert + after;
+    const newCaret = before.length + insert.length;
+    setBody(newBody);
+    scheduleSave(title, newBody);
+    setAc(a => ({ ...a, open: false }));
+    queueMicrotask(() => {
+      ta.focus();
+      ta.setSelectionRange(newCaret, newCaret);
+    });
+  };
+
+  const handleBodyChange = (e) => {
+    const val = e.target.value;
+    setBody(val);
+    scheduleSave(title, val);
+    refreshAutocomplete(val, e.target.selectionStart);
+  };
+
+  const handleSelect = (e) => {
+    if (ac.open) refreshAutocomplete(body, e.target.selectionStart);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!ac.open) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setAc(a => ({ ...a, selected: Math.min(a.selected + 1, a.items.length - 1) })); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); setAc(a => ({ ...a, selected: Math.max(a.selected - 1, 0) })); }
+    else if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      const sel = ac.items[ac.selected];
+      if (sel) insertWikilink(sel.title);
+    }
+    else if (e.key === 'Escape') { e.preventDefault(); setAc(a => ({ ...a, open: false })); }
+  };
 
   const handleDelete = () => {
     if (confirm(`¿Borrar la nota "${title}"? Esto elimina el archivo .md del disco.`)) {
@@ -479,6 +576,10 @@ function VaultEditor({ note, onSave, onDelete, onOpenLink }) {
       <div style={nv.vaultStatus}>
         <span style={nv.docKindPlain}>Vault · markdown</span>
         <div style={{ flex: 1 }} />
+        <button onClick={() => setPreview(p => !p)} style={nv.vaultDeleteBtn}
+          title={preview ? 'Ocultar preview' : 'Mostrar preview en vivo'}>
+          {preview ? '◧ Editor' : '◨ Preview'}
+        </button>
         <span style={{ ...nv.vaultSaveDot, background: statusColor }} />
         <span style={{ ...nv.vaultSaveLabel, color: statusColor }}>{statusLabel}</span>
         <button onClick={handleDelete} style={nv.vaultDeleteBtn} title="Borrar nota">Borrar</button>
@@ -491,13 +592,68 @@ function VaultEditor({ note, onSave, onDelete, onOpenLink }) {
         style={nv.vaultTitleInput}
       />
 
-      <textarea
-        value={body}
-        onChange={e => { setBody(e.target.value); scheduleSave(title, e.target.value); }}
-        placeholder={'Escribe en Markdown. Usa [[Otra nota]] para enlazar.\n\n# Título\n\n- lista\n- **negrita**'}
-        style={nv.vaultBodyArea}
-        spellCheck={false}
-      />
+      <div style={{ display: 'flex', gap: 12, alignItems: 'stretch', minHeight: 300 }}>
+        <textarea
+          ref={taRef}
+          value={body}
+          onChange={handleBodyChange}
+          onSelect={handleSelect}
+          onKeyDown={handleKeyDown}
+          onBlur={() => setTimeout(() => setAc(a => ({ ...a, open: false })), 150)}
+          placeholder={'Escribe en Markdown. Usa [[Otra nota]] para enlazar — el autocompletado aparece al teclear [[.\n\n# Título\n\n- lista\n- **negrita**'}
+          style={{ ...nv.vaultBodyArea, flex: 1, minHeight: 300 }}
+          spellCheck={false}
+        />
+        {preview && (
+          <div style={{
+            flex: 1, minWidth: 0, padding: '12px 16px',
+            background: 'var(--bg)', border: '1px solid var(--border)',
+            borderRadius: 8, overflowY: 'auto', maxHeight: 600,
+          }}>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700, marginBottom: 8 }}>Preview</div>
+            <window.MarkdownDoc text={body || '_Vacío_'} onOpenLink={onOpenLink} />
+          </div>
+        )}
+      </div>
+
+      {ac.open && ac.items.length > 0 && (
+        <div style={{
+          position: 'fixed', left: Math.min(ac.x, window.innerWidth - 280),
+          top: ac.y, zIndex: 8000,
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          borderRadius: 8, boxShadow: '0 8px 24px oklch(0 0 0 / 0.18)',
+          minWidth: 260, maxWidth: 320, padding: 4,
+          fontFamily: 'var(--font-ui)',
+        }}>
+          <div style={{ fontSize: 10.5, color: 'var(--muted)', padding: '4px 8px', fontFamily: 'var(--font-mono)' }}>
+            [[ {ac.query || '…'}
+          </div>
+          {ac.items.map((it, i) => (
+            <div key={it.id}
+              onMouseDown={(e) => { e.preventDefault(); insertWikilink(it.title); }}
+              onMouseEnter={() => setAc(a => ({ ...a, selected: i }))}
+              style={{
+                padding: '6px 10px', fontSize: 12.5,
+                background: i === ac.selected ? 'var(--accent-light)' : 'transparent',
+                color: i === ac.selected ? 'var(--accent)' : 'var(--text)',
+                borderRadius: 5, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}>
+              <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {it.title}
+              </span>
+              {it.kind && (
+                <span style={{ fontSize: 9.5, color: 'var(--muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>
+                  {it.kind}
+                </span>
+              )}
+            </div>
+          ))}
+          <div style={{ fontSize: 10, color: 'var(--muted)', padding: '4px 8px', borderTop: '1px solid var(--surface-2)', marginTop: 2 }}>
+            ↑↓ Enter ↹ · Esc cancela
+          </div>
+        </div>
+      )}
 
       <BacklinksPanel noteId={note.id} noteTitle={title} onOpenLink={onOpenLink} />
     </div>

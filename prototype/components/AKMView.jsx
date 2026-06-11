@@ -335,6 +335,7 @@ function AKMView() {
   const [showNewLine, setShowNewLine] = React.useState(false);
   const [showNewHyp, setShowNewHyp] = React.useState(false);
   const [newLineQ, setNewLineQ] = React.useState('');
+  const [newLineState, setNewLineState] = React.useState('active');
   const [newHypText, setNewHypText] = React.useState('');
   const [narrativeOpen, setNarrativeOpen] = React.useState(false);
   const [narrativeEdit, setNarrativeEdit] = React.useState(false);
@@ -347,9 +348,11 @@ function AKMView() {
   const addLine = () => {
     if (!newLineQ.trim()) return;
     const id = 'rl' + (lines.length + 1);
-    setLines(ls => [...ls, { id, question: newLineQ, state: 'active', narrative: '', papers: [], created: '2026-05-18', updated: '2026-05-18' }]);
+    const today = new Date().toISOString().slice(0, 10);
+    setLines(ls => [...ls, { id, question: newLineQ, state: newLineState, narrative: '', papers: [], created: today, updated: today }]);
     setSelectedLine(id);
     setNewLineQ('');
+    setNewLineState('active');
     setShowNewLine(false);
   };
 
@@ -447,9 +450,21 @@ function AKMView() {
                   rows={3}
                   autoFocus
                 />
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 11, color: 'var(--muted)', alignSelf: 'center', marginRight: 4 }}>Estado:</span>
+                  {['active', 'suspended', 'closed'].map(st => (
+                    <button key={st} onClick={() => setNewLineState(st)}
+                      style={{
+                        ...ak.stateBtn,
+                        ...(newLineState === st ? { ...ak.stateBtnActive, background: STATE_CONFIG[st].color, borderColor: STATE_CONFIG[st].color } : {}),
+                      }}>
+                      {STATE_CONFIG[st].label}
+                    </button>
+                  ))}
+                </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button style={ak.confirmBtn} onClick={addLine}>Add line</button>
-                  <button style={ak.cancelBtn} onClick={() => { setShowNewLine(false); setNewLineQ(''); }}>Cancel</button>
+                  <button style={ak.cancelBtn} onClick={() => { setShowNewLine(false); setNewLineQ(''); setNewLineState('active'); }}>Cancel</button>
                 </div>
               </div>
             )}
